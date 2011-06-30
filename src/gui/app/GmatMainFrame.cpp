@@ -517,7 +517,10 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    theHelpController->Initialize(helpFileName);
    #else
    #endif
-   
+
+   // set NULL for GMAT socket server:
+   server = NULL;
+/*
    // Create a new thread to run GMAT socket server
    this->socketrequest = new char[1000];	// use to store request message
    this->socketresult = new char[1000];		// use to store result after running the request
@@ -531,7 +534,7 @@ GmatMainFrame::GmatMainFrame(wxWindow *parent,  const wxWindowID id,
    #else
    _beginthread(server->StaticRunServer, 0, (void*)server);
    #endif
-
+*/
    
    #ifdef DEBUG_MAINFRAME
    MessageInterface::ShowMessage("GmatMainFrame::GmatMainFrame() exiting\n");
@@ -1634,7 +1637,8 @@ Integer GmatMainFrame::RunCurrentMission()
       // stop server after user interrupt (loj: 2008.03.05)
       //if (mMatlabServer)
       if (retval != 1 && mMatlabServer)
-         StopMatlabServer(); // stop server if running to avoid getting callback staus
+    	 StopGmatSocketServer();
+//         StopMatlabServer(); // stop server if running to avoid getting callback staus
                              // when run stopped by user
 
       EnableMenuAndToolBar(true, true);
@@ -1812,7 +1816,8 @@ void GmatMainFrame::OnClose(wxCloseEvent& event)
    
    // stop server if running
    if (mMatlabServer)
-      StopMatlabServer();
+	   StopGmatSocketServer();
+      //StopMatlabServer();
 }
 
 
@@ -3285,7 +3290,8 @@ void GmatMainFrame::OnCloseMatlab(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnMatlabServerStart(wxCommandEvent& event)
 {
-   StartMatlabServer();
+	StartGmatSocketServer();
+//   StartMatlabServer();
 }
 
 
@@ -3300,7 +3306,8 @@ void GmatMainFrame::OnMatlabServerStart(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 void GmatMainFrame::OnMatlabServerStop(wxCommandEvent& event)
 {
-   StopMatlabServer();
+   StopGmatSocketServer();
+//   StopMatlabServer();
 }
 
 
@@ -4846,3 +4853,50 @@ bool GmatMainFrame::OnPoke(char* data)
    return true;
 }
 
+
+void GmatMainFrame::StartGmatSocketServer()
+{
+	if (!server)
+	{
+		MessageInterface::ShowMessage("start GMAT socket server\n");
+		// Create a new thread to run GMAT socket server
+		this->socketrequest = new char[1000];	// use to store request message
+		this->socketresult = new char[1000];		// use to store result after running the request
+		this->socketrequest[0] = '\0';
+		this->socketresult[0] = '\0';
+
+		server = new GmatSocketServer(this);
+		#ifdef LINUX_MAC
+			pthread_t threadID;
+			pthread_create(&threadID, NULL, server->StaticRunServer,(void *)server);
+		#else
+			_beginthread(server->StaticRunServer, 0, (void*)server);
+		#endif
+
+		// Disable ResourceTree Matlab Server Start popup menu
+	    GmatAppData::Instance()->GetResourceTree()->UpdateMatlabServerItem(true);
+	}
+	else
+	{
+		MessageInterface::ShowMessage("Server has already started.\n");
+	}
+
+}
+
+void GmatMainFrame::StopGmatSocketServer()
+{
+	if (server)
+	{
+		server->Close();
+		MessageInterface::ShowMessage("Server terminated.\n");
+		delete server;
+		server = NULL;
+
+		// Disable ResourceTree Matlab Server Start popup menu
+	    GmatAppData::Instance()->GetResourceTree()->UpdateMatlabServerItem(false);
+	}
+	else
+	{
+		MessageInterface::ShowMessage("Server has not started.\n");
+	}
+}

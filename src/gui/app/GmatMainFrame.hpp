@@ -263,6 +263,8 @@ private:
    void UpdateTitle(const wxString &filename = "");
    void SaveGuiToActiveScript();
    
+   void StartGmatSocketServer();
+   void StopGmatSocketServer();
    // IDs for the controls
    enum
    {
