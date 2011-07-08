@@ -53,7 +53,8 @@ void ShowHelp()
              << "The second runs the input script once and then exits.\n"
              << "The third selection executes specific testing scenarios.\n\n" 
              << "Valid options are:\n"
-             << "   --server             Open GMAT server\n"
+             << "   --openserver         Open GMAT server\n"
+             << "   --closeserver        Close GMAT server\n"
              << "   --help               Shows available options\n"
              << "   --save               Saves current script (interactive "
              << "mode only)\n"
@@ -504,6 +505,8 @@ int main(int argc, char *argv[])
       std::string optionParm = "";
       StringArray parms;
       
+      SocketServer* server = NULL;
+
       do {
          if (argc < 2) {
             std::cout << "Enter a script file, " 
@@ -532,7 +535,7 @@ int main(int argc, char *argv[])
          }
             
          if (scriptfile[0] == '-') {
-        	if (!strcmp(scriptfile, "--server"))
+        	if (!strcmp(scriptfile, "--openserver"))
         	{
         	   // 1. Define message interface in console mode:
         	   ConsoleMessageReceiver *theMessageReceiver =
@@ -543,15 +546,32 @@ int main(int argc, char *argv[])
         	   Moderator::SetUiInterpreter(Moderator::GetScriptInterpreter());
 
         	   // 3. Create a new thread to run socket server
-        	   std::cout << "Start socket server...\n";
-        	   SocketServer* server = new SocketServer();
-			   #ifdef LINUX_MAC
-				   pthread_t threadID;
-				   pthread_create(&threadID, NULL, server->StaticRunServer,(void *)server);
-			   #else
-				   _beginthread(server->StaticRunServer, 0, (void*)server);
-			   #endif
+        	   if (server == NULL)
+        	   {
+        		   std::cout << "Start socket server...\n";
+        		   server = new SocketServer();
+				   #ifdef LINUX_MAC
+					   pthread_t threadID;
+					   pthread_create(&threadID, NULL, server->StaticRunServer,(void *)server);
+				   #else
+					   _beginthread(server->StaticRunServer, 0, (void*)server);
+				   #endif
+        	   }
+        	   else
+        		   std::cout << "Server had been start before.\n";
 
+        	}
+        	else if (!strcmp(scriptfile, "--closeserver"))
+        	{
+        		if (server != NULL)
+        		{
+        			server->Close();
+        			server = NULL;
+        		}
+        		else
+        		{
+        			printf("GMAT server had been closed.\n");
+        		}
         	}
         	else if (!strcmp(scriptfile, "--help")) {
                ShowHelp();
