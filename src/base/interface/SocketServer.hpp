@@ -39,6 +39,8 @@ public:
 	SocketServer();
 	virtual ~SocketServer();
 
+	void Close();
+
 #ifdef LINUX_MAC
 	bool RunRequest(int sock);
 #else
@@ -79,8 +81,10 @@ private:
 	bool shutdownserver;
 
 #ifdef LINUX_MAC
+	int Server;
 	int client_sock;
 #else
+	SOCKET Server;
 	SOCKET client_sock;
 #endif
 };

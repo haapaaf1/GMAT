@@ -363,10 +363,10 @@ void SocketServer::OnAccept(SOCKET sk)
 	#endif
 
 	bool stop = false;
-	while(!stop)
-    	{
-    		// repeat service until the client tells "it closes the connection"
-    		stop = RunRequest(sk);
+	while ((!stop)&&(!shutdownserver))
+    {
+    	// repeat service until the client tells "it closes the connection"
+    	stop = RunRequest(sk);
 
 		#ifdef LINUX_MAC
 			usleep(1000);
@@ -404,10 +404,8 @@ void SocketServer::RunServer()
 {
 	 struct sockaddr_in serv_addr,cli_addr;
 #ifdef LINUX_MAC
-	 int Server;
 	 socklen_t clilen=sizeof(cli_addr);
 #else
-	 SOCKET Server;
 	 int clilen=sizeof(cli_addr);
 #endif
 
@@ -559,15 +557,27 @@ void SocketServer::RunServer()
 				printf("Server is waiting for a connection ...\n");
 			#endif
 		 #endif
-	         this->client_sock = accept(Server, (struct sockaddr*)&cli_addr, &clilen);
+
+		 this->client_sock = accept(Server, (struct sockaddr*)&cli_addr, &clilen);
 
 		 #ifdef LINUX_MAC
+			if (this->client_sock == -1)
+			{
+				shutdownserver = true;
+				break;
+			}
 			pthread_t threadID;
 			pthread_create(&threadID, NULL, StaticOnAccept,(void *)this);
-			usleep(100000);
+			usleep(10000);
+
 		 #else
+		    if (this->client_sock == INVALID_SOCKET)
+			{
+				shutdownserver = true;
+				break;
+			}
 			_beginthread(StaticOnAccept,0,(void *)this);
-			_sleep(100);
+			_sleep(10);
 		 #endif
      }
 
@@ -578,3 +588,41 @@ void SocketServer::RunServer()
      #endif
 
 }
+
+
+void SocketServer::Close()
+{
+    shutdownserver = true;
+
+#ifdef LINUX_MAC
+     close(Server);
+#else
+     closesocket(Server);
+     if (WSACleanup() != 0)
+     {
+		#ifdef DEBUG_SOCKET
+			#ifdef MessageInterface_hpp
+				MessageInterface::ShowMessage("WSACleanup failed! STOP!!!\n");
+			#else
+				printf("WSACleanup failed! STOP!!!\n");
+			#endif
+		#endif
+
+		error = 1;
+		return;
+     }
+     else
+     {
+		#ifdef DEBUG_SOCKET
+			#ifdef MessageInterface_hpp
+				MessageInterface::ShowMessage("WSACleanup is successful...\n");
+			#else
+				printf("WSACleanup is successful...\n");
+			#endif
+		#endif
+     }
+#endif
+
+}
+
+
