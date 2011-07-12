@@ -71,6 +71,8 @@ public:
                         Integer count = 1){ return false;};
    virtual bool Pressure(Real *position, Real *temperature, Real epoch = GmatTimeConstants::MJD_OF_J2000,
                         Integer count = 1){ return false;};
+   virtual bool Wind(Real* position, Real* wind, Real epoch = GmatTimeConstants::MJD_OF_J2000,
+					    Integer count = 1){ return false;};
 
    void SetSunVector(Real *sv);
    void SetCentralBodyVector(Real *cv);
