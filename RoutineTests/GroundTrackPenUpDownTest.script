@@ -1,0 +1,46 @@
+Create Spacecraft sat1 sat2 sat3 sat4;
+Create GroundStation groundStation1;
+Create Propagator prop1;
+
+Create GroundTrackPlot plot1;
+plot1.Add = {sat2};
+
+%%%Create GroundTrackPlot plot2
+%%%plot2.CentralBody = Earth;
+%%%plot2.Add = {sat1, groundStation1};
+%%%plot2.ShowFootPrints = All;
+%%%plot2.SolverIterations = Current;
+%%%plot2.DataCollectFrequency = 1;
+%%%plot2.UpdatePlotFrequency = 50;
+%%%plot2.NumPointsToRedraw = 0;
+%%%plot2.ShowPlot = true;
+%%%plot2.TextureMap = './Earth_SchaferCloudsPolarIce.jpg';
+
+Create OrbitView view1;
+view1.Add = { sat1, Earth };
+view1.ViewPointVector = [ 30000 0 0 ];
+%% Test removed fields
+%view1.MinFOV = 0;
+%view1.MaxFOV = 90;
+%view1.InitialFOV = 45;
+
+%Create OrbitView view2;
+%view2.Add = { sat2, Earth };
+%view2.ViewPointVector = [ 30000 0 0 ];
+
+BeginMissionSequence;
+PenUp plot1;
+PenUp view1;
+Propagate prop1(sat1, sat2) {sat1.ElapsedSecs = 12000.0};
+
+PenDown plot1;
+PenDown view1;
+Propagate prop1(sat1, sat2) {sat1.ElapsedSecs = 8640.0};
+
+PenUp plot1;
+PenUp view1;
+Propagate prop1(sat1, sat2) {sat1.ElapsedSecs = 8640.0};
+
+PenDown plot1;
+PenDown view1;
+Propagate prop1(sat1, sat2) {sat1.ElapsedSecs = 8640.0};

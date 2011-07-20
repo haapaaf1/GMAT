@@ -65,7 +65,7 @@ GMAT EarthFixed.OverrideOriginInterval = false;
 %----------------------------------------
 
 Create OpenGLPlot gl;
-GMAT gl.Add = {sat};
+GMAT gl.Add = {Earth, sat};
 GMAT gl.OrbitColor = [ 255 ];
 GMAT gl.CoordinateSystem = EarthMJ2000Eq;
 GMAT gl.ViewPointReference = Earth;
@@ -115,7 +115,7 @@ GMAT XYPlot2.SolverIterations = None;
 GMAT XYPlot2.ShowPlot = true;
 
 Create OpenGLPlot OpenGLPlot1;
-GMAT OpenGLPlot1.Add = {sat};
+GMAT OpenGLPlot1.Add = {Earth, sat};
 GMAT OpenGLPlot1.OrbitColor = [ 255 ];
 GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
 GMAT OpenGLPlot1.ViewPointReference = Earth;

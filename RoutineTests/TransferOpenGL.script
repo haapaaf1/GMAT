@@ -127,7 +127,7 @@ GMAT report.ColumnWidth = 20;
 GMAT report.SolverIterations = None;
 
 Create OpenGLPlot Plot3D;
-GMAT Plot3D.Add = {Sat1};
+GMAT Plot3D.Add = {Earth, Sat1};
 GMAT Plot3D.OrbitColor = [ 255 ];
 GMAT Plot3D.CoordinateSystem = EarthMJ2000Eq;
 GMAT Plot3D.ViewPointReference = Earth;
@@ -160,7 +160,7 @@ GMAT XYPlot1.SolverIterations = None;
 GMAT XYPlot1.ShowPlot = true;
 
 Create OpenGLPlot OpenGLPlot1;
-GMAT OpenGLPlot1.Add = {Sat1};
+GMAT OpenGLPlot1.Add = {Earth, Sat1};
 GMAT OpenGLPlot1.OrbitColor = [ 255 ];
 GMAT OpenGLPlot1.CoordinateSystem = EarthMJ2000Eq;
 GMAT OpenGLPlot1.ViewPointReference = Earth;

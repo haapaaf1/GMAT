@@ -90,11 +90,11 @@ GMAT Sat3.Epoch = '09 Oct 2004 16:30:00.124';
 GMAT Sat3.CoordinateSystem = EarthMJ2000Eq;
 GMAT Sat3.DisplayStateType = Keplerian;
 GMAT Sat3.SMA = 7999.999999999997;
-GMAT Sat3.ECC = 0.01000000000000033;
+GMAT Sat3.ECC = 0.01000000000000035;
 GMAT Sat3.INC = 28.50000000000003;
 GMAT Sat3.RAAN = 90;
 GMAT Sat3.AOP = 360;
-GMAT Sat3.TA = 181.9999999999999;
+GMAT Sat3.TA = 182.0000000000025;
 GMAT Sat3.DryMass = 100;
 GMAT Sat3.Cd = 2;
 GMAT Sat3.Cr = 1.4;
@@ -124,8 +124,6 @@ GMAT Sat3.AngularVelocityX = 0;
 GMAT Sat3.AngularVelocityY = 0;
 GMAT Sat3.AngularVelocityZ = 0;
 
-Create GroundStation GroundStation1;
-
 %----------------------------------------
 %---------- Formation
 %----------------------------------------
@@ -133,6 +131,20 @@ Create GroundStation GroundStation1;
 %  Create Formation
 Create Formation MMS;
 GMAT MMS.Add = {MMS1, MMS2};
+
+%----------------------------------------
+%---------- GroundStations
+%----------------------------------------
+
+Create GroundStation GroundStation1;
+GMAT GroundStation1.CentralBody = Earth;
+GMAT GroundStation1.StateType = Cartesian;
+GMAT GroundStation1.HorizonReference = Sphere;
+GMAT GroundStation1.X = 6378.1363;
+GMAT GroundStation1.Y = 0;
+GMAT GroundStation1.Z = 0;
+GMAT GroundStation1.Id = 'StationId';
+
 
 %----------------------------------------
 %---------- ForceModels
@@ -203,7 +215,7 @@ GMAT GroundTrackPlot1.SolverIterations = Current;
 GMAT GroundTrackPlot1.Add = {MMS1, MMS2, Sat3};
 GMAT GroundTrackPlot1.DataCollectFrequency = 1;
 GMAT GroundTrackPlot1.UpdatePlotFrequency = 50;
-GMAT GroundTrackPlot1.NumPointsToRedraw = 0;
+GMAT GroundTrackPlot1.NumPointsToRedraw = 30;
 GMAT GroundTrackPlot1.ShowPlot = true;
 GMAT GroundTrackPlot1.CentralBody = Earth;
 GMAT GroundTrackPlot1.ShowFootPrints = None;
@@ -213,7 +225,7 @@ GMAT GroundTrackPlot2.SolverIterations = Current;
 GMAT GroundTrackPlot2.Add = {MMS1, GroundStation1};
 GMAT GroundTrackPlot2.DataCollectFrequency = 1;
 GMAT GroundTrackPlot2.UpdatePlotFrequency = 50;
-GMAT GroundTrackPlot2.NumPointsToRedraw = 0;
+GMAT GroundTrackPlot2.NumPointsToRedraw = 30;
 GMAT GroundTrackPlot2.ShowPlot = true;
 GMAT GroundTrackPlot2.CentralBody = Earth;
 GMAT GroundTrackPlot2.ShowFootPrints = All;
@@ -234,7 +246,7 @@ GMAT OrbitView1.OrbitColor = [ 255 4227072 65535 32768 ];
 GMAT OrbitView1.TargetColor = [ 8421440 4227327 4227327 0 ];
 GMAT OrbitView1.DataCollectFrequency = 1;
 GMAT OrbitView1.UpdatePlotFrequency = 50;
-GMAT OrbitView1.NumPointsToRedraw = 0;
+GMAT OrbitView1.NumPointsToRedraw = 30;
 GMAT OrbitView1.ShowPlot = true;
 GMAT OrbitView1.ViewPointReference = Earth;
 GMAT OrbitView1.ViewPointVector = [ 30000 0 0 ];
@@ -279,6 +291,7 @@ GMAT MMS.Remove = Sat3;
 
 %  Propagation Sequence Four
 Propagate Synchronized RKV_LowEarth_JR(MMS1, MMS2, Sat3) {Sat3.Periapsis};
+
 
 
 

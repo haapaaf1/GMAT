@@ -50,7 +50,7 @@ GMAT rf.ColumnWidth = 20;
 GMAT rf.ZeroFill = On;
 
 Create OpenGLPlot DefaultOpenGL;
-GMAT DefaultOpenGL.Add = {DefaultSC};
+GMAT DefaultOpenGL.Add = {Earth, DefaultSC};
 GMAT DefaultOpenGL.CoordinateSystem = EarthMJ2000Eq;
 GMAT DefaultOpenGL.ViewPointReference = Earth;
 GMAT DefaultOpenGL.ViewPointVector = Vector;
