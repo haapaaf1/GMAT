@@ -13,7 +13,7 @@ GMAT rf.WriteHeaders = On;
 GMAT rf.LeftJustify = On;
 GMAT rf.ZeroFill = Off;
 GMAT rf.ColumnWidth = 20;
-GMAT rf.Filename = Bug1987-MathTest.report;
+GMAT rf.Filename = MATH_Bug1987-MathTest.report;
 
 %----------------------------------------
 %---------- Mission Sequence

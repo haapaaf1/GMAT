@@ -78,7 +78,7 @@ GMAT d2r = 0.0174532925199433;
 
 %  Create Report
 Create ReportFile rf;
-GMAT rf.Filename = APT_MathOperators3.report;
+GMAT rf.Filename = MATH_MathOperators3.report;
 GMAT rf.Precision = 16;
 GMAT rf.WriteHeaders = Off;
 GMAT rf.LeftJustify = On;

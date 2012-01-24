@@ -74,7 +74,7 @@ Create Variable Theta1 sinTheta1 cosTheta1 tanTheta1 TestNum %%%(due to Bug411 f
 
 %  Create Report
 Create ReportFile rf;
-GMAT rf.Filename = MathOperators2.report;
+GMAT rf.Filename = MATH_MathOperators2.report;
 GMAT rf.Precision = 16;
 GMAT rf.WriteHeaders = Off;
 GMAT rf.LeftJustify = On;

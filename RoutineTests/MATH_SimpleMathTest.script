@@ -46,7 +46,7 @@ Create String msg;
 Create GmatFunction cross;
 
 Create ReportFile rf;
-GMAT rf.Filename = SimpleMathTest.report;
+GMAT rf.Filename = MATH_SimpleMathTest.report;
 GMAT rf.Add = {var1, var2, var3, var4};
 
 BeginMissionSequence;

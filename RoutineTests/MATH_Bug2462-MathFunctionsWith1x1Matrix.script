@@ -1,0 +1,215 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2012-01-17 02:19:48
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+GMAT DefaultSC.DateFormat = TAIModJulian;
+GMAT DefaultSC.Epoch = '21545';
+GMAT DefaultSC.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultSC.DisplayStateType = Cartesian;
+GMAT DefaultSC.X = -999.999;
+GMAT DefaultSC.Y = -999.999;
+GMAT DefaultSC.Z = -999.999;
+GMAT DefaultSC.VX = -999.999;
+GMAT DefaultSC.VY = -999.999;
+GMAT DefaultSC.VZ = -999.999;
+GMAT DefaultSC.DryMass = 850;
+GMAT DefaultSC.Cd = 2.2;
+GMAT DefaultSC.Cr = 1.8;
+GMAT DefaultSC.DragArea = 15;
+GMAT DefaultSC.SRPArea = 1;
+GMAT DefaultSC.NAIFId = -123456789;
+GMAT DefaultSC.NAIFIdReferenceFrame = -123456789;
+GMAT DefaultSC.Id = 'SatId';
+GMAT DefaultSC.Attitude = CoordinateSystemFixed;
+GMAT DefaultSC.ModelFile = 'C:/Projects/GmatDev/application/data/vehicle/models/aura.3ds';
+GMAT DefaultSC.ModelOffsetX = 0;
+GMAT DefaultSC.ModelOffsetY = 0;
+GMAT DefaultSC.ModelOffsetZ = 0;
+GMAT DefaultSC.ModelRotationX = 0;
+GMAT DefaultSC.ModelRotationY = 0;
+GMAT DefaultSC.ModelRotationZ = 0;
+GMAT DefaultSC.ModelScale = 3;
+GMAT DefaultSC.AttitudeDisplayStateType = 'Quaternion';
+GMAT DefaultSC.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT DefaultSC.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT DefaultSC.Q1 = 0;
+GMAT DefaultSC.Q2 = 0;
+GMAT DefaultSC.Q3 = 0;
+GMAT DefaultSC.Q4 = 1;
+GMAT DefaultSC.EulerAngleSequence = '321';
+GMAT DefaultSC.AngularVelocityX = 0;
+GMAT DefaultSC.AngularVelocityY = 0;
+GMAT DefaultSC.AngularVelocityZ = 0;
+
+%----------------------------------------
+%---------- Arrays, Variables, Strings
+%----------------------------------------
+
+Create Array Ast2Sat[3,1] Ast2Sun[3,1];
+Create Array mat1x3[1,3] mat1x1[1,1] mat2x2[2,2];
+Create Variable b c d e acose sasAngle;
+Create Variable var1 result;
+Create String str;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create ReportFile rf;
+rf.Filename = 'MATH_Bug2462-MathFunctionsWith1x1Matrix.report'
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+BeginMissionSequence;
+
+Ast2Sat(1,1) = 1;
+Ast2Sat(2,1) = 1;
+Ast2Sat(3,1) = 1;
+Ast2Sun(1,1) = 1;
+Ast2Sun(2,1) = 1;
+Ast2Sun(3,1) = 1;
+
+mat1x3 = Ast2Sat';
+b = mat1x3 * Ast2Sun;
+c = norm(Ast2Sat);
+d = norm(Ast2Sun);
+e = b /c /d;
+
+acose = acos(e);
+sasAngle = acos(e);
+
+GMAT sasAngle = acos( Ast2Sat' * Ast2Sun / norm(Ast2Sat) / norm(Ast2Sun) );
+
+Report rf mat1x3 b c d acose sasAngle;
+
+%--- Test math function with 1x1 matrix
+
+rf.WriteHeaders = Off;
+var1 = 1;
+mat1x1(1,1) = 1;
+mat1x3(1,1) = 1;
+mat1x3(1,2) = 1;
+mat1x3(1,3) = 1;
+mat2x2(1,1) = 1;
+mat2x2(1,2) = 1;
+mat2x2(2,1) = 1;
+mat2x2(2,2) = 1;
+
+str = 'abs(mat1x1)';
+result = abs(mat1x1);
+Report rf str result;
+
+str = 'acos(mat1x1)';
+result = acos(mat1x1);
+Report rf str result;
+
+str = 'asin(mat1x1)';
+result = asin(mat1x1);
+Report rf str result;
+
+str = 'atan(mat1x1)';
+result = atan(mat1x1);
+Report rf str result;
+
+str = 'cos(mat1x1)';
+result = cos(mat1x1);
+Report rf str result;
+
+str = 'DegToRad(mat1x1)';
+result = DegToRad(mat1x1);
+Report rf str result;
+
+str = 'exp(mat1x1)';
+result = exp(mat1x1);
+Report rf str result;
+
+str = 'log(mat1x1)';
+result = log(mat1x1);
+Report rf str result;
+
+str = 'log10(mat1x1)';
+result = log10(mat1x1);
+Report rf str result;
+
+str = 'norm(var1)';
+result = norm(var1);
+Report rf str result;
+
+str = 'norm(mat1x3)';
+result = norm(mat1x3);
+Report rf str result;
+
+str = 'norm(mat1x1)';
+result = norm(mat1x1);
+Report rf str result;
+
+%%--- GMAT throws an exception so commented out
+%str = 'norm(mat2x2)';
+%result = norm(mat2x2);
+%Report rf str result;
+
+str = 'RadToDeg(mat1x1)';
+result = RadToDeg(mat1x1);
+Report rf str result;
+
+str = 'sin(mat1x1)';
+result = sin(mat1x1);
+Report rf str result;
+
+str = 'sqrt(mat1x1)';
+result = sqrt(mat1x1);
+Report rf str result;
+
+str = 'tan(mat1x1)';
+result = tan(mat1x1);
+Report rf str result;
+
+str = 'transpose(mat1x1)';
+result = transpose(mat1x1);
+Report rf str result;
+
+str = 'transpose(var1)';
+result = transpose(var1);
+Report rf str result;
+
+str = 'mat1x1'';
+result = mat1x1';
+Report rf str result;
+
+str = 'var1'';
+result = var1';
+Report rf str result;
+
+str = 'mat1x1 ^ mat1x1';
+result = mat1x1 ^ mat1x1;
+Report rf str result;
+
+str = 'var1 ^ mat1x1';
+result = var1 ^ mat1x1;
+Report rf str result;
+
+str = 'mat1x1 ^ var1';
+result = mat1x1 ^ var1;
+Report rf str result;
+
+str = '1 ^ mat1x1';
+result = 1 ^ mat1x1;
+Report rf str result;
+
+str = 'mat1x1 ^ 1';
+result = mat1x1 ^ 1;
+Report rf str result;
+
+
+
+%result = acosh(mat1x1);
+%result = asinh(mat1x1);
+%result = cosh(mat1x1);
+%result = sinh(mat1x1);
+%result = tanh(mat1x1);

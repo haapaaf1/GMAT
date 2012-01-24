@@ -38,7 +38,7 @@ matlabResult = -0.117756545136962;
 %----------------------------------------
 
 Create ReportFile rf;
-GMAT rf.Filename = MathOperators1.report
+GMAT rf.Filename = MAHT_MathOperators1.report
 GMAT rf.ColumnWidth = 12;
 
 

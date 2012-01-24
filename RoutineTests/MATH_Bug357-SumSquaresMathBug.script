@@ -154,7 +154,7 @@ GMAT SunMarsRotCS.Secondary = Mars;
 Create DifferentialCorrector DC;
 GMAT DC.ShowProgress = true;
 GMAT DC.ReportStyle = Normal;
-GMAT DC.TargeterTextFile = Bug357-DC.data;
+GMAT DC.TargeterTextFile = MATH_Bug357-DC.data;
 GMAT DC.MaximumIterations = 25;
 GMAT DC.UseCentralDifferences = false;
 
@@ -164,7 +164,7 @@ GMAT DC.UseCentralDifferences = false;
 %----------------------------------------
 
 Create ReportFile Data;
-GMAT Data.Filename = Bug357-SumSquaresMathBug.report;
+GMAT Data.Filename = MATH_Bug357-SumSquaresMathBug.report;
 GMAT Data.Precision = 16;
 GMAT Data.WriteHeaders = On;
 GMAT Data.LeftJustify = On;

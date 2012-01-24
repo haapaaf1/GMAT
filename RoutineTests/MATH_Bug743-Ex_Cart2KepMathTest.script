@@ -129,7 +129,7 @@ GMAT RAANvsTimeScript.ShowPlot = true;
 %  Create a report to output error data
 Create ReportFile Cart2KeptConvert;
 %%%GMAT Cart2KeptConvert.Filename = ./output/SampleMissions/Cart2KeptConvert.report;
-GMAT Cart2KeptConvert.Filename = Bug743-Cart2KeptConvert.report;
+GMAT Cart2KeptConvert.Filename = MATH_Bug743-Cart2KeptConvert.report;
 GMAT Cart2KeptConvert.Precision = 16;
 GMAT Cart2KeptConvert.WriteHeaders = On;
 GMAT Cart2KeptConvert.LeftJustify = On;
