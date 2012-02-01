@@ -1,4 +1,4 @@
-Create Variable x y1 y2 y3 y4;
+Create Variable x y;
 Create Array arr_22[2,2]
 Create Array arr_32[3,2]
 Create Array arr_33[3,3]
@@ -10,43 +10,80 @@ Create Variable varOut pi;
 Create Array ArrayOut22[2,2] Array31[3,1]
 Create Variable matlabResult diff;
 
+Create String msg;
+
 pi = 3.14159265358979;
 ArrayOut22(1,1) = .1;
 ArrayOut22(2,2) = .3;
 Array31(3,1) = 1; 
 Array31(3,1) = 4;
-matlabResult = -0.117756545136962;
 
 Create ReportFile rf;
-GMAT rf.Filename = 'MATH_Bug2493-UnaryParenthesisTest.txt';
+GMAT rf.Filename = 'MATH_Bug2493-UnaryParenthesisTest.report';
 GMAT rf.Precision = 10;
+GMAT rf.WriteHeaders = Off;
 
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
 
 BeginMissionSequence;
-%x = 10;
+x = 2;
+msg = ' ';
 
-%GMAT y1 = -5 * x + 10;
-%Report rf x y1;
+y = -5 * x + 10;
+Report rf y;
+y = (-5) * x + 10;
+Report rf y;
+y = -5 * (x) + 10;
+Report rf y;
+y = -5 * x + (10);
+Report rf y;
+y = (-5) * (x) + 10;
+Report rf y;
+y = (-5) * x + (10);
+Report rf y;
+y = -5 * (x) + (10);
+Report rf y;
+y = -(5) * (x) + (10);
+Report rf y;
+y = (-5 * x + 10);
 
-%GMAT y2 = (-5) * x + 10;
-%Report rf x y2;
+Report rf msg;
 
-%GMAT y3 = -5 * (x) + 10;
-%Report rf x y3;
+Report rf y;
+y = -5 * x + 10 + 0 * -1;
+Report rf y;
+y = (-5) * x + 10 + (0) * -1;
+Report rf y;
+y = -5 * (x) + 10 + 0 * (-1);
+Report rf y;
+y = -5 * x + (10) + (0 * -1);
+Report rf y;
+y = (-5) * (x) + (10) + 0 * (-1);
+Report rf y;
+y = (-5) * x + (10) + (0 * (-1));
+Report rf y;
+y = -5 * (x) + (10) + (0 * -1);
+Report rf y;
+y = -(5) * (x) + ((10)) + 0 * -1;
+Report rf y;
+y = (-5 * x + 10) + 0 * -1;
+Report rf y;
 
-For x = -10:1:10;
-   GMAT y1 = -5 * x + 10;
-   GMAT y2 = (-5) * x + 10;
-   GMAT y3 = -5 * (x) + 10;
-   GMAT y4 = (-5) * (x) + 10;
-   Report rf x y1 y2 y3 y4;
-EndFor;
+Report rf msg;
+
+varOut = -10 * 5116.1085 ^ -1;
+matlabResult = -0.001954610618598;
+diff = varOut - matlabResult;
+Report rf varOut matlabResult diff;
+
+Report rf msg;
 
 out_62 = (arr_63)*(arr_33*arr_33*arr_32)-(arr_62*arr_22);
 Report rf out_62;
+
+Report rf msg;
 
 %----- Math equation with functions
 
@@ -54,6 +91,7 @@ varOut = sin(  abs(-.5 )+ acos(.5 ) -  asin(.5 )*atan(.5 )*atan2(.5,.5)...
               - cos( .02 )/ DegToRad(45) - det(ArrayOut22)^exp(.5 )...
            + log(.5 ) - norm(Array31 )- RadToDeg( pi/4 ) + sqrt(2) + tan(2) );
 
+matlabResult = -0.117756545136962;
 diff = varOut - matlabResult;
 Report rf varOut matlabResult diff;
 
@@ -62,6 +100,9 @@ varOut = 0.851*DegToRad(0.6478)/log(0.43026)  +  (asin(0.8885)*log10(1.94))  /  
 
 matlabResult = 613.9165187882946;
 diff = varOut - matlabResult;
-
 Report rf varOut matlabResult diff;
+
+varOut = 0.851*DegToRad(0.6478)/log(0.43026)  +  (asin(0.8885)*log10(1.94))  /  atan(1.9381/( 1.9381+ 10 ))  -  (exp(0.9711)-RadToDeg(0.9133))  *  acos(1.6547/( 1.6547+ 10 ))  +  RadToDeg(1.452)  +  sqrt(0.96337)*(DegToRad(1.658)*RadToDeg(0.1318)) * DegToRad(2.0265)/acos(1)  +  asin(0.73507)  +  DegToRad(0.7714)  +  sqrt(1.1148)/tan(2.087)  +  RadToDeg(1.6601)/(sqrt(1.501)/acos(0.7547))  /  atan(1.3882/( 1.3882+ 10 ))  +  (sqrt(0.9287)*sqrt(0.5392))  -  tan(0.8591);
+
+Report rf varOut;
 
