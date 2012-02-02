@@ -39,9 +39,9 @@ GMAT DefaultSC.AngularVelocityZ = 0;
 Create Thruster engine1;
 GMAT engine1.CoordinateSystem = EarthMJ2000Eq;
  
-GMAT engine1.Element1 = 1;
-GMAT engine1.Element2 = 0;
-GMAT engine1.Element3 = 0;
+GMAT engine1.ThrustDirection1 = 1;
+GMAT engine1.ThrustDirection1 = 0;
+GMAT engine1.ThrustDirection1 = 0;
 GMAT engine1.DutyCycle = 1;
 GMAT engine1.ThrustScaleFactor = 1;
 GMAT engine1.DecrementMass = true;
@@ -112,7 +112,7 @@ GMAT DefaultProp.MaxStepAttempts = 50;
 %---------- Subscribers
 %----------------------------------------
 Create ReportFile rf;
-rf.Filename = Bug2082_EphemScPropChangeForLoop.report;
+rf.Filename = EPHEM_CCSDS_Bug2082_ScPropChangeForLoop.report;
 
 Create OpenGLPlot DefaultOpenGL;
 GMAT DefaultOpenGL.SolverIterations = Current;
@@ -140,7 +140,7 @@ GMAT DefaultOpenGL.ShowPlot = true;
 
 Create EphemerisFile GMAT_Leo_Ephem_60sec;
 GMAT GMAT_Leo_Ephem_60sec.Spacecraft = DefaultSC;
-GMAT GMAT_Leo_Ephem_60sec.FileName = 'Bug2082_EphemScPropChangeForLoop.eph';
+GMAT GMAT_Leo_Ephem_60sec.Filename = 'EPHEM_CCSDS_Bug2082_ScPropChangeForLoop.eph';
 GMAT GMAT_Leo_Ephem_60sec.FileFormat = 'CCSDS-OEM';
 GMAT GMAT_Leo_Ephem_60sec.EpochFormat = UTCGregorian;
 GMAT GMAT_Leo_Ephem_60sec.InitialEpoch = InitialSpacecraftEpoch;
