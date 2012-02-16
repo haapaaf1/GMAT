@@ -44,7 +44,7 @@ GMAT RKV89.MaxStep = 5;
 
 Create ReportFile ReportFile1;
 GMAT ReportFile1.SolverIterations = Current;
-GMAT ReportFile1.Filename = 'Ephem_GMAT_ISS_L7_L_EarthMJ2000Eq.txt';
+GMAT ReportFile1.Filename = 'EPHEM_CCSDS_OEM-ISS_L7_L_EarthMJ2000Eq.report';
 GMAT ReportFile1.Precision = 16;
 GMAT ReportFile1.Add = {ISS.UTCGregorian, ISS.EarthMJ2000Eq.X, ISS.EarthMJ2000Eq.Y, ISS.EarthMJ2000Eq.Z};
 GMAT ReportFile1.WriteHeaders = On;
@@ -55,7 +55,7 @@ GMAT ReportFile1.WriteReport = true;
 
 Create EphemerisFile Ephem;
 GMAT Ephem.Spacecraft = ISS;
-GMAT Ephem.Filename = 'Ephem_GMAT_ISS_L7_L_EarthMJ2000Eq.report';
+GMAT Ephem.Filename = 'EPHEM_CCSDS_OEM-ISS_L7_L_EarthMJ2000Eq.eph';
 GMAT Ephem.FileFormat = CCSDS-OEM;
 GMAT Ephem.EpochFormat = UTCGregorian;
 GMAT Ephem.InitialEpoch = InitialSpacecraftEpoch;

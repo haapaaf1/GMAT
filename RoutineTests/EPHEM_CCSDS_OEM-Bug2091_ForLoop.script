@@ -113,7 +113,7 @@ GMAT DefaultProp.MaxStepAttempts = 50;
 %----------------------------------------
 
 Create ReportFile rf;
-GMAT rf.Filename = 'Bug2091_EphemForLoop.report';
+GMAT rf.Filename = 'EPHEM_CCSDS_OEM-Bug2091_ForLoop.report';
 GMAT rf.WriteHeaders = Off;
 GMAT rf.Precision = 18;
 GMAT rf.ColumnWidth = 25;
@@ -121,7 +121,7 @@ GMAT rf.ColumnWidth = 25;
 Create EphemerisFile GMAT_Leo_Ephem_60sec;
 GMAT GMAT_Leo_Ephem_60sec.Spacecraft = DefaultSC;
 %%GMAT GMAT_Leo_Ephem_60sec.Filename = '.\output\AcceptTest\Ephem_GMAT_CCSDS_OEM_60sec_for_loop.report';
-GMAT GMAT_Leo_Ephem_60sec.Filename = 'Bug2091_EphemForLoop.eph';
+GMAT GMAT_Leo_Ephem_60sec.Filename = 'EPHEM_CCSDS_OEM-Bug2091_ForLoop.eph';
 GMAT GMAT_Leo_Ephem_60sec.FileFormat = 'CCSDS-OEM';
 GMAT GMAT_Leo_Ephem_60sec.EpochFormat = UTCGregorian;
 GMAT GMAT_Leo_Ephem_60sec.InitialEpoch = InitialSpacecraftEpoch;

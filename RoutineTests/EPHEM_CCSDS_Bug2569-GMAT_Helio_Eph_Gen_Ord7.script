@@ -1,0 +1,117 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2011-07-21 05:52:10
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft MySpacecraft;
+GMAT MySpacecraft.DateFormat = UTCModJulian;
+%GMAT MySpacecraft.Epoch = '01 Aug 2011 00:00:00.000';
+GMAT MySpacecraft.Epoch = 25774.5;
+GMAT MySpacecraft.CoordinateSystem = SunMJ2kEq;
+GMAT MySpacecraft.DisplayStateType = Keplerian;
+GMAT MySpacecraft.SMA = 149598261;
+GMAT MySpacecraft.ECC = 0;
+GMAT MySpacecraft.INC = 0;
+GMAT MySpacecraft.RAAN = 0;
+GMAT MySpacecraft.AOP = 0;
+GMAT MySpacecraft.TA = 0;
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel SunProp_ForceModel;
+GMAT SunProp_ForceModel.CentralBody = Sun;
+GMAT SunProp_ForceModel.PointMasses = {Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune};  %, Mercury, Venus, Earth, Luna, Mars, Jupiter, Saturn, Uranus, Neptune};
+GMAT SunProp_ForceModel.Drag = None;
+GMAT SunProp_ForceModel.SRP = Off;
+GMAT SunProp_ForceModel.ErrorControl = RSSStep;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator SunProp;
+GMAT SunProp.FM = SunProp_ForceModel;
+GMAT SunProp.Type = RungeKutta89;
+GMAT SunProp.InitialStepSize = 60;
+GMAT SunProp.Accuracy = 1e-012;
+GMAT SunProp.MinStep = 0.001;
+GMAT SunProp.MaxStep = 3600;
+GMAT SunProp.MaxStepAttempts = 500;
+GMAT SunProp.StopIfAccuracyIsViolated = true;
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem SunMJ2kEq;
+GMAT SunMJ2kEq.Origin = Sun;
+GMAT SunMJ2kEq.Axes = MJ2000Eq;
+
+%----------------------------------------
+%---------- Plots/Reports
+%----------------------------------------
+
+Create ReportFile Data;
+GMAT Data.SolverIterations = Current;
+GMAT Data.Filename = 'Bug2569-GMAT_Helio_Ephem_Ord7.report';
+%GMAT Data.Precision = 16;
+GMAT Data.Add = {MySpacecraft.UTCGregorian, MySpacecraft.SunMJ2kEq.X, MySpacecraft.SunMJ2kEq.Y, MySpacecraft.SunMJ2kEq.Z, MySpacecraft.SunMJ2kEq.VX, MySpacecraft.SunMJ2kEq.VY, MySpacecraft.SunMJ2kEq.VZ};
+GMAT Data.WriteHeaders = On;
+GMAT Data.LeftJustify = On;
+GMAT Data.ZeroFill = Off;
+GMAT Data.ColumnWidth = 20;
+GMAT Data.WriteReport = true;
+
+Create EphemerisFile EphemerisFile1;
+GMAT EphemerisFile1.Spacecraft = MySpacecraft;
+GMAT EphemerisFile1.Filename = 'Bug2569-GMAT_Helio_Ephem_Ord7.eph';
+GMAT EphemerisFile1.FileFormat = CCSDS-OEM;
+GMAT EphemerisFile1.EpochFormat = UTCModJulian;
+GMAT EphemerisFile1.InitialEpoch = InitialSpacecraftEpoch;
+GMAT EphemerisFile1.FinalEpoch = FinalSpacecraftEpoch;
+GMAT EphemerisFile1.StepSize = 1;
+GMAT EphemerisFile1.InterpolationOrder = 7;
+GMAT EphemerisFile1.CoordinateSystem = SunMJ2kEq;
+GMAT EphemerisFile1.WriteEphemeris = true;
+
+Create OrbitView SunView;
+GMAT SunView.SolverIterations = None;
+GMAT SunView.Add = {MySpacecraft, Sun, Earth};
+GMAT SunView.DrawObject = [ true true true ];
+GMAT SunView.OrbitColor = [ 16711680 0 65331 ]; 
+GMAT SunView.TargetColor = [ 8421440 0 0 ];
+GMAT SunView.CoordinateSystem = SunMJ2kEq;
+GMAT SunView.ViewPointReference = Sun;
+GMAT SunView.ViewPointVector = [ 0 0 500000000 ];
+GMAT SunView.ViewDirection = Sun;
+GMAT SunView.ViewScaleFactor = 1;
+GMAT SunView.ViewUpCoordinateSystem = SunMJ2kEq;
+GMAT SunView.ViewUpAxis = Z;
+GMAT SunView.CelestialPlane = Off;
+GMAT SunView.XYPlane = On;
+GMAT SunView.WireFrame = Off;
+GMAT SunView.Axes = On;
+GMAT SunView.Grid = On;
+GMAT SunView.SunLine = On;
+GMAT SunView.UseInitialView = On;
+GMAT SunView.DataCollectFrequency = 1;
+GMAT SunView.UpdatePlotFrequency = 1;
+GMAT SunView.NumPointsToRedraw = 0;
+GMAT SunView.StarCount = 7000;
+GMAT SunView.EnableStars = On;
+GMAT SunView.EnableConstellations = On;
+GMAT SunView.ShowPlot = true;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+
+%Propagate SunProp(MySpacecraft) {MySpacecraft.ElapsedDays = 1};
+Propagate SunProp(MySpacecraft) {MySpacecraft.ElapsedDays = 0.1};
+%Propagate SunProp(MySpacecraft) {MySpacecraft.ElapsedDays = 0.03};

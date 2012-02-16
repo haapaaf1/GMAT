@@ -84,7 +84,13 @@ GMAT NearMars_ForceModel.CentralBody = Mars;
 GMAT NearMars_ForceModel.PrimaryBodies = {Mars};
 GMAT NearMars_ForceModel.PointMasses = {Sun};
 %GMAT NearMars_ForceModel.Drag = None;
-GMAT NearMars_ForceModel.Drag = MarsGRAM2005
+GMAT NearMars_ForceModel.Drag.AtmosphereModel = MarsGRAM2005
+GMAT NearMars_ForceModel.Drag.F107 = 120;
+GMAT NearMars_ForceModel.Drag.F107A = 130;
+GMAT NearMars_ForceModel.Drag.MagneticIndex = 4;
+GMAT NearMars_ForceModel.Drag.DensityModel = Mean  % also High, Low
+GMAT NearMars_ForceModel.Drag.InputFile = 'MyInput.nml'
+
 GMAT NearMars_ForceModel.SRP = On;
 GMAT NearMars_ForceModel.ErrorControl = RSSStep;
 GMAT NearMars_ForceModel.GravityField.Mars.Degree = 8;
@@ -266,7 +272,7 @@ GMAT SolarSystemView.ShowPlot = true;
 
 Create ReportFile EarthData;
 GMAT EarthData.SolverIterations = Current;
-GMAT EarthData.Filename = 'GMAT_MarsTransfer_3.report';
+GMAT EarthData.Filename = 'DRAG_MarsGram_Test.report';
 GMAT EarthData.Precision = 16;
 GMAT EarthData.WriteHeaders = Off;
 GMAT EarthData.LeftJustify = On;

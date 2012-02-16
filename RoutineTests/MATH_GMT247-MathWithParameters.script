@@ -1,0 +1,56 @@
+Create Spacecraft aSat
+Create Propagator aPropagator
+Create ImpulsiveBurn anIBurn
+
+Create ReportFile rf
+rf.Filename = MATH_GMT247-MathWithParameters.report
+rf.WriteHeaders = Off;
+
+BeginMissionSequence
+
+aSat.SMA = 8000;
+Report rf aSat.SMA
+
+aSat.SMA = (aSat.SMA + 10);
+Report rf aSat.SMA
+
+aSat.X = 8000;
+Report rf aSat.X
+
+aSat.X = (aSat.X + 10);
+Report rf aSat.X
+
+aSat.Y = 5;
+Report rf aSat.Y
+
+aSat.Y = (aSat.Y + 10);
+Report rf aSat.Y
+
+aSat.VX = 0.1;
+Report rf aSat.VX
+
+aSat.VX = (aSat.VX + 10);
+Report rf aSat.VX
+
+aSat.ECC = 0;
+Report rf aSat.ECC
+
+aSat.ECC = (aSat.ECC + .1);
+Report rf aSat.ECC
+
+aSat.RadPer = 6468;
+Report rf aSat.RadPer
+
+aSat.RadPer = (aSat.RadPer + 10);
+Report rf aSat.RadPer
+
+aSat.RadApo = 7000;
+Report rf aSat.RadApo
+aSat.RadApo = (aSat.RadApo + 10);
+Report rf aSat.RadApo
+
+anIBurn.Element1 = 0;
+Report rf anIBurn.Element1;
+
+anIBurn.Element1 = (anIBurn.Element1 + .1);
+Report rf anIBurn.Element1;

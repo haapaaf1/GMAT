@@ -121,7 +121,7 @@ GMAT DefaultProp.MaxStepAttempts = 50;
 
 Create ReportFile ReportFile1;
 GMAT ReportFile1.SolverIterations = Current;
-GMAT ReportFile1.Filename = 'Bug2161_ReportFile1.txt';
+GMAT ReportFile1.Filename = 'EPHEM_CCSDS_OEM-Bug2161-3600SEC.report';
 GMAT ReportFile1.Precision = 18;
 GMAT ReportFile1.Add = {DefaultSC.A1ModJulian, DefaultSC.UTCGregorian, DefaultSC.EarthMJ2000Eq.X};
 GMAT ReportFile1.WriteHeaders = On;
@@ -133,7 +133,7 @@ GMAT ReportFile1.WriteReport = true;
 Create EphemerisFile GMAT_Leo_Ephem_3600sec;
 GMAT GMAT_Leo_Ephem_3600sec.Spacecraft = DefaultSC;
 %%GMAT GMAT_Leo_Ephem_3600sec.Filename = '.\output\AcceptTest\Ephem_GMAT_CCSDS_OEM_3600sec.report';
-GMAT GMAT_Leo_Ephem_3600sec.Filename = 'Bug2161_Ephem_GMAT_CCSDS_OEM_3600sec.report';
+GMAT GMAT_Leo_Ephem_3600sec.Filename = 'EPHEM_CCSDS_OEM-Bug2161-3600sec.eph';
 GMAT GMAT_Leo_Ephem_3600sec.FileFormat = 'CCSDS-OEM';
 GMAT GMAT_Leo_Ephem_3600sec.EpochFormat = UTCGregorian;
 GMAT GMAT_Leo_Ephem_3600sec.InitialEpoch = InitialSpacecraftEpoch;

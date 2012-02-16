@@ -127,7 +127,6 @@ GMAT OGL_EarthMJ2K.ViewPointReference = Earth;
 GMAT OGL_EarthMJ2K.ViewPointVector = Vector;
 GMAT OGL_EarthMJ2K.ViewDirection = Earth;
 GMAT OGL_EarthMJ2K.ViewScaleFactor = 38;
-GMAT OGL_EarthMJ2K.FixedFovAngle = 45;
 GMAT OGL_EarthMJ2K.ViewUpCoordinateSystem = EarthMJ2000Eq;
 GMAT OGL_EarthMJ2K.ViewUpAxis = Z;
 GMAT OGL_EarthMJ2K.CelestialPlane = Off;
@@ -137,8 +136,6 @@ GMAT OGL_EarthMJ2K.SolverIterations = All;
 GMAT OGL_EarthMJ2K.Axes = Off;
 GMAT OGL_EarthMJ2K.SunLine = Off;
 GMAT OGL_EarthMJ2K.UseInitialView = On;
-GMAT OGL_EarthMJ2K.PerspectiveMode = Off;
-GMAT OGL_EarthMJ2K.UseFixedFov = Off;
 GMAT OGL_EarthMJ2K.DataCollectFrequency = 1;
 GMAT OGL_EarthMJ2K.UpdatePlotFrequency = 50;
 GMAT OGL_EarthMJ2K.NumPointsToRedraw = 0;
@@ -151,7 +148,6 @@ GMAT OGL_MoonMJ2K.ViewPointReference = Luna;
 GMAT OGL_MoonMJ2K.ViewPointVector = Vector;
 GMAT OGL_MoonMJ2K.ViewDirection = Luna;
 GMAT OGL_MoonMJ2K.ViewScaleFactor = 1;
-GMAT OGL_MoonMJ2K.FixedFovAngle = 45;
 GMAT OGL_MoonMJ2K.ViewUpCoordinateSystem = MoonMJ2000Eq;
 GMAT OGL_MoonMJ2K.ViewUpAxis = Z;
 GMAT OGL_MoonMJ2K.CelestialPlane = Off;
@@ -161,8 +157,6 @@ GMAT OGL_MoonMJ2K.SolverIterations = All;
 GMAT OGL_MoonMJ2K.Axes = Off;
 GMAT OGL_MoonMJ2K.SunLine = Off;
 GMAT OGL_MoonMJ2K.UseInitialView = On;
-GMAT OGL_MoonMJ2K.PerspectiveMode = Off;
-GMAT OGL_MoonMJ2K.UseFixedFov = Off;
 GMAT OGL_MoonMJ2K.DataCollectFrequency = 1;
 GMAT OGL_MoonMJ2K.UpdatePlotFrequency = 50;
 GMAT OGL_MoonMJ2K.NumPointsToRedraw = 0;
@@ -175,7 +169,6 @@ GMAT OGL_EarthMoonRot.ViewPointReference = Luna;
 GMAT OGL_EarthMoonRot.ViewPointVector = Vector;
 GMAT OGL_EarthMoonRot.ViewDirection = Luna;
 GMAT OGL_EarthMoonRot.ViewScaleFactor = 10;
-GMAT OGL_EarthMoonRot.FixedFovAngle = 45;
 GMAT OGL_EarthMoonRot.ViewUpCoordinateSystem = EarthMoonRot;
 GMAT OGL_EarthMoonRot.ViewUpAxis = Z;
 GMAT OGL_EarthMoonRot.CelestialPlane = Off;
@@ -185,17 +178,15 @@ GMAT OGL_EarthMoonRot.SolverIterations = All;
 GMAT OGL_EarthMoonRot.Axes = Off;
 GMAT OGL_EarthMoonRot.SunLine = Off;
 GMAT OGL_EarthMoonRot.UseInitialView = On;
-GMAT OGL_EarthMoonRot.PerspectiveMode = Off;
-GMAT OGL_EarthMoonRot.UseFixedFov = Off;
 GMAT OGL_EarthMoonRot.DataCollectFrequency = 1;
 GMAT OGL_EarthMoonRot.UpdatePlotFrequency = 50;
 GMAT OGL_EarthMoonRot.NumPointsToRedraw = 0;
 
 
 Create XYPlot RadApoPlot
-GMAT RadApoPlot.IndVar = MMSRef.A1ModJulian;
-GMAT RadApoPlot.Add    = { MMSRef.RMAG };
-GMAT RadApoPlot.Grid = On;
+GMAT RadApoPlot.XVariable = MMSRef.A1ModJulian;
+GMAT RadApoPlot.YVariables  = { MMSRef.RMAG };
+GMAT RadApoPlot.ShowGrid = true;
 GMAT RadApoPlot.SolverIterations = None;
 
 
@@ -264,14 +255,14 @@ Report BPlaneCoords MMSRef.TotalMass MMSRef.tank1.FuelMass MMSRef.tank1.Volume;
 %------------------------------
 %  Propagate to Earth periapsis
 %------------------------------
-Propagate LunarSB(MMSRef, {MMSRef.Periapsis});
+Propagate 'Propagate to Earth periapsis' LunarSB(MMSRef, {MMSRef.Periapsis});
 
 
 %------------------------------
 %  Target Lunar B-plane
 %------------------------------
 
-Target DC1
+Target 'Target Luna B-plane' DC1
 
      Vary DC1(LSI.Element1 = 0.1462 ,  {Perturbation = 1e-005, MaxStep = .01, Lower = .13, Upper = .5});
      Vary DC1(LSI.Element3 = 0.1086 , {Perturbation = 1e-005, MaxStep = .01, Lower = -.5, Upper = .5});
@@ -291,14 +282,14 @@ EndTarget
 %------------------------------
 % Propagate to Earth Periapsis
 %------------------------------
-Propagate LunarSB(MMSRef, {MMSRef.Periapsis});
+Propagate 'Propagate to Earth periapsis' LunarSB(MMSRef, {MMSRef.Periapsis});
 
 
 
 %------------------------------
 % Target to lower Apogee
 %------------------------------
-Target DC1
+Target 'Target to lower Apogee' DC1
 
      Vary DC1(ALM.Element1 = -0.3198120104, {Perturbation = 1e-006, MaxStep = .08, Lower = -.5, Upper = .5});
 
@@ -314,6 +305,6 @@ EndTarget
 %------------------------------
 Toggle RadApoPlot On;
 
-Propagate LunarSB(MMSRef, {MMSRef.ElapsedDays = 12});
+Propagate 'Propagate for a few days' LunarSB(MMSRef, {MMSRef.ElapsedDays = 12});
 
 Report BPlaneCoords MMSRef.TotalMass MMSRef.tank1.FuelMass MMSRef.tank1.Volume;
