@@ -8,9 +8,12 @@ GMAT Sat.Thrusters = {Thruster1};
 Create Thruster Thruster1;
 GMAT Thruster1.CoordinateSystem = EarthMJ2000Eq;
 %%----- Test deprecated Element* on Thruster
-GMAT Thruster1.Element1 = 1;
-GMAT Thruster1.Element2 = 0.1;
-GMAT Thruster1.Element3 = -0.2;
+%GMAT Thruster1.Element1 = 1;
+%GMAT Thruster1.Element2 = 0.1;
+%GMAT Thruster1.Element3 = -0.2;
+GMAT Thruster1.ThrustDirection1 = 1;
+GMAT Thruster1.ThrustDirection2 = 0.1;
+GMAT Thruster1.ThrustDirection3 = -0.2;
 GMAT Thruster1.DutyCycle = 0.9;
 GMAT Thruster1.ThrustScaleFactor = 0.95;
 GMAT Thruster1.DecrementMass = true;
@@ -59,6 +62,12 @@ GMAT FuelTank1.Volume = 0.8;
 GMAT FuelTank1.FuelDensity = 1029;
 GMAT FuelTank1.PressureModel = BlowDown;
 
+%% Note
+%% If tand and thruster are attached after setting value of tank and thruster,
+%% it gives the same result as running script.
+%%GMAT Sat.Tanks = {FuelTank1};
+%%GMAT Sat.Thrusters = {Thruster1};
+
 Create ForceModel DefaultProp_ForceModel;
 
 Create Propagator DefaultProp;
@@ -70,6 +79,24 @@ GMAT TestReport.WriteHeaders = On;
 GMAT TestReport.Precision = 21;
 GMAT TestReport.ColumnWidth = 25;
 
+%%----- Write Spacecraft state
+Report TestReport MMS.X;
+Report TestReport MMS.Y;
+Report TestReport MMS.Z;
+Report TestReport MMS.VX;
+Report TestReport MMS.VY;
+Report TestReport MMS.VZ;
+
+Report TestReport MMS.SMA;
+Report TestReport MMS.ECC;
+Report TestReport MMS.INC;
+Report TestReport MMS.RAAN;
+Report TestReport MMS.AOP;
+Report TestReport MMS.TA;
+Report TestReport MMS.MA;
+Report TestReport MMS.HA;
+
+%%----- Write Spacecraft tand and thruster
 Report TestReport Sat.FuelTank1.FuelMass
 Report TestReport Sat.FuelTank1.Pressure
 Report TestReport Sat.FuelTank1.Temperature
@@ -114,6 +141,52 @@ Report TestReport Sat.Thruster1.K16
 Report TestReport Sat.Thruster1.ThrustDirection1
 Report TestReport Sat.Thruster1.ThrustDirection2
 Report TestReport Sat.Thruster1.ThrustDirection3
+
+%%----- Test setting attitude parameters
+MMS.Quaternion = [1.0 0.0 0.0 0.0];
+%Report TestReport MMS.Quaternion; % TBI
+Report TestReport MMS.Q1 MMS.Q2 MMS.Q3 MMS.Q4;
+Report TestReport MMS.DCM11 MMS.DCM12 MMS.DCM13
+Report TestReport MMS.DCM21 MMS.DCM22 MMS.DCM23
+Report TestReport MMS.DCM31 MMS.DCM32 MMS.DCM33
+
+MMS.DCM11 = 1;
+MMS.DCM12 = 0;
+MMS.DCM13 = 0;
+MMS.DCM21 = 0;
+MMS.DCM22 = 1;
+MMS.DCM23 = 0;
+MMS.DCM31 = 0;
+MMS.DCM32 = 0;
+MMS.DCM33 = 1;
+Report TestReport MMS.DCM11 MMS.DCM12 MMS.DCM13
+Report TestReport MMS.DCM21 MMS.DCM22 MMS.DCM23
+Report TestReport MMS.DCM31 MMS.DCM32 MMS.DCM33
+
+%%----- Test setting time parameters
+MMS.A1ModJulian  = 21546.00000039794;
+Report TestReport MMS.A1ModJulian;
+
+MMS.TAIModJulian = 21546;
+Report TestReport MMS.TAIModJulian;
+
+MMS.UTCModJulian = 21545.99962962963;
+Report TestReport MMS.UTCModJulian;
+
+MMS.TTModJulian  = 21546.0003725;
+Report TestReport MMS.TTModJulian;
+
+MMS.A1Gregorian  = '01 Jan 2001 12:00:00.034';
+Report TestReport MMS.A1Gregorian;
+
+MMS.TAIGregorian = '01 Jan 2001 12:00:00.000';
+Report TestReport MMS.TAIGregorian;
+
+MMS.UTCGregorian = '01 Jan 2001 11:59:28.000';
+Report TestReport MMS.UTCGregorian;
+
+MMS.TTGregorian  = '01 Jan 2001 12:00:32.184';
+Report TestReport MMS.TTGregorian;
 
 %%----- Test setting local spacecraft owned object
 
