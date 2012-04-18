@@ -168,15 +168,6 @@ EndIf
 Report StopCond_Report  passFlag;
 
 DefaultSC = InitSat;
-Propagate DefaultProp(DefaultSC, {DefaultSC.TCBModJulian = 23158.042037434974, StopTolerance = 1e-5});
-diff = abs(DefaultSC.TCBModJulian - 23158.042037434974);
-passFlag = 1;
-If diff > 1e-5
-   passFlag = 0;
-EndIf    
-Report StopCond_Report  passFlag;
-
-DefaultSC = InitSat;
 Propagate DefaultProp(DefaultSC, {DefaultSC.TDBModJulian = 23158.042037434974, StopTolerance = 1e-5});
 diff = abs(DefaultSC.TDBModJulian - 23158.042037434974);
 passFlag = 1;
@@ -886,15 +877,6 @@ Report StopCond_Report  passFlag;
 DefaultSC = InitSat;
 Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.TAIModJulian = 23157.942037434974, StopTolerance = 1e-5});
 diff = abs(DefaultSC.TAIModJulian - 23157.942037434974);
-passFlag = 1;
-If diff > 1e-5
-   passFlag = 0;
-EndIf    
-Report StopCond_Report  passFlag;
-
-DefaultSC = InitSat;
-Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.TCBModJulian = 23157.942037434974, StopTolerance = 1e-5});
-diff = abs(DefaultSC.TCBModJulian - 23157.942037434974);
 passFlag = 1;
 If diff > 1e-5
    passFlag = 0;

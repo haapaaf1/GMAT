@@ -1,6 +1,7 @@
 %$Id%
 function WriteParameters(MMS, filename)
 
+Create String msg;
 Create Spacecraft Sat;
 GMAT Sat.Tanks = {FuelTank1};
 GMAT Sat.Thrusters = {Thruster1};
@@ -62,12 +63,14 @@ GMAT FuelTank1.Volume = 0.8;
 GMAT FuelTank1.FuelDensity = 1029;
 GMAT FuelTank1.PressureModel = BlowDown;
 
+%%===================================================================
 %% Note
-%% If tand and thruster are attached after setting value of tank and thruster,
-%% it gives the same result as running script.
+%% If tank and thruster are attached after setting value of tank and thruster,
+%% it gives the same result as running script. Hope fixing the cloning issue will
+%% fix this one also.
 %%GMAT Sat.Tanks = {FuelTank1};
 %%GMAT Sat.Thrusters = {Thruster1};
-
+%%====================================================================
 Create ForceModel DefaultProp_ForceModel;
 
 Create Propagator DefaultProp;
@@ -80,6 +83,8 @@ GMAT TestReport.Precision = 21;
 GMAT TestReport.ColumnWidth = 25;
 
 %%----- Write Spacecraft state
+msg = '-------------------- Spacecraft Cartesian State';
+Report TestReport msg;
 Report TestReport MMS.X;
 Report TestReport MMS.Y;
 Report TestReport MMS.Z;
@@ -87,6 +92,8 @@ Report TestReport MMS.VX;
 Report TestReport MMS.VY;
 Report TestReport MMS.VZ;
 
+msg = '-------------------- Spacecraft Keplerian State';
+Report TestReport msg;
 Report TestReport MMS.SMA;
 Report TestReport MMS.ECC;
 Report TestReport MMS.INC;
@@ -96,13 +103,26 @@ Report TestReport MMS.TA;
 Report TestReport MMS.MA;
 Report TestReport MMS.HA;
 
+%%===================================================================
+%% Note
+%% If tank and thruster are attached after setting value of tank and thruster,
+%% it gives the same result as running script. Hope cloning issue will
+%% fix this one.
+%%GMAT Sat.Tanks = {FuelTank1};
+%%GMAT Sat.Thrusters = {Thruster1};
+%%====================================================================
 %%----- Write Spacecraft tand and thruster
+msg = '-------------------- Spacecraft Tank - Currently it gives wrong result';
+Report TestReport msg;
 Report TestReport Sat.FuelTank1.FuelMass
 Report TestReport Sat.FuelTank1.Pressure
 Report TestReport Sat.FuelTank1.Temperature
 Report TestReport Sat.FuelTank1.RefTemperature
 Report TestReport Sat.FuelTank1.Volume
 Report TestReport Sat.FuelTank1.FuelDensity
+
+msg = '-------------------- Spacecraft Thruster - Currently it gives wrong result';
+Report TestReport msg;
 Report TestReport Sat.Thruster1.DutyCycle
 Report TestReport Sat.Thruster1.ThrustScaleFactor
 Report TestReport Sat.Thruster1.GravitationalAccel
@@ -143,14 +163,49 @@ Report TestReport Sat.Thruster1.ThrustDirection2
 Report TestReport Sat.Thruster1.ThrustDirection3
 
 %%----- Test setting attitude parameters
-MMS.Quaternion = [1.0 0.0 0.0 0.0];
-%Report TestReport MMS.Quaternion; % TBI
+msg = '-------------------- Spacecraft Quaternion';
+Report TestReport msg;
+Report TestReport MMS.Quaternion;
+
+msg = '-------------------- Spacecraft Q1 Q2 Q3 Q4';
+Report TestReport msg;
 Report TestReport MMS.Q1 MMS.Q2 MMS.Q3 MMS.Q4;
+
+msg = '-------------------- Spacecraft DMC';
+Report TestReport msg;
 Report TestReport MMS.DCM11 MMS.DCM12 MMS.DCM13
 Report TestReport MMS.DCM21 MMS.DCM22 MMS.DCM23
 Report TestReport MMS.DCM31 MMS.DCM32 MMS.DCM33
 
-MMS.DCM11 = 1;
+msg = '-------------------- Spacecraft Euler Angle';
+Report TestReport msg;
+Report TestReport MMS.EulerAngle1 MMS.EulerAngle2 MMS.EulerAngle3
+
+msg = '------------------------------ Setting Quaternion to [1 0 0 0]';
+Report TestReport msg;
+MMS.Quaternion = [1.0 0.0 0.0 0.0];
+
+msg = '-------------------- Spacecraft Quaternion';
+Report TestReport msg;
+Report TestReport MMS.Quaternion;
+
+msg = '-------------------- Spacecraft Q1 Q2 Q3 Q4';
+Report TestReport msg;
+Report TestReport MMS.Q1 MMS.Q2 MMS.Q3 MMS.Q4;
+
+msg = '-------------------- Spacecraft DCM';
+Report TestReport msg;
+Report TestReport MMS.DCM11 MMS.DCM12 MMS.DCM13
+Report TestReport MMS.DCM21 MMS.DCM22 MMS.DCM23
+Report TestReport MMS.DCM31 MMS.DCM32 MMS.DCM33
+
+msg = '-------------------- Spacecraft Euler Angle';
+Report TestReport msg;
+Report TestReport MMS.EulerAngle1 MMS.EulerAngle2 MMS.EulerAngle3
+
+msg = '------------------------------ Setting DCM to -1 1 -1 diagonally';
+Report TestReport msg;
+MMS.DCM11 = -1;
 MMS.DCM12 = 0;
 MMS.DCM13 = 0;
 MMS.DCM21 = 0;
@@ -158,12 +213,53 @@ MMS.DCM22 = 1;
 MMS.DCM23 = 0;
 MMS.DCM31 = 0;
 MMS.DCM32 = 0;
-MMS.DCM33 = 1;
+MMS.DCM33 = -1;
+
+msg = '-------------------- Spacecraft DCM';
+Report TestReport msg;
 Report TestReport MMS.DCM11 MMS.DCM12 MMS.DCM13
 Report TestReport MMS.DCM21 MMS.DCM22 MMS.DCM23
 Report TestReport MMS.DCM31 MMS.DCM32 MMS.DCM33
 
+msg = '-------------------- Spacecraft Quaternion';
+Report TestReport msg;
+Report TestReport MMS.Quaternion;
+
+msg = '-------------------- Spacecraft Q1 Q2 Q3 Q4';
+Report TestReport msg;
+Report TestReport MMS.Q1 MMS.Q2 MMS.Q3 MMS.Q4;
+
+msg = '-------------------- Spacecraft Euler Angle';
+Report TestReport msg;
+Report TestReport MMS.EulerAngle1 MMS.EulerAngle2 MMS.EulerAngle3
+
+msg = '------------------------------ Setting Euler Angle to [0 0 180]';
+Report TestReport msg;
+MMS.EulerAngle1 = 0;
+MMS.EulerAngle2 = 0;
+MMS.EulerAngle3 = 180;
+
+msg = '-------------------- Spacecraft Euler Angle';
+Report TestReport msg;
+Report TestReport MMS.EulerAngle1 MMS.EulerAngle2 MMS.EulerAngle3
+
+msg = '-------------------- Spacecraft DCM';
+Report TestReport msg;
+Report TestReport MMS.DCM11 MMS.DCM12 MMS.DCM13
+Report TestReport MMS.DCM21 MMS.DCM22 MMS.DCM23
+Report TestReport MMS.DCM31 MMS.DCM32 MMS.DCM33
+
+msg = '-------------------- Spacecraft Quaternion';
+Report TestReport msg;
+Report TestReport MMS.Quaternion;
+
+msg = '-------------------- Spacecraft Q1 Q2 Q3 Q4';
+Report TestReport msg;
+Report TestReport MMS.Q1 MMS.Q2 MMS.Q3 MMS.Q4;
+
 %%----- Test setting time parameters
+msg = '-------------------- Testing Time Parameters';
+Report TestReport msg;
 MMS.A1ModJulian  = 21546.00000039794;
 Report TestReport MMS.A1ModJulian;
 
@@ -188,8 +284,9 @@ Report TestReport MMS.UTCGregorian;
 MMS.TTGregorian  = '01 Jan 2001 12:00:32.184';
 Report TestReport MMS.TTGregorian;
 
-%%----- Test setting local spacecraft owned object
+%%MMS.TTGregorian  = 'DNE';
 
+%%----- Test setting local spacecraft owned object
 GMAT Sat.DryMass = 2222.5
 GMAT Sat.FuelTank1.FuelMass = 123.5
 GMAT Sat.Thruster1.C11 = 111.5

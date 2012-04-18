@@ -186,7 +186,7 @@ GMAT RadApoPlot.SolverIterations = None;
 
 
 Create ReportFile BPlaneCoords;
-GMAT BPlaneCoords.Filename = APT_BplaneTaraget.report;
+GMAT BPlaneCoords.Filename = APT_BplaneTarget.report;
 GMAT BPlaneCoords.Precision = 12;
 GMAT BPlaneCoords.WriteHeaders = On;
 GMAT BPlaneCoords.ColumnWidth = 20;

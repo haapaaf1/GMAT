@@ -4,6 +4,7 @@
 %----------------------------------------
 
 Create Spacecraft DefaultSC;
+Create Spacecraft Sat;
 
 %----------------------------------------
 %---------- Variables
@@ -15,6 +16,11 @@ Create Variable varIn varOut pi;
 Create Array ArrayIn33[3,3] ArrayOut22[2,2] Array31[3,1] Array13[1,3]
 Create Spacecraft SatIn SatOut
 Create Variable matlabResult diff;
+Create Variable flat lat R rXY ecc2 d2r alt error flag;
+Create Variable alt1 alt2;
+Create Variable a b c d e result;
+Create Variable temp1 result1;
+Create Array vec[4,1];
 
 %===== Define some constants
 GMAT A(1,1) = 11;
@@ -38,8 +44,8 @@ matlabResult = -0.117756545136962;
 %----------------------------------------
 
 Create ReportFile rf;
-GMAT rf.Filename = MAHT_MathOperators1.report
-GMAT rf.ColumnWidth = 12;
+GMAT rf.Filename = MATH_MathOperators1.report
+GMAT rf.ColumnWidth = 20;
 
 
 %----------------------------------------
@@ -96,3 +102,92 @@ varOut = sin(  abs(-.5 )+ acos(.5 ) -  asin(.5 )*atan(.5 )*atan2(.5,.5)...
 
 diff = varOut - matlabResult;
 Report rf varOut matlabResult diff;
+
+flat = 0.0001234;
+R = 6370;
+d2r = 0.0174532925199433;
+ecc2 = 2*flat - flat^2;
+rXY = 6692.253180174328;
+lat = -6.717708354078248;
+alt1 = rXY/cos(lat*d2r);
+alt2 = alt1 - R/sqrt(1 - ecc2*sin(lat*d2r)^2);
+alt = rXY/cos(lat*d2r) - R/sqrt(1 - ecc2*sin(lat*d2r)^2);
+
+Report rf rXY lat d2r;
+Report rf R ecc2 lat alt;
+Report rf alt1 alt2;
+
+%% Some test from Bug401-ParenthesisTestScript.script
+a = 2.34;
+b = 1000;
+c = 34.78;
+d = 0.000134;
+vec(1,1) = a;
+vec(2,1) = b;
+vec(3,1) = c;
+vec(4,1) = d;
+Sat.X  = a;
+Sat.Y  = b;
+Sat.Z  = c;
+Sat.VX = d;
+
+%% Test 9
+result  =  a*d/(c*b)  - 9.01552616446233*10^(-9)
+matlabResult = 4.963083675318166e-024;
+diff = result - matlabResult;
+Report rf result matlabResult diff;
+
+%% Test 10
+result = a*d*c/(b)  - 1.09056168*10^(-5)
+matlabResult = 0;
+diff = result - matlabResult;
+Report rf result matlabResult diff;
+
+%% Test 22
+result = Sat.X*Sat.VX/(Sat.Z*Sat.Y) - 9.01552616446233*10^(-9)
+matlabResult = 4.963083675318166e-024
+diff = result - matlabResult;
+Report rf result matlabResult diff;
+
+%% Test 49
+result = Sat.X/(1000/c/d) - 1.09056168*10^(-5)
+matlabResult = 1.694065894508601e-021
+diff = result - matlabResult;
+Report rf result matlabResult diff;
+
+%% Test 51
+result = 2.34/1000*34.78*(Sat.VX) -  1.09056168*10^(-5)
+matlabResult = 1.694065894508601e-021
+diff = result - matlabResult;
+Report rf result matlabResult diff;
+
+%% Test 63
+result = vec(1,1)*vec(4,1)/(vec(3,1)*vec(2,1)) - 9.01552616446233*10^(-9)
+matlabResult = 4.963083675318166e-024
+diff = result - matlabResult;
+Report rf result matlabResult diff;
+
+%% Test 67
+result = (vec(1,1))*vec(4,1)*vec(3,1)/vec(2,1)  -  1.09056168*10^(-5)
+matlabResult = 0
+diff = result - matlabResult;
+Report rf result matlabResult diff;
+
+%% Test 87
+result = (vec(1,1)/Sat.Y)/c*vec(4,1) - 9.01552616446233*10^(-9)
+matlabResult = 4.963083675318166e-024
+diff = result - matlabResult;
+Report rf result matlabResult diff;
+
+%% Test 90
+result = vec(1,1)/(1000/c/vec(4,1)) - 1.09056168*10^(-5)
+matlabResult = 1.694065894508601e-021
+diff = result - matlabResult;
+Report rf result matlabResult diff;
+
+%% Test 92
+result = 2.34/1000*34.78*(vec(4,1)) -  1.09056168*10^(-5)
+matlabResult = 1.694065894508601e-021
+diff = result - matlabResult;
+Report rf result matlabResult diff;
+

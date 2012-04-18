@@ -177,7 +177,8 @@ GMAT FuncOutput.ColumnWidth = 20;
 
 Create ReportFile Data;
 GMAT Data.SolverIterations = Current;
-GMAT Data.Filename = '';
+%%GMAT Data.Filename = '';
+GMAT Data.Filename = 'Bug1421-Data.report';
 GMAT Data.Precision = 16;
 GMAT Data.WriteHeaders = On;
 GMAT Data.LeftJustify = On;
