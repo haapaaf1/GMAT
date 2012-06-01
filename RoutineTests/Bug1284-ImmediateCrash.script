@@ -81,7 +81,6 @@ GMAT MoonCentered.MaxStepAttempts = 50;
 Create ImpulsiveBurn LSI;
 GMAT LSI.Origin = Earth;
 GMAT LSI.Axes = VNB;
-GMAT LSI.VectorFormat = Cartesian;
 GMAT LSI.Element1 = 0.14676929889;
 GMAT LSI.Element2 = 0.046042675892;
 GMAT LSI.Element3 = 0.090223244097;
@@ -89,7 +88,6 @@ GMAT LSI.Element3 = 0.090223244097;
 Create ImpulsiveBurn ALM;
 GMAT ALM.Origin = Earth;
 GMAT ALM.Axes = VNB;
-GMAT ALM.VectorFormat = Cartesian;
 GMAT ALM.Element1 = -0.3198120104;
 GMAT ALM.Element2 = 0;
 GMAT ALM.Element3 = 0;
@@ -97,7 +95,6 @@ GMAT ALM.Element3 = 0;
 Create ImpulsiveBurn LOI;
 GMAT LOI.Origin = Luna;
 GMAT LOI.Axes = VNB;
-GMAT LOI.VectorFormat = Cartesian;
 GMAT LOI.Element1 = -0.652;
 GMAT LOI.Element2 = 0;
 GMAT LOI.Element3 = 0;
@@ -161,9 +158,9 @@ GMAT EarthMoonRot.Secondary = Luna;
 Create DifferentialCorrector DC1;
 GMAT DC1.ShowProgress = true;
 GMAT DC1.ReportStyle = 'Normal';
-GMAT DC1.TargeterTextFile = 'DifferentialCorrectorDC1.data';
+GMAT DC1.ReportFile = 'DifferentialCorrectorDC1.data';
 GMAT DC1.MaximumIterations = 25;
-GMAT DC1.UseCentralDifferences = false;
+GMAT DC1.DerivativeMethod = CentralDifferences;
 
 
 %--------------------------------------------------------------------------
@@ -244,9 +241,9 @@ GMAT OGL_EarthMoonRot.ShowPlot = true;
 
 Create XYPlot RadApoPlot;
 GMAT RadApoPlot.SolverIterations = None;
-GMAT RadApoPlot.IndVar = MMSRef.CurrA1MJD;
-GMAT RadApoPlot.Add = {MMSRef.RMAG};
-GMAT RadApoPlot.Grid = On;
+GMAT RadApoPlot.XVariable = MMSRef.CurrA1MJD;
+GMAT RadApoPlot.YVariables = {MMSRef.RMAG};
+GMAT RadApoPlot.ShowGrid = true;
 GMAT RadApoPlot.ShowPlot = true;
 
 Create ReportFile Data;
@@ -280,10 +277,10 @@ GMAT Data.WriteHeaders = Off;
 %------------------------------
 Target DC1;
    
-   Vary DC1(LSI.V = 0.1462, {Perturbation = 1e-005, MaxStep = .01, Lower = .13, Upper = .5});
+   Vary DC1(LSI.Element1 = 0.1462, {Perturbation = 1e-005, MaxStep = .01, Lower = .13, Upper = .5});
    %Vary DC1(LSI.N = 0.046042 , {Perturbation = 1e-005, MaxStep = .01, Lower = -.5, Upper = .5});
    
-   Vary DC1(LSI.B = 0.1086, {Perturbation = 1e-005, MaxStep = .01, Lower = -.5, Upper = .5});
+   Vary DC1(LSI.Element3 = 0.1086, {Perturbation = 1e-005, MaxStep = .01, Lower = -.5, Upper = .5});
    
    Maneuver LSI(MMSRef);
    
@@ -301,7 +298,7 @@ Report Data MMSRef.A1ModJulian MMSRef.X MMSRef.Y MMSRef.Z MMSRef.VX MMSRef.VY MM
 %------------------------------
 Target DC1;
    
-   Vary DC1(LOI.V = -0.65198120104, {Perturbation = 1e-003, MaxStep = .3, Lower = -3, Upper = 0});
+   Vary DC1(LOI.Element1 = -0.65198120104, {Perturbation = 1e-003, MaxStep = .3, Lower = -3, Upper = 0});
    
    Maneuver LOI(MMSRef);
    Propagate MoonCentered(MMSRef) {MMSRef.Luna.Periapsis};

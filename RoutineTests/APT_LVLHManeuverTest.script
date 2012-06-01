@@ -73,7 +73,6 @@ Create ImpulsiveBurn dvLVLH;
 GMAT dvLVLH.CoordinateSystem = Local;
 GMAT dvLVLH.Origin = Earth;
 GMAT dvLVLH.Axes = LVLH;
-GMAT dvLVLH.VectorFormat = Cartesian;
 GMAT dvLVLH.Element1 = .1;
 GMAT dvLVLH.Element2 = .1;
 GMAT dvLVLH.Element3 = .1;

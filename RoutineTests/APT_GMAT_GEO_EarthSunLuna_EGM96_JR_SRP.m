@@ -20,7 +20,7 @@
 
 Create ForceModel EarthEGM96;
 GMAT EarthEGM96.PrimaryBodies = {Earth};
-GMAT EarthEGM96.Drag = JacchiaRoberts;
+GMAT EarthEGM96.Drag.AtmosphereModel = JacchiaRoberts;
 GMAT EarthEGM96.Drag.F107 = 150;
 GMAT EarthEGM96.Drag.F107A = 150;
 GMAT EarthEGM96.Drag.MagneticIndex = 3;

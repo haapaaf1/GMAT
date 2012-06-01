@@ -195,9 +195,6 @@ GMAT OGL_EarthMJ2K.ShowPlot = true;
 GMAT OGL_EarthMJ2K.StarCount = 3000;
 GMAT OGL_EarthMJ2K.EnableStars = On;
 GMAT OGL_EarthMJ2K.EnableConstellations = On;
-GMAT OGL_EarthMJ2K.MinFOV = 0;
-GMAT OGL_EarthMJ2K.MaxFOV = 90;
-GMAT OGL_EarthMJ2K.InitialFOV = 45;
 
 Create OrbitView OGL_MoonMJ2K;
 GMAT OGL_MoonMJ2K.SolverIterations = Current;
@@ -225,9 +222,6 @@ GMAT OGL_MoonMJ2K.ShowPlot = true;
 GMAT OGL_MoonMJ2K.StarCount = 3000;
 GMAT OGL_MoonMJ2K.EnableStars = On;
 GMAT OGL_MoonMJ2K.EnableConstellations = On;
-GMAT OGL_MoonMJ2K.MinFOV = 0;
-GMAT OGL_MoonMJ2K.MaxFOV = 90;
-GMAT OGL_MoonMJ2K.InitialFOV = 45;
 
 Create OrbitView OGL_EarthMoonRot;
 GMAT OGL_EarthMoonRot.SolverIterations = Current;
@@ -255,9 +249,6 @@ GMAT OGL_EarthMoonRot.ShowPlot = true;
 GMAT OGL_EarthMoonRot.StarCount = 3000;
 GMAT OGL_EarthMoonRot.EnableStars = On;
 GMAT OGL_EarthMoonRot.EnableConstellations = On;
-GMAT OGL_EarthMoonRot.MinFOV = 0;
-GMAT OGL_EarthMoonRot.MaxFOV = 90;
-GMAT OGL_EarthMoonRot.InitialFOV = 45;
 
 Create XYPlot RadApoPlot;
 GMAT RadApoPlot.SolverIterations = None;

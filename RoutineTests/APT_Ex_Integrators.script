@@ -110,7 +110,6 @@ GMAT GLPlot.ViewPointReference = Earth;
 GMAT GLPlot.ViewPointVector = Vector;
 GMAT GLPlot.ViewDirection = Earth;
 GMAT GLPlot.ViewScaleFactor = 3;
-GMAT GLPlot.FixedFovAngle = 45;
 GMAT GLPlot.ViewUpCoordinateSystem = EarthMJ2000Eq;
 GMAT GLPlot.ViewUpAxis = X;
 GMAT GLPlot.Axes       = On;

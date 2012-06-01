@@ -20,7 +20,7 @@
 
 Create ForceModel Earth2Body;
 GMAT Earth2Body.PrimaryBodies = {Earth};
-GMAT Earth2Body.Drag = MSISE90;
+GMAT Earth2Body.Drag.AtmosphereModel = MSISE90;
 GMAT Earth2Body.Drag.F107 = 150;
 GMAT Earth2Body.Drag.F107A = 150;
 GMAT Earth2Body.Drag.MagneticIndex = 3;

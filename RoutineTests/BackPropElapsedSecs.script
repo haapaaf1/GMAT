@@ -105,9 +105,9 @@ GMAT bp.SolverIterations = None;
 
 %  Create XYPlot  
 Create XYPlot Sat1SphereCoord;
-GMAT Sat1SphereCoord.IndVar = backward.ElapsedDays;
-GMAT Sat1SphereCoord.Add = {backward.TA, backward.RAAN};
-GMAT Sat1SphereCoord.Grid = On;
+GMAT Sat1SphereCoord.XVariable = backward.ElapsedDays;
+GMAT Sat1SphereCoord.YVariables = {backward.TA, backward.RAAN};
+GMAT Sat1SphereCoord.ShowGrid = true;
 GMAT Sat1SphereCoord.SolverIterations = None;
 GMAT Sat1SphereCoord.ShowPlot = true;
 
@@ -119,7 +119,6 @@ GMAT SatOpenGL.CoordinateSystem = EarthMJ2000Eq;
 GMAT SatOpenGL.ViewPointReference = Earth;
 GMAT SatOpenGL.ViewDirection = Earth;
 GMAT SatOpenGL.ViewScaleFactor = 1;
-GMAT SatOpenGL.FixedFovAngle = 45;
 GMAT SatOpenGL.ViewUpCoordinateSystem = EarthMJ2000Eq;
 GMAT SatOpenGL.ViewUpAxis = Z;
 GMAT SatOpenGL.CelestialPlane = Off;
@@ -130,8 +129,6 @@ GMAT SatOpenGL.Axes = On;
 GMAT SatOpenGL.Grid = Off;
 GMAT SatOpenGL.SunLine = Off;
 GMAT SatOpenGL.UseInitialView = On;
-GMAT SatOpenGL.PerspectiveMode = Off;
-GMAT SatOpenGL.UseFixedFov = Off;
 GMAT SatOpenGL.DataCollectFrequency = 1;
 GMAT SatOpenGL.UpdatePlotFrequency = 50;
 GMAT SatOpenGL.NumPointsToRedraw = 0;
@@ -145,7 +142,6 @@ GMAT OpenGLPlot1.ViewPointReference = Earth;
 GMAT OpenGLPlot1.ViewPointVector = [ 0 3000 30000];
 GMAT OpenGLPlot1.ViewDirection = Earth;
 GMAT OpenGLPlot1.ViewScaleFactor = 2;
-GMAT OpenGLPlot1.FixedFovAngle = 45;
 GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
 GMAT OpenGLPlot1.ViewUpAxis = Z;
 GMAT OpenGLPlot1.CelestialPlane = Off;
@@ -156,17 +152,15 @@ GMAT OpenGLPlot1.Axes = On;
 GMAT OpenGLPlot1.Grid = Off;
 GMAT OpenGLPlot1.SunLine = Off;
 GMAT OpenGLPlot1.UseInitialView = On;
-GMAT OpenGLPlot1.PerspectiveMode = Off;
-GMAT OpenGLPlot1.UseFixedFov = Off;
 GMAT OpenGLPlot1.DataCollectFrequency = 1;
 GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
 GMAT OpenGLPlot1.NumPointsToRedraw = 0;
 GMAT OpenGLPlot1.ShowPlot = true;
 
 Create XYPlot XYPlot1;
-GMAT XYPlot1.IndVar = forward.A1ModJulian;
-GMAT XYPlot1.Add = {forward.EarthMJ2000Eq.X};
-GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.XVariable = forward.A1ModJulian;
+GMAT XYPlot1.YVariables = {forward.EarthMJ2000Eq.X};
+GMAT XYPlot1.ShowGrid = true;
 GMAT XYPlot1.SolverIterations = None;
 GMAT XYPlot1.ShowPlot = true;
 

@@ -15,9 +15,6 @@ GMAT mmsThruster.ThrustDirection3 = 0.333;
 Create Thruster Thruster1;
 GMAT Thruster1.CoordinateSystem = EarthMJ2000Eq;
 %%----- Test deprecated Element* on Thruster
-%GMAT Thruster1.Element1 = 1;
-%GMAT Thruster1.Element2 = 0.1;
-%GMAT Thruster1.Element3 = -0.2;
 GMAT Thruster1.ThrustDirection1 = 1;
 GMAT Thruster1.ThrustDirection2 = 0.1;
 GMAT Thruster1.ThrustDirection3 = -0.2;
@@ -307,9 +304,9 @@ Report TestReport Sat.Thruster1.ThrustDirection3
 
 %%----- Test deprecated Element* on Thruster
 
-GMAT Sat.Thruster1.Element1 = 0.444;
-GMAT Sat.Thruster1.Element2 = 0.555;
-GMAT Sat.Thruster1.Element3 = 0.666;
+GMAT Sat.Thruster1.ThrustDirection1 = 0.444;
+GMAT Sat.Thruster1.ThrustDirection2 = 0.555;
+GMAT Sat.Thruster1.ThrustDirection3 = 0.666;
 
 Report TestReport Sat.Thruster1.Element1
 Report TestReport Sat.Thruster1.Element2

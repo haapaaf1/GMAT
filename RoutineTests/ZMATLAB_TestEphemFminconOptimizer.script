@@ -57,7 +57,6 @@ GMAT DefaultOpenGL.CoordinateSystem = EarthMJ2000Eq;
 GMAT DefaultOpenGL.ViewPointReference = Earth;
 GMAT DefaultOpenGL.ViewDirection = Earth;
 GMAT DefaultOpenGL.ViewScaleFactor = 1;
-GMAT DefaultOpenGL.FixedFovAngle = 45;
 GMAT DefaultOpenGL.ViewUpCoordinateSystem = EarthMJ2000Eq;
 GMAT DefaultOpenGL.ViewUpAxis = X;
 GMAT DefaultOpenGL.CelestialPlane = Off;
@@ -68,8 +67,6 @@ GMAT DefaultOpenGL.Axes = Off;
 GMAT DefaultOpenGL.Grid = Off;
 GMAT DefaultOpenGL.SunLine = Off;
 GMAT DefaultOpenGL.UseInitialView = On;
-GMAT DefaultOpenGL.PerspectiveMode = Off;
-GMAT DefaultOpenGL.UseFixedFov = Off;
 GMAT DefaultOpenGL.DataCollectFrequency = 1;
 GMAT DefaultOpenGL.UpdatePlotFrequency = 50;
 GMAT DefaultOpenGL.NumPointsToRedraw = 0;
@@ -118,15 +115,9 @@ Create FminconOptimizer SQPfmincon
 GMAT SQPfmincon.DiffMaxChange = 0.1;      % Real number
 GMAT SQPfmincon.DiffMinChange = 0.00001;  % Real number
 GMAT SQPfmincon.MaxFunEvals   = 500;      % Real number
-GMAT SQPfmincon.MaxIter       = 20;       % Real number
 GMAT SQPfmincon.TolX          = 0.001;    % Real number
 GMAT SQPfmincon.TolFun        = 0.0001;   % Real number
 GMAT SQPfmincon.TolCon        = 0.0001;   % Real number
-GMAT SQPfmincon.DerivativeCheck = Off;    % {On, Off}
-GMAT SQPfmincon.Diagnostics     = On;     % {On, Off}
-GMAT SQPfmincon.Display         = Iter    % {Iter, Off, Notify, Final}
-GMAT SQPfmincon.GradObj         = Off;    % {On, Off}
-GMAT SQPfmincon.GradConstr      = Off;    % {On, Off}
 
 %-----------------------------------------------------------------
 %--------------------------Create Maneuvers-----------------------

@@ -54,7 +54,6 @@ GMAT DefaultProp.MaxStepAttempts = 50;
 Create ImpulsiveBurn ImpulsiveBurn1;
 GMAT ImpulsiveBurn1.Origin = Earth;
 GMAT ImpulsiveBurn1.Axes = VNB;
-GMAT ImpulsiveBurn1.VectorFormat = Cartesian;
 GMAT ImpulsiveBurn1.Element1 = 1.364194709769683;
 GMAT ImpulsiveBurn1.Element2 = 0;
 GMAT ImpulsiveBurn1.Element3 = 0;
@@ -104,16 +103,16 @@ GMAT EarthFixed.OverrideOriginInterval = false;
 Create DifferentialCorrector DC1;
 GMAT DC1.ShowProgress = true;
 GMAT DC1.ReportStyle = Normal;
-GMAT DC1.TargeterTextFile = Bug333-DC1.data;
+GMAT DC1.ReportFile = Bug333-DC1.data;
 GMAT DC1.MaximumIterations = 25;
-GMAT DC1.UseCentralDifferences = false;
+GMAT DC1.DerivativeMethod = ForwardDifference;
 
 Create DifferentialCorrector DC2;
 GMAT DC2.ShowProgress = true;
 GMAT DC2.ReportStyle = Normal;
-GMAT DC2.TargeterTextFile = Bug333-DC2.data;
+GMAT DC2.ReportFile = Bug333-DC2.data;
 GMAT DC2.MaximumIterations = 25;
-GMAT DC2.UseCentralDifferences = false;
+GMAT DC2.DerivativeMethod = ForwardDifference;
 
 
 %----------------------------------------
@@ -180,9 +179,9 @@ GMAT OpenGLPlot2.ShowPlot = true;
 
 Create XYPlot XYPlot1;
 GMAT XYPlot1.SolverIterations = None;
-GMAT XYPlot1.IndVar = DefaultSC.A1ModJulian;
-GMAT XYPlot1.Add = {DefaultSC.EarthMJ2000Eq.X};
-GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.XVariable = DefaultSC.A1ModJulian;
+GMAT XYPlot1.YVariables = {DefaultSC.EarthMJ2000Eq.X};
+GMAT XYPlot1.ShowGrid = true;
 GMAT XYPlot1.ShowPlot = true;
 
 Create OpenGLPlot OpenGLPlot3;
@@ -222,7 +221,7 @@ Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
 Report rf DefaultSC.A1ModJulian DefaultSC.X DefaultSC.Y DefaultSC.Z 
 
 Target DC1;
-   Vary DC1(ImpulsiveBurn1.V = 0.5, {Perturbation = 1e-006, MaxStep = 50, Lower = -10, Upper = 10});
+   Vary DC1(ImpulsiveBurn1.Element1 = 0.5, {Perturbation = 1e-006, MaxStep = 50, Lower = -10, Upper = 10});
    Maneuver ImpulsiveBurn1(DefaultSC);
    Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 180};
    %%%Achieve DC1(DefaultSC.SMA = 15000, {Tolerance = 0.1});
@@ -234,7 +233,7 @@ EndTarget;  % For targeter DC1
 Report rf DefaultSC.A1ModJulian DefaultSC.X DefaultSC.Y DefaultSC.Z 
 
 Target DC2;
-   Vary DC2(ImpulsiveBurn1.V = 0.5, {Perturbation = 1e-006, MaxStep = 50, Lower = -10, Upper = 10});
+   Vary DC2(ImpulsiveBurn1.Element1 = 0.5, {Perturbation = 1e-006, MaxStep = 50, Lower = -10, Upper = 10});
    Maneuver ImpulsiveBurn1(DefaultSC);
    Propagate DefaultProp(DefaultSC) {DefaultSC.Earth.TA = 0};
    %%%Achieve DC2(DefaultSC.Earth.ECC = 0.02, {Tolerance = 0.1});

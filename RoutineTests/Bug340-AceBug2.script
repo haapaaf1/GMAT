@@ -69,7 +69,6 @@ GMAT ESL1.Point = L1;
 Create ImpulsiveBurn dV;
 GMAT dV.Origin = Earth;
 GMAT dV.Axes = VNB;
-GMAT dV.VectorFormat = Cartesian;
 GMAT dV.Element1 = 0;
 GMAT dV.Element2 = 0;
 GMAT dV.Element3 = -5.154056271058395e-006;
@@ -132,10 +131,10 @@ GMAT EarthSunRotCS.Secondary = Earth;
 Create DifferentialCorrector DefaultDC;
 GMAT DefaultDC.ShowProgress = true;
 GMAT DefaultDC.ReportStyle = Normal;
-GMAT DefaultDC.TargeterTextFile = Bug340_DC.data;
+GMAT DefaultDC.ReportFile = Bug340_DC.data;
 GMAT DefaultDC.Variables = {dV.V, dV.N};
 GMAT DefaultDC.MaximumIterations = 25;
-GMAT DefaultDC.UseCentralDifferences = false;
+GMAT DefaultDC.DerivativeMethod = ForwardDifference;
 
 
 %----------------------------------------
@@ -150,7 +149,6 @@ GMAT L1View.ViewPointReference = ESL1;
 GMAT L1View.ViewPointVector = [ 0 0 30000];
 GMAT L1View.ViewDirection = ESL1;
 GMAT L1View.ViewScaleFactor = 12;
-GMAT L1View.FixedFovAngle = 45;
 GMAT L1View.ViewUpCoordinateSystem = EarthSunL1CS;
 GMAT L1View.ViewUpAxis = Z;
 GMAT L1View.CelestialPlane = Off;
@@ -161,8 +159,6 @@ GMAT L1View.Axes = On;
 GMAT L1View.Grid = Off;
 GMAT L1View.SunLine = Off;
 GMAT L1View.UseInitialView = On;
-GMAT L1View.PerspectiveMode = Off;
-GMAT L1View.UseFixedFov = Off;
 GMAT L1View.DataCollectFrequency = 1;
 GMAT L1View.UpdatePlotFrequency = 50;
 GMAT L1View.NumPointsToRedraw = 0;
@@ -176,7 +172,6 @@ GMAT EarthSunRotView.ViewPointReference = Earth;
 GMAT EarthSunRotView.ViewPointVector = [ 0 0 30000];
 GMAT EarthSunRotView.ViewDirection = Earth;
 GMAT EarthSunRotView.ViewScaleFactor = 100;
-GMAT EarthSunRotView.FixedFovAngle = 45;
 GMAT EarthSunRotView.ViewUpCoordinateSystem = EarthSunRotCS;
 GMAT EarthSunRotView.ViewUpAxis = Y;
 GMAT EarthSunRotView.CelestialPlane = Off;
@@ -187,8 +182,6 @@ GMAT EarthSunRotView.Axes = On;
 GMAT EarthSunRotView.Grid = Off;
 GMAT EarthSunRotView.SunLine = Off;
 GMAT EarthSunRotView.UseInitialView = On;
-GMAT EarthSunRotView.PerspectiveMode = Off;
-GMAT EarthSunRotView.UseFixedFov = Off;
 GMAT EarthSunRotView.DataCollectFrequency = 1;
 GMAT EarthSunRotView.UpdatePlotFrequency = 50;
 GMAT EarthSunRotView.NumPointsToRedraw = 0;
@@ -204,16 +197,16 @@ GMAT ESL1Ephem.ColumnWidth = 20;
 GMAT ESL1Ephem.SolverIterations = None;
 
 Create XYPlot XYPlot1;
-GMAT XYPlot1.IndVar = ACE.A1ModJulian;
-GMAT XYPlot1.Add = {ACE.EarthMJ2000Eq.X};
-GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.XVariable = ACE.A1ModJulian;
+GMAT XYPlot1.YVariables = {ACE.EarthMJ2000Eq.X};
+GMAT XYPlot1.ShowGrid = true;
 GMAT XYPlot1.SolverIterations = None;
 GMAT XYPlot1.ShowPlot = true;
 
 Create XYPlot XYPlot2;
-GMAT XYPlot2.IndVar = ACE.A1ModJulian;
-GMAT XYPlot2.Add = {ACE.EarthMJ2000Eq.Y};
-GMAT XYPlot2.Grid = On;
+GMAT XYPlot2.XVariable = ACE.A1ModJulian;
+GMAT XYPlot2.YVariables = {ACE.EarthMJ2000Eq.Y};
+GMAT XYPlot2.ShowGrid = true;
 GMAT XYPlot2.SolverIterations = None;
 GMAT XYPlot2.ShowPlot = true;
 
@@ -229,7 +222,7 @@ GMAT TotaldV = 0; %%%.Expression = 0; %%% Expression is longer valid (2010.10.27
 
 For I = 1:1:2;
    Target DefaultDC;
-      Vary DefaultDC(dV.B = 0, {Perturbation = 1e-5, MaxStep = 0.01, Lower = -0.1, Upper = 0.1});
+      Vary DefaultDC(dV.Element3 = 0, {Perturbation = 1e-5, MaxStep = 0.01, Lower = -0.1, Upper = 0.1});
       %      GMAT VX = ACE.VX;
       %      GMAT VY = ACE.VY;
       %      GMAT VZ = ACE.VZ;

@@ -43,9 +43,9 @@ ScLVLH.YAxis = -N;
 Create Thruster engine1;
 GMAT engine1.CoordinateSystem = ScLVLH;
  
-GMAT engine1.Element1 = 1;
-GMAT engine1.Element2 = 0;
-GMAT engine1.Element3 = 0;
+GMAT engine1.ThrustDirection1 = 1;
+GMAT engine1.ThrustDirection2 = 0;
+GMAT engine1.ThrustDirection3 = 0;
 GMAT engine1.DutyCycle = 1;
 GMAT engine1.ThrustScaleFactor = 1;
 GMAT engine1.DecrementMass = true;

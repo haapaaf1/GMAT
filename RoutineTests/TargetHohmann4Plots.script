@@ -60,7 +60,6 @@ GMAT DefaultProp.MaxStepAttempts = 50;
 Create ImpulsiveBurn TOI;
 GMAT TOI.Origin = Earth;
 GMAT TOI.Axes = VNB;
-GMAT TOI.VectorFormat = Cartesian;
 GMAT TOI.Element1 = 1.432982502463442;
 GMAT TOI.Element2 = 0;
 GMAT TOI.Element3 = 0;
@@ -96,9 +95,10 @@ GMAT EarthFixed.OverrideOriginInterval = false;
 Create DifferentialCorrector DC;
 GMAT DC.ShowProgress = true;
 GMAT DC.ReportStyle = Normal;
-GMAT DC.TargeterTextFile = TargetHohmann4Plots-DC.data;
+%%GMAT DC.ReportFile = TargetHohmann4Plots-DC.data;
+GMAT DC.ReportFile = TargetHohmann4Plots-DC-Target1.data;
 GMAT DC.MaximumIterations = 25;
-GMAT DC.UseCentralDifferences = false;
+GMAT DC.DerivativeMethod = false;
 
 
 %----------------------------------------
@@ -137,14 +137,14 @@ GMAT SolverNonePlot.ViewScaleFactor = 2;
 GMAT SolverNonePlot.SolverIterations = None;
 
 Create XYPlot XYPlot1;
-GMAT XYPlot1.IndVar = sat.A1ModJulian;
-GMAT XYPlot1.Add = {sat.EarthMJ2000Eq.X};
-GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.XVariable = sat.A1ModJulian;
+GMAT XYPlot1.YVariables = {sat.EarthMJ2000Eq.X};
+GMAT XYPlot1.ShowGrid = true;
 GMAT XYPlot1.SolverIterations = None;
 GMAT XYPlot1.ShowPlot = true;
 
 Create ReportFile rf;
-GMAT rf.Filename = 'TargetHohmann4Plots.report';
+GMAT rf.Filename = 'TargetHohmann4Plots-Target1.report';
 
 %----------------------------------------
 %---------- Mission Sequence
@@ -159,7 +159,7 @@ Propagate DefaultProp(sat) {sat.Periapsis};
 Report rf sat.X sat.Y sat.Z;
 
 Target DC;
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
    Maneuver TOI(sat);
    Propagate DefaultProp(sat) {sat.Apoapsis};
    Achieve DC(sat.Earth.RMAG = 42165, {Tolerance = 0.1});
@@ -169,8 +169,11 @@ Propagate DefaultProp(sat) {sat.Periapsis};
 Propagate DefaultProp(sat) {sat.Apoapsis};
 Report rf sat.X sat.Y sat.Z;
 
+GMAT DC.ReportFile = 'TargetHohmann4Plots-DC-Target2.data';
+GMAT rf.Filename = 'TargetHohmann4Plots-Target2.report';
+
 Target DC;
-   Vary DC(TOI.V = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Vary DC(TOI.Element1 = 0.5, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
    Maneuver TOI(sat);
    Propagate DefaultProp(sat) {sat.Periapsis};
    Achieve DC(sat.Earth.SMA = 42165, {Tolerance = 0.1});

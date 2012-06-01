@@ -36,12 +36,12 @@ GMAT tank.Temperature = 20;
 GMAT tank.RefTemperature = 20;
 GMAT tank.Volume = 0.75;
 GMAT tank.FuelDensity = 1260;
-GMAT tank.PressureRegulated = true;
+GMAT tank.PressureModel = PressureRegulated;
 
 Create Thruster thruster;
-GMAT thruster.Element1 = -1;
-GMAT thruster.Element2 = 0;
-GMAT thruster.Element3 = 0;
+GMAT thruster.ThrustDirection1 = -1;
+GMAT thruster.ThrustDirection2 = 0;
+GMAT thruster.ThrustDirection3 = 0;
 GMAT thruster.Tank = {tank};
 
 %% Notes: There were some coeff changes by Darrel on 2009.02.17
@@ -87,18 +87,13 @@ Create ImpulsiveBurn moonBurn;
 %GMAT moonBurn.CoordinateSystem = MoonMJ2000Eq;
 GMAT moonBurn.Origin = Luna;
 GMAT moonBurn.Axes = VNB;
-GMAT moonBurn.VectorFormat = Cartesian;
 GMAT moonBurn.Element1 = 0.296;  % Circularizes the lunar orbit
 GMAT moonBurn.Element2 = 0;
 GMAT moonBurn.Element3 = 0;
 
 Create FiniteBurn descentBurn;
 %% Note: Tanks and BurnScaleFactor are no longer valid fields (2009.02.20)
-GMAT descentBurn.Origin = Luna;
-GMAT descentBurn.Axes = VNB;
 GMAT descentBurn.Thrusters = {thruster};
-GMAT descentBurn.Tanks = {tank};
-GMAT descentBurn.BurnScaleFactor = 1;
 
 
 %----------------------------------------
@@ -169,7 +164,6 @@ GMAT MoonEqPlot.ViewPointReference = Luna;
 GMAT MoonEqPlot.ViewPointVector = [ 0 0 30000];
 GMAT MoonEqPlot.ViewDirection = Luna;
 GMAT MoonEqPlot.ViewScaleFactor = 1;
-GMAT MoonEqPlot.FixedFovAngle = 45;
 GMAT MoonEqPlot.ViewUpCoordinateSystem = EarthMJ2000Eq;
 GMAT MoonEqPlot.ViewUpAxis = Z;
 GMAT MoonEqPlot.CelestialPlane = Off;
@@ -180,18 +174,16 @@ GMAT MoonEqPlot.Axes = On;
 GMAT MoonEqPlot.Grid = Off;
 GMAT MoonEqPlot.SunLine = Off;
 GMAT MoonEqPlot.UseInitialView = On;
-GMAT MoonEqPlot.PerspectiveMode = Off;
-GMAT MoonEqPlot.UseFixedFov = Off;
 GMAT MoonEqPlot.DataCollectFrequency = 1;
 GMAT MoonEqPlot.UpdatePlotFrequency = 50;
 GMAT MoonEqPlot.NumPointsToRedraw = 0;
 GMAT MoonEqPlot.ShowPlot = true;
 
 Create XYPlot OrbitingLuna;
-%GMAT OrbitingLuna.IndVar = sat.ElapsedSecs;
-GMAT OrbitingLuna.IndVar = sat.A1ModJulian;
-GMAT OrbitingLuna.Add = {sat.Luna.RMAG};
-GMAT OrbitingLuna.Grid = On;
+%GMAT OrbitingLuna.XVariable = sat.ElapsedSecs;
+GMAT OrbitingLuna.XVariable = sat.A1ModJulian;
+GMAT OrbitingLuna.YVariables = {sat.Luna.RMAG};
+GMAT OrbitingLuna.ShowGrid = true;
 GMAT OrbitingLuna.SolverIterations = None;
 GMAT OrbitingLuna.ShowPlot = true;
 
@@ -203,7 +195,6 @@ GMAT OpenGLPlot1.ViewPointReference = Earth;
 GMAT OpenGLPlot1.ViewPointVector = [ 30000 30000 0];
 GMAT OpenGLPlot1.ViewDirection = Earth;
 GMAT OpenGLPlot1.ViewScaleFactor = 20;
-GMAT OpenGLPlot1.FixedFovAngle = 45;
 GMAT OpenGLPlot1.ViewUpCoordinateSystem = EarthMJ2000Eq;
 GMAT OpenGLPlot1.ViewUpAxis = Z;
 GMAT OpenGLPlot1.CelestialPlane = Off;
@@ -214,17 +205,15 @@ GMAT OpenGLPlot1.Axes = On;
 GMAT OpenGLPlot1.Grid = Off;
 GMAT OpenGLPlot1.SunLine = Off;
 GMAT OpenGLPlot1.UseInitialView = On;
-GMAT OpenGLPlot1.PerspectiveMode = Off;
-GMAT OpenGLPlot1.UseFixedFov = Off;
 GMAT OpenGLPlot1.DataCollectFrequency = 1;
 GMAT OpenGLPlot1.UpdatePlotFrequency = 50;
 GMAT OpenGLPlot1.NumPointsToRedraw = 0;
 GMAT OpenGLPlot1.ShowPlot = true;
 
 Create XYPlot XYPlot1;
-GMAT XYPlot1.IndVar = sat.A1ModJulian;
-GMAT XYPlot1.Add = {sat.EarthMJ2000Eq.X};
-GMAT XYPlot1.Grid = On;
+GMAT XYPlot1.XVariable = sat.A1ModJulian;
+GMAT XYPlot1.YVariables = {sat.EarthMJ2000Eq.X};
+GMAT XYPlot1.ShowGrid = true;
 GMAT XYPlot1.SolverIterations = None;
 GMAT XYPlot1.ShowPlot = true;
 

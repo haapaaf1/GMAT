@@ -50,7 +50,7 @@ Create ForceModel propFM;
 GMAT propFM.CentralBody = Earth;
 GMAT propFM.PrimaryBodies = {Earth};
 GMAT propFM.PointMasses = {Sun, Luna, Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto};
-GMAT propFM.Drag = JacchiaRoberts;
+GMAT propFM.Drag.AtmosphereModel = JacchiaRoberts;
 GMAT propFM.SRP = On;
 GMAT propFM.ErrorControl = RSSStep;
 GMAT propFM.GravityField.Earth.Degree = 12;

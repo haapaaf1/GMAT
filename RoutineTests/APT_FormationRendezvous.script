@@ -113,24 +113,24 @@ GMAT rf.Filename = APT_FormationRendezvous.report;
 %  Create XYPlot of Sat2 in Sat1LVLH system
 Create XYPlot Sat2wrtSat1LVLH;
 GMAT Sat2wrtSat1LVLH.SolverIterations = None;
-GMAT Sat2wrtSat1LVLH.IndVar   = Sat2.Sat1LVLH.X;
-GMAT Sat2wrtSat1LVLH.Add      = Sat2.Sat1LVLH.Z;
-GMAT Sat2wrtSat1LVLH.Grid     = On
+GMAT Sat2wrtSat1LVLH.XVariable   = Sat2.Sat1LVLH.X;
+GMAT Sat2wrtSat1LVLH.YVariables  = Sat2.Sat1LVLH.Z;
+GMAT Sat2wrtSat1LVLH.ShowGrid    = true;
 %
 
 %  Create XYPlot Sat1 in Sat2 VNB system
 Create XYPlot Sat1wrtSat2VNB;
 GMAT Sat1wrtSat2VNB.SolverIterations = None;
-GMAT Sat1wrtSat2VNB.IndVar       = Sat1.Sat2VNB.X;
-GMAT Sat1wrtSat2VNB.Add          = Sat1.Sat2VNB.Y;
-GMAT Sat1wrtSat2VNB.Grid         = On;
+GMAT Sat1wrtSat2VNB.XVariable    = Sat1.Sat2VNB.X;
+GMAT Sat1wrtSat2VNB.YVariables   = Sat1.Sat2VNB.Y;
+GMAT Sat1wrtSat2VNB.ShowGrid     = true;
 
 %  Create XYPlot Sat1 in Sat2 VNB system
 Create XYPlot Sat1wrtSat2VNB2;
 GMAT Sat1wrtSat2VNB2.SolverIterations = None;
-GMAT Sat1wrtSat2VNB2.IndVar       = Sat1.Sat2VNB.Y;
-GMAT Sat1wrtSat2VNB2.Add          = Sat1.Sat2VNB.Z;
-GMAT Sat1wrtSat2VNB2.Grid         = On;
+GMAT Sat1wrtSat2VNB2.XVariable   = Sat1.Sat2VNB.Y;
+GMAT Sat1wrtSat2VNB2.YVariables  = Sat1.Sat2VNB.Z;
+GMAT Sat1wrtSat2VNB2.ShowGrid    = true;
 %
 %% ------------------------------OpenGL Plots--------------------------------------
 %
@@ -141,7 +141,6 @@ GMAT Sat2InSat1LVLH.ViewPointReference = Earth;
 GMAT Sat2InSat1LVLH.ViewPointVector = [0, 0, 20000];
 GMAT Sat2InSat1LVLH.ViewDirection = Earth;
 GMAT Sat2InSat1LVLH.ViewScaleFactor = 0.1;
-GMAT Sat2InSat1LVLH.FixedFovAngle = 45;
 GMAT Sat2InSat1LVLH.ViewUpCoordinateSystem = EarthMJ2000Eq;
 GMAT Sat2InSat1LVLH.ViewUpAxis = Z;
 GMAT Sat2InSat1LVLH.CelestialPlane = Off;
@@ -150,8 +149,6 @@ GMAT Sat2InSat1LVLH.WireFrame = Off;
 GMAT Sat2InSat1LVLH.SolverIterations = None;
 GMAT Sat2InSat1LVLH.Axes = On;
 GMAT Sat2InSat1LVLH.SunLine = Off;
-GMAT Sat2InSat1LVLH.PerspectiveMode = Off;
-GMAT Sat2InSat1LVLH.UseFixedFov = Off;
 GMAT Sat2InSat1LVLH.DataCollectFrequency = 1;
 GMAT Sat2InSat1LVLH.UpdatePlotFrequency = 50;
 GMAT Sat2InSat1LVLH.NumPointsToRedraw = 0;

@@ -90,8 +90,6 @@ GMAT CSEarthMoonRot.ZAxis = N;
 GMAT CSEarthMoonRot.Primary = Earth;
 GMAT CSEarthMoonRot.Secondary = Luna;
 
-
-
 Create OpenGLPlot ViewEarthMoonRot;
 GMAT ViewEarthMoonRot.Add = {Earth, Luna, Sun, Sat, EarthMoonL2};
 GMAT ViewEarthMoonRot.CoordinateSystem = L2Centered;
@@ -99,14 +97,12 @@ GMAT ViewEarthMoonRot.ViewPointReference = EarthMoonL2;
 GMAT ViewEarthMoonRot.ViewPointVector = Vector;
 GMAT ViewEarthMoonRot.ViewDirection = EarthMoonL2;
 GMAT ViewEarthMoonRot.ViewScaleFactor = 10;
-GMAT ViewEarthMoonRot.FixedFovAngle = 45;
 GMAT ViewEarthMoonRot.ViewUpCoordinateSystem = EarthMJ2000Eq;
 GMAT ViewEarthMoonRot.ViewUpAxis = Z;
 GMAT ViewEarthMoonRot.CelestialPlane = Off;
 GMAT ViewEarthMoonRot.XYPlane = Off;
 GMAT ViewEarthMoonRot.WireFrame = Off;
 GMAT ViewEarthMoonRot.SolverIterations = All;
-GMAT ViewEarthMoonRot.UseFixedFov = Off;
 
 Create OpenGLPlot EarthMJ2K;
 GMAT EarthMJ2K.Add = {Sat, Earth, Luna};
@@ -115,7 +111,6 @@ GMAT EarthMJ2K.ViewPointReference = Earth;
 GMAT EarthMJ2K.ViewPointVector = Vector;
 GMAT EarthMJ2K.ViewDirection = Earth;
 GMAT EarthMJ2K.ViewScaleFactor = 45;
-GMAT EarthMJ2K.FixedFovAngle = 45;
 GMAT EarthMJ2K.ViewUpCoordinateSystem = EarthMJ2000Eq;
 GMAT EarthMJ2K.ViewUpAxis = Z;
 GMAT EarthMJ2K.CelestialPlane = Off;
@@ -125,8 +120,6 @@ GMAT EarthMJ2K.SolverIterations = All;
 GMAT EarthMJ2K.Axes = On;
 GMAT EarthMJ2K.SunLine = Off;
 GMAT EarthMJ2K.UseInitialView = On;
-GMAT EarthMJ2K.PerspectiveMode = Off;
-GMAT EarthMJ2K.UseFixedFov = Off;
 GMAT EarthMJ2K.DataCollectFrequency = 1;
 GMAT EarthMJ2K.UpdatePlotFrequency = 50;
 GMAT EarthMJ2K.NumPointsToRedraw = 0;
@@ -139,7 +132,6 @@ GMAT L2View.ViewPointReference = EarthMoonL2;
 GMAT L2View.ViewPointVector = Vector;
 GMAT L2View.ViewDirection = EarthMoonL2;
 GMAT L2View.ViewScaleFactor = 5;
-GMAT L2View.FixedFovAngle = 45;
 GMAT L2View.ViewUpCoordinateSystem = EarthMJ2000Eq;
 GMAT L2View.ViewUpAxis = Z;
 GMAT L2View.CelestialPlane = Off;
@@ -148,12 +140,9 @@ GMAT L2View.WireFrame = Off;
 GMAT L2View.SolverIterations = All;
 GMAT L2View.Axes = On;
 GMAT L2View.SunLine = Off;
-GMAT L2View.PerspectiveMode = Off;
-GMAT L2View.UseFixedFov = Off;
 GMAT L2View.DataCollectFrequency = 1;
 GMAT L2View.UpdatePlotFrequency = 50;
 GMAT L2View.NumPointsToRedraw = 0;
-%GMAT L2View.LockView = On;
 
 
 
@@ -174,7 +163,7 @@ GMAT ERRot_YZ.SolverIterations = None;
 
 Create ImpulsiveBurn dV
 GMAT dV.Axes = VNB;
-GMAT dV.V = -0.0003;
+GMAT dV.Element1 = -0.0003;
 
 
 
@@ -212,12 +201,12 @@ GMAT L2Centered.Secondary = Luna;
 Create ImpulsiveBurn dV
 GMAT dV.Axes = VNB;
 GMAT dV.Origin = Earth;
-GMAT dV.V = -0.00003;
+GMAT dV.Element1 = -0.00003;
 
 Create ImpulsiveBurn dVCirc
 GMAT dVCirc.Axes = VNB;
 GMAT dVCirc.Origin = Earth;
-GMAT dVCirc.V = -0.00003;
+GMAT dVCirc.Element1 = -0.00003;
 
 Create ReportFile rf;
 GMAT rf.Filename = Bug220-EarthMoonL2Crash.report;
@@ -264,8 +253,8 @@ EndScript
 Target DC
 
   %%% 2006/02/16 LOJ: "-0.0003;" throws an exception now, so fixed it.
-  %%%Vary DC(dV.V =  -0.0003;  , {Perturbation = 1e-6, MaxStep = 0.001, Lower = -0.1 , Upper = 0.1});
-  Vary DC(dV.V =  -0.0003, {Perturbation = 1e-6, MaxStep = 0.001, Lower = -0.1 , Upper = 0.1});
+  %%%Vary DC(dV.Element1 =  -0.0003;  , {Perturbation = 1e-6, MaxStep = 0.001, Lower = -0.1 , Upper = 0.1});
+  Vary DC(dV.Element1 =  -0.0003, {Perturbation = 1e-6, MaxStep = 0.001, Lower = -0.1 , Upper = 0.1});
 
 
   Maneuver dV(Sat);

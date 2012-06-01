@@ -112,7 +112,7 @@ GMAT DefaultOpenGL.ShowPlot = true;
 
 Create EphemerisFile CCSDS_OEM;
 GMAT CCSDS_OEM.Spacecraft = DefaultSC;
-GMAT CCSDS_OEM.FileName = 'Bug1705-EphemBug-CCSDS-OEM.eph';
+GMAT CCSDS_OEM.Filename = 'Bug1705-EphemBug-CCSDS-OEM.eph';
 GMAT CCSDS_OEM.FileFormat = CCSDS-OEM;
 GMAT CCSDS_OEM.EpochFormat = UTCGregorian;
 GMAT CCSDS_OEM.InitialEpoch = InitialSpacecraftEpoch;
@@ -126,7 +126,7 @@ GMAT CCSDS_OEM.WriteEphemeris = true;
 
 Create EphemerisFile SPK;
 GMAT SPK.Spacecraft = DefaultSC;
-GMAT SPK.FileName = 'Bug1705-EphemBug-SPK.bsp';
+GMAT SPK.Filename = 'Bug1705-EphemBug-SPK.bsp';
 GMAT SPK.FileFormat = SPK;
 GMAT SPK.EpochFormat = UTCGregorian;
 GMAT SPK.InitialEpoch = InitialSpacecraftEpoch;

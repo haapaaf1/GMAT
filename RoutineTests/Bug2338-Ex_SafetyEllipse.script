@@ -253,9 +253,6 @@ GMAT InertialView.ShowPlot = true;
 GMAT InertialView.StarCount = 7000;
 GMAT InertialView.EnableStars = On;
 GMAT InertialView.EnableConstellations = On;
-GMAT InertialView.MinFOV = 0;
-GMAT InertialView.MaxFOV = 90;
-GMAT InertialView.InitialFOV = 45;
 
 Create Enhanced3DView SideView;
 GMAT SideView.SolverIterations = None;
@@ -283,9 +280,6 @@ GMAT SideView.ShowPlot = true;
 GMAT SideView.StarCount = 7000;
 GMAT SideView.EnableStars = On;
 GMAT SideView.EnableConstellations = On;
-GMAT SideView.MinFOV = 0;
-GMAT SideView.MaxFOV = 90;
-GMAT SideView.InitialFOV = 45;
 
 Create ReportFile Data;
 Data.Filename = Bug2338-Ex_SafetyEllipse.report;

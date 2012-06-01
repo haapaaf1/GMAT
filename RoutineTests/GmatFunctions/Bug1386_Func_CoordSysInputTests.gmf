@@ -128,7 +128,6 @@ GMAT DefaultProp.MaxStepAttempts = 50;
 Create ImpulsiveBurn DefaultIB;
 GMAT DefaultIB.Origin = Earth;
 GMAT DefaultIB.Axes = VNB;
-GMAT DefaultIB.VectorFormat = Cartesian;
 GMAT DefaultIB.Element1 = 0;
 GMAT DefaultIB.Element2 = 0;
 GMAT DefaultIB.Element3 = 0; 

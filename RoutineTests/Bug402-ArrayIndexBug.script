@@ -2,7 +2,7 @@ Create Spacecraft DefaultSC;
 GMAT DefaultSC.DateFormat = TAIModJulian;
 GMAT DefaultSC.Epoch = 21545;
 GMAT DefaultSC.CoordinateSystem = EarthMJ2000Eq;
-GMAT DefaultSC.StateType = Cartesian;
+GMAT DefaultSC.DisplayStateType = Cartesian;
 GMAT DefaultSC.X = 7100;
 GMAT DefaultSC.Y = 0;
 GMAT DefaultSC.Z = 1300;

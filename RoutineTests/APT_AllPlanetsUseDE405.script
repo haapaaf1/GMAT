@@ -104,7 +104,6 @@ GMAT OpenGLPlot1.ViewPointReference = Sun;
 GMAT OpenGLPlot1.ViewPointVector = [ 0 0 300000 ];
 GMAT OpenGLPlot1.ViewDirection = Sun;
 GMAT OpenGLPlot1.ViewScaleFactor = 2000;
-GMAT OpenGLPlot1.FixedFovAngle = 45;
 GMAT OpenGLPlot1.ViewUpCoordinateSystem = SunMJ2000Ec;
 GMAT OpenGLPlot1.ViewUpAxis = X;
 
@@ -116,7 +115,6 @@ GMAT OpenGLPlot2.ViewPointReference = Earth;
 GMAT OpenGLPlot2.ViewPointVector = [ 0 0 30000 ];
 GMAT OpenGLPlot2.ViewDirection = Earth;
 GMAT OpenGLPlot2.ViewScaleFactor = 10000;
-GMAT OpenGLPlot2.FixedFovAngle = 45;
 GMAT OpenGLPlot2.ViewUpCoordinateSystem = EarthMJ2000Eq;
 GMAT OpenGLPlot2.ViewUpAxis = X;
 
