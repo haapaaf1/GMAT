@@ -1,0 +1,301 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2012-06-05 11:20:50
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+GMAT DefaultSC.DateFormat = TAIModJulian;
+GMAT DefaultSC.Epoch = '21545';
+GMAT DefaultSC.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultSC.DisplayStateType = Cartesian;
+GMAT DefaultSC.X = 7100;
+GMAT DefaultSC.Y = 0;
+GMAT DefaultSC.Z = 1300;
+GMAT DefaultSC.VX = 0;
+GMAT DefaultSC.VY = 7.35;
+GMAT DefaultSC.VZ = 1;
+GMAT DefaultSC.DryMass = 850;
+GMAT DefaultSC.Cd = 2.2;
+GMAT DefaultSC.Cr = 1.8;
+GMAT DefaultSC.DragArea = 15;
+GMAT DefaultSC.SRPArea = 1;
+GMAT DefaultSC.Tanks = {FuelTank1};
+GMAT DefaultSC.Thrusters = {Thruster1};
+GMAT DefaultSC.NAIFId = -123456789;
+GMAT DefaultSC.NAIFIdReferenceFrame = -123456789;
+GMAT DefaultSC.Id = 'SatId';
+GMAT DefaultSC.Attitude = CoordinateSystemFixed;
+GMAT DefaultSC.ModelFile = '../data/vehicle/models/aura.3ds';
+GMAT DefaultSC.ModelOffsetX = 0;
+GMAT DefaultSC.ModelOffsetY = 0;
+GMAT DefaultSC.ModelOffsetZ = 0;
+GMAT DefaultSC.ModelRotationX = 0;
+GMAT DefaultSC.ModelRotationY = 0;
+GMAT DefaultSC.ModelRotationZ = 0;
+GMAT DefaultSC.ModelScale = 3;
+GMAT DefaultSC.AttitudeDisplayStateType = 'Quaternion';
+GMAT DefaultSC.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT DefaultSC.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT DefaultSC.Q1 = 0;
+GMAT DefaultSC.Q2 = 0;
+GMAT DefaultSC.Q3 = 0;
+GMAT DefaultSC.Q4 = 1;
+GMAT DefaultSC.EulerAngleSequence = '321';
+GMAT DefaultSC.AngularVelocityX = 0;
+GMAT DefaultSC.AngularVelocityY = 0;
+GMAT DefaultSC.AngularVelocityZ = 0;
+
+Create Spacecraft Spacecraft1;
+GMAT Spacecraft1.DateFormat = TAIModJulian;
+GMAT Spacecraft1.Epoch = '21545';
+GMAT Spacecraft1.CoordinateSystem = EarthMJ2000Eq;
+GMAT Spacecraft1.DisplayStateType = Cartesian;
+GMAT Spacecraft1.X = 7100;
+GMAT Spacecraft1.Y = 0;
+GMAT Spacecraft1.Z = 1300;
+GMAT Spacecraft1.VX = 0;
+GMAT Spacecraft1.VY = 7.35;
+GMAT Spacecraft1.VZ = 1;
+GMAT Spacecraft1.DryMass = 850;
+GMAT Spacecraft1.Cd = 2.2;
+GMAT Spacecraft1.Cr = 1.8;
+GMAT Spacecraft1.DragArea = 15;
+GMAT Spacecraft1.SRPArea = 1;
+GMAT Spacecraft1.NAIFId = -123456789;
+GMAT Spacecraft1.NAIFIdReferenceFrame = -123456789;
+GMAT Spacecraft1.Id = 'SatId';
+GMAT Spacecraft1.Attitude = CoordinateSystemFixed;
+GMAT Spacecraft1.ModelFile = 'C:/Projects/GmatDev/application/data/vehicle/models/aura.3ds';
+GMAT Spacecraft1.ModelOffsetX = 0;
+GMAT Spacecraft1.ModelOffsetY = 0;
+GMAT Spacecraft1.ModelOffsetZ = 0;
+GMAT Spacecraft1.ModelRotationX = 0;
+GMAT Spacecraft1.ModelRotationY = 0;
+GMAT Spacecraft1.ModelRotationZ = 0;
+GMAT Spacecraft1.ModelScale = 3;
+GMAT Spacecraft1.AttitudeDisplayStateType = 'Quaternion';
+GMAT Spacecraft1.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT Spacecraft1.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT Spacecraft1.Q1 = 0;
+GMAT Spacecraft1.Q2 = 0;
+GMAT Spacecraft1.Q3 = 0;
+GMAT Spacecraft1.Q4 = 1;
+GMAT Spacecraft1.EulerAngleSequence = '321';
+GMAT Spacecraft1.AngularVelocityX = 0;
+GMAT Spacecraft1.AngularVelocityY = 0;
+GMAT Spacecraft1.AngularVelocityZ = 0;
+
+Create Spacecraft Spacecraft2;
+GMAT Spacecraft2.DateFormat = TAIModJulian;
+GMAT Spacecraft2.Epoch = '21545';
+GMAT Spacecraft2.CoordinateSystem = EarthMJ2000Eq;
+GMAT Spacecraft2.DisplayStateType = Cartesian;
+GMAT Spacecraft2.X = 7100;
+GMAT Spacecraft2.Y = 0;
+GMAT Spacecraft2.Z = 1300;
+GMAT Spacecraft2.VX = 0;
+GMAT Spacecraft2.VY = 7.35;
+GMAT Spacecraft2.VZ = 1;
+GMAT Spacecraft2.DryMass = 850;
+GMAT Spacecraft2.Cd = 2.2;
+GMAT Spacecraft2.Cr = 1.8;
+GMAT Spacecraft2.DragArea = 15;
+GMAT Spacecraft2.SRPArea = 1;
+GMAT Spacecraft2.NAIFId = -123456789;
+GMAT Spacecraft2.NAIFIdReferenceFrame = -123456789;
+GMAT Spacecraft2.Id = 'SatId';
+GMAT Spacecraft2.Attitude = CoordinateSystemFixed;
+GMAT Spacecraft2.ModelFile = 'C:/Projects/GmatDev/application/data/vehicle/models/aura.3ds';
+GMAT Spacecraft2.ModelOffsetX = 0;
+GMAT Spacecraft2.ModelOffsetY = 0;
+GMAT Spacecraft2.ModelOffsetZ = 0;
+GMAT Spacecraft2.ModelRotationX = 0;
+GMAT Spacecraft2.ModelRotationY = 0;
+GMAT Spacecraft2.ModelRotationZ = 0;
+GMAT Spacecraft2.ModelScale = 3;
+GMAT Spacecraft2.AttitudeDisplayStateType = 'Quaternion';
+GMAT Spacecraft2.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT Spacecraft2.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT Spacecraft2.Q1 = 0;
+GMAT Spacecraft2.Q2 = 0;
+GMAT Spacecraft2.Q3 = 0;
+GMAT Spacecraft2.Q4 = 1;
+GMAT Spacecraft2.EulerAngleSequence = '321';
+GMAT Spacecraft2.AngularVelocityX = 0;
+GMAT Spacecraft2.AngularVelocityY = 0;
+GMAT Spacecraft2.AngularVelocityZ = 0;
+
+%----------------------------------------
+%---------- Hardware Components
+%----------------------------------------
+
+Create FuelTank FuelTank1;
+GMAT FuelTank1.AllowNegativeFuelMass = false;
+GMAT FuelTank1.FuelMass = 756;
+GMAT FuelTank1.Pressure = 1500;
+GMAT FuelTank1.Temperature = 20;
+GMAT FuelTank1.RefTemperature = 20;
+GMAT FuelTank1.Volume = 0.75;
+GMAT FuelTank1.FuelDensity = 1260;
+GMAT FuelTank1.PressureModel = PressureRegulated;
+
+Create Thruster Thruster1;
+GMAT Thruster1.CoordinateSystem = Local;
+GMAT Thruster1.Origin = Earth;
+GMAT Thruster1.Axes = VNB;
+GMAT Thruster1.ThrustDirection1 = 1;
+GMAT Thruster1.ThrustDirection2 = 0;
+GMAT Thruster1.ThrustDirection3 = 0;
+GMAT Thruster1.DutyCycle = 1;
+GMAT Thruster1.ThrustScaleFactor = 1;
+GMAT Thruster1.DecrementMass = false;
+GMAT Thruster1.GravitationalAccel = 9.810000000000001;
+GMAT Thruster1.C1 = 10;
+GMAT Thruster1.C2 = 0;
+GMAT Thruster1.C3 = 0;
+GMAT Thruster1.C4 = 0;
+GMAT Thruster1.C5 = 0;
+GMAT Thruster1.C6 = 0;
+GMAT Thruster1.C7 = 0;
+GMAT Thruster1.C8 = 0;
+GMAT Thruster1.C9 = 0;
+GMAT Thruster1.C10 = 0;
+GMAT Thruster1.C11 = 0;
+GMAT Thruster1.C12 = 0;
+GMAT Thruster1.C13 = 0;
+GMAT Thruster1.C14 = 0;
+GMAT Thruster1.C15 = 0;
+GMAT Thruster1.C16 = 0;
+GMAT Thruster1.K1 = 300;
+GMAT Thruster1.K2 = 0;
+GMAT Thruster1.K3 = 0;
+GMAT Thruster1.K4 = 0;
+GMAT Thruster1.K5 = 0;
+GMAT Thruster1.K6 = 0;
+GMAT Thruster1.K7 = 0;
+GMAT Thruster1.K8 = 0;
+GMAT Thruster1.K9 = 0;
+GMAT Thruster1.K10 = 0;
+GMAT Thruster1.K11 = 0;
+GMAT Thruster1.K12 = 0;
+GMAT Thruster1.K13 = 0;
+GMAT Thruster1.K14 = 0;
+GMAT Thruster1.K15 = 0;
+GMAT Thruster1.K16 = 0;
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.RelativisticCorrection = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Degree = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Order = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+GMAT DefaultProp_ForceModel.GravityField.Earth.EarthTideModel = 'None';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-012;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+GMAT DefaultProp.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn DefaultIB;
+GMAT DefaultIB.CoordinateSystem = Local;
+GMAT DefaultIB.Origin = Earth;
+GMAT DefaultIB.Axes = VNB;
+GMAT DefaultIB.Element1 = 0;
+GMAT DefaultIB.Element2 = 0;
+GMAT DefaultIB.Element3 = 0;
+GMAT DefaultIB.DecrementMass = false;
+GMAT DefaultIB.Isp = 300;
+GMAT DefaultIB.GravitationalAccel = 9.810000000000001;
+
+Create ImpulsiveBurn ImpulsiveBurn1;
+GMAT ImpulsiveBurn1.CoordinateSystem = Local;
+GMAT ImpulsiveBurn1.Origin = Earth;
+GMAT ImpulsiveBurn1.Axes = VNB;
+GMAT ImpulsiveBurn1.Element1 = 0;
+GMAT ImpulsiveBurn1.Element2 = 0;
+GMAT ImpulsiveBurn1.Element3 = 0;
+GMAT ImpulsiveBurn1.DecrementMass = false;
+GMAT ImpulsiveBurn1.Isp = 300;
+GMAT ImpulsiveBurn1.GravitationalAccel = 9.810000000000001;
+
+%----------------------------------------
+%---------- Arrays, Variables, Strings
+%----------------------------------------
+
+Create Array arr1[2,2] arr2[3,3] arr3[4,4];
+Create Variable var1 var2 var3;
+Create String str1 str2 str3 msg;
+GMAT arr1(1, 1) = 1;
+GMAT arr1(1, 2) = 2;
+GMAT arr1(2, 1) = 3;
+GMAT arr1(2, 2) = 4;
+GMAT var1 = 10;
+GMAT var2 = 20;
+GMAT var3 = 30;
+GMAT str1 = 'my string 1';
+GMAT str2 = 'my string 2';
+GMAT str3 = 'my string 3';
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create ReportFile ReportFile1;
+GMAT ReportFile1.SolverIterations = Current;
+GMAT ReportFile1.UpperLeft = [ 0.01910828025477707 0.03496503496503497 ];
+GMAT ReportFile1.Size = [ 0.9713375796178344 0.9482517482517483 ];
+GMAT ReportFile1.RelativeZOrder = 11;
+GMAT ReportFile1.Filename = 'GMT2679-TestReportCommand.txt';
+GMAT ReportFile1.Precision = 16;
+GMAT ReportFile1.Add = {DefaultSC.A1ModJulian, DefaultSC.EarthMJ2000Eq.X, arr1, arr1(1,1), var1, str1, DefaultSC.FuelTank1.FuelMass, DefaultSC.FuelTank1.Pressure, DefaultSC.Thruster1.C1, DefaultSC.Thruster1.ThrustDirection1};
+GMAT ReportFile1.WriteHeaders = On;
+GMAT ReportFile1.WriteHeaders = TRUE;
+GMAT ReportFile1.LeftJustify = On;
+GMAT ReportFile1.LeftJustify = TRUE;
+GMAT ReportFile1.ZeroFill = Off;
+GMAT ReportFile1.ZeroFill = FALSE;
+GMAT ReportFile1.ColumnWidth = 20;
+GMAT ReportFile1.WriteReport = true;
+GMAT ReportFile1.WriteReport = on;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 12000.0};
+Report ReportFile1 DefaultSC.A1ModJulian arr1 arr1(1,1) var1 str1 DefaultSC.FuelTank1.Temperature DefaultSC.FuelTank1.FuelDensity DefaultSC.Thruster1.K1 DefaultSC.Thruster1.ThrustDirection2;
+ReportFile1.WriteHeaders = false;
+msg = '===== now writing no column headers';
+Report ReportFile1 msg;
+Report ReportFile1 DefaultSC.A1ModJulian arr1 arr1(1,1) var1 str1 DefaultSC.FuelTank1.Temperature DefaultSC.FuelTank1.FuelDensity DefaultSC.Thruster1.K1 DefaultSC.Thruster1.ThrustDirection2;
+msg = '===== now writing column headers';
+Report ReportFile1 msg;
+ReportFile1.WriteHeaders = on;
+Report ReportFile1 DefaultSC.A1ModJulian arr1 arr1(1,1) var1 str1 DefaultSC.FuelTank1.Temperature DefaultSC.FuelTank1.FuelDensity DefaultSC.Thruster1.K1 DefaultSC.Thruster1.ThrustDirection2;
+%%Report ReportFile DefaultSC.ModelScale; // <== not allowed

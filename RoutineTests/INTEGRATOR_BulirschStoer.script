@@ -1,0 +1,80 @@
+%  $Id$
+%  This script tests BulirschStoer propagator
+
+
+% -------------------------------------------------------------------------
+% --------------------------- Create Objects ------------------------------
+% -------------------------------------------------------------------------
+
+%----------------------------Create the Spacecraft-------------------------
+% Create Sat1 and define its orbit
+Create Spacecraft Sat1;
+GMAT Sat1.Epoch.UTCGregorian  = 04 Jan 2003 00:00:00.000;
+GMAT Sat1.DisplayStateType = Cartesian;
+GMAT Sat1.X     = -20320.831700;
+GMAT Sat1.Y     = 7859.549800 ;
+GMAT Sat1.Z     = 4411.786100;
+GMAT Sat1.VX    = 1.491571300;
+GMAT Sat1.VY    = -2.771848000;
+GMAT Sat1.VZ    = 1.649569600;
+GMAT Sat1.Cd    = 2.2;
+GMAT Sat1.Cr    = 1.2;
+GMAT Sat1.DragArea = 4;
+GMAT Sat1.SRPArea  = 4;
+GMAT Sat1.DryMass  = 100;
+
+%----------------------------Create ForceModels---------------------------
+%  Define Force Model with point mass only
+Create ForceModel PointMass;
+GMAT PointMass.PrimaryBodies        =  {Earth};
+GMAT PointMass.Gravity.Earth.Model  = JGM2;
+GMAT PointMass.Gravity.Earth.Degree = 0;
+GMAT PointMass.Gravity.Earth.Order  = 0;
+
+%----------------------------Create Propagators---------------------------
+
+% Create a Bulirsch Stoer Propagator
+% Note: Bulirsch Stoer is now plugin propagator (LOJ: 2012.06.15)
+Create Propagator BulirschStoer;
+GMAT  BulirschStoer.Type     = BulirschStoer;
+GMAT  BulirschStoer.InitialStepSize = 30;;
+GMAT  BulirschStoer.Accuracy = 1e-12;
+GMAT  BulirschStoer.MinStep  = 1e-5;
+GMAT  BulirschStoer.MaxStep  = 1000;
+GMAT  BulirschStoer.FM       =  PointMass;
+
+
+%----------------------------Create OpenGL Plot_---------------------------
+Create OpenGLPlot GLPlot;
+GMAT GLPlot.Add = {Sat1, Earth};
+GMAT GLPlot.CoordinateSystem = EarthMJ2000Eq;
+GMAT GLPlot.ViewPointReference = Earth;
+GMAT GLPlot.ViewPointVector = Vector;
+GMAT GLPlot.ViewDirection = Earth;
+GMAT GLPlot.ViewScaleFactor = 3;
+GMAT GLPlot.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT GLPlot.ViewUpAxis = X;
+GMAT GLPlot.Axes       = On;
+
+%------------------------------ Create Report -----------------------------
+Create ReportFile IntegratorRpt;
+GMAT IntegratorRpt.Filename = INTEGRATOR_BulirschStoer.report
+GMAT IntegratorRpt.Precision = 16;
+GMAT IntegratorRpt.WriteHeaders = On;
+GMAT IntegratorRpt.ColumnWidth = 20;
+
+% -------------------------------------------------------------------------
+% ---------------------------  Begin Mission Sequence
+% -------------------------------------------------------------------------
+
+BeginMissionSequence;
+
+%  Propagate using each of the propagators created above
+
+Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+GMAT IntegratorRpt.WriteHeaders = Off;
+
+% Note: Bulirsch Stoer is now plugin propagator (LOJ: 2012.06.15)
+Propagate  BulirschStoer(Sat1, {Sat1.ElapsedDays=1.0});
+Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+

@@ -1,0 +1,237 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2012-03-07 11:15:07
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+GMAT DefaultSC.DateFormat = TAIModJulian;
+GMAT DefaultSC.Epoch = '21545';
+GMAT DefaultSC.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultSC.DisplayStateType = Cartesian;
+GMAT DefaultSC.X = 7100;
+GMAT DefaultSC.Y = 0;
+GMAT DefaultSC.Z = 1300;
+GMAT DefaultSC.VX = 0;
+GMAT DefaultSC.VY = 7.35;
+GMAT DefaultSC.VZ = 1;
+GMAT DefaultSC.DryMass = 850;
+GMAT DefaultSC.Cd = 2.2;
+GMAT DefaultSC.Cr = 1.8;
+GMAT DefaultSC.DragArea = 15;
+GMAT DefaultSC.SRPArea = 1;
+GMAT DefaultSC.NAIFId = -123456789;
+GMAT DefaultSC.NAIFIdReferenceFrame = -123456789;
+GMAT DefaultSC.Id = 'SatId';
+GMAT DefaultSC.Attitude = CoordinateSystemFixed;
+GMAT DefaultSC.ModelFile = '../data/vehicle/models/aura.3ds';
+GMAT DefaultSC.ModelOffsetX = 0;
+GMAT DefaultSC.ModelOffsetY = 0;
+GMAT DefaultSC.ModelOffsetZ = 0;
+GMAT DefaultSC.ModelRotationX = 0;
+GMAT DefaultSC.ModelRotationY = 0;
+GMAT DefaultSC.ModelRotationZ = 0;
+GMAT DefaultSC.ModelScale = 3;
+GMAT DefaultSC.AttitudeDisplayStateType = 'Quaternion';
+GMAT DefaultSC.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT DefaultSC.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT DefaultSC.Q1 = 0;
+GMAT DefaultSC.Q2 = 0;
+GMAT DefaultSC.Q3 = 0;
+GMAT DefaultSC.Q4 = 1;
+GMAT DefaultSC.EulerAngleSequence = '321';
+GMAT DefaultSC.AngularVelocityX = 0;
+GMAT DefaultSC.AngularVelocityY = 0;
+GMAT DefaultSC.AngularVelocityZ = 0;
+
+Create Spacecraft Sat1;
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.RelativisticCorrection = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Degree = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Order = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+GMAT DefaultProp_ForceModel.GravityField.Earth.EarthTideModel = 'None';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-012;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+GMAT DefaultProp.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn DefaultIB;
+GMAT DefaultIB.CoordinateSystem = Local;
+GMAT DefaultIB.Origin = Earth;
+GMAT DefaultIB.Axes = VNB;
+GMAT DefaultIB.Element1 = 0;
+GMAT DefaultIB.Element2 = 0;
+GMAT DefaultIB.Element3 = 0;
+GMAT DefaultIB.DecrementMass = false;
+GMAT DefaultIB.Isp = 300;
+GMAT DefaultIB.GravitationalAccel = 9.810000000000001;
+
+Create FiniteBurn DefaultFB;
+
+%----------------------------------------
+%---------- Arrays, Variables, Strings
+%----------------------------------------
+Create Variable I;
+
+
+%----------------------------------------
+%---------- Solvers
+%----------------------------------------
+
+Create DifferentialCorrector DC1;
+GMAT DC1.ShowProgress = true;
+GMAT DC1.ReportStyle = Normal;
+GMAT DC1.ReportFile = 'DifferentialCorrectorDC1.data';
+GMAT DC1.MaximumIterations = 25;
+GMAT DC1.DerivativeMethod = ForwardDifference;
+
+Create FminconOptimizer SQP1;
+GMAT SQP1.ShowProgress = true;
+GMAT SQP1.ReportStyle = Normal;
+GMAT SQP1.ReportFile = 'FminconOptimizerSQP1.data';
+GMAT SQP1.MaximumIterations = 25;
+GMAT SQP1.DiffMaxChange = '0.1000';
+GMAT SQP1.DiffMinChange = '1.0000e-08';
+GMAT SQP1.MaxFunEvals = '1000';
+GMAT SQP1.TolX = '1.0000e-04';
+GMAT SQP1.TolFun = '1.0000e-04';
+GMAT SQP1.TolCon = '1.0000e-04';
+
+Create VF13ad VF13ad1;
+GMAT VF13ad1.ShowProgress = true;
+GMAT VF13ad1.ReportStyle = Normal;
+GMAT VF13ad1.ReportFile = 'VF13adVF13ad1.data';
+GMAT VF13ad1.MaximumIterations = 200;
+GMAT VF13ad1.Tolerance = 1e-005;
+GMAT VF13ad1.UseCentralDifferences = false;
+GMAT VF13ad1.FeasibilityTolerance = 1;
+
+Create Simulator Simulator1;
+GMAT Simulator1.ShowProgress = true;
+GMAT Simulator1.ReportStyle = Normal;
+GMAT Simulator1.ReportFile = 'SimulatorSimulator1.data';
+GMAT Simulator1.MaximumIterations = 25;
+GMAT Simulator1.InitialEpochFormat = TAIModJulian;
+GMAT Simulator1.InitialEpoch = '21545';
+GMAT Simulator1.FinalEpochFormat = TAIModJulian;
+GMAT Simulator1.FinalEpoch = '21545';
+GMAT Simulator1.MeasurementTimeStep = 60;
+
+Create BatchEstimatorInv BatchEstimatorInv1;
+GMAT BatchEstimatorInv1.ShowProgress = true;
+GMAT BatchEstimatorInv1.ReportStyle = Normal;
+GMAT BatchEstimatorInv1.ReportFile = 'BatchEstimatorInvBatchEstimatorInv1.data';
+GMAT BatchEstimatorInv1.MaximumIterations = 25;
+GMAT BatchEstimatorInv1.AbsoluteTol = 0.001;
+GMAT BatchEstimatorInv1.RelativeTol = 0.001;
+GMAT BatchEstimatorInv1.ShowAllResiduals = On;
+GMAT BatchEstimatorInv1.EstimationEpochFormat = 'FromParticipants';
+
+Create ExtendedKalmanInv ExtendedKalmanInv1;
+GMAT ExtendedKalmanInv1.ShowProgress = true;
+GMAT ExtendedKalmanInv1.ReportStyle = Normal;
+GMAT ExtendedKalmanInv1.ReportFile = 'ExtendedKalmanInvExtendedKalmanInv1.data';
+GMAT ExtendedKalmanInv1.MaximumIterations = 25;
+GMAT ExtendedKalmanInv1.AbsoluteTol = 0.001;
+GMAT ExtendedKalmanInv1.RelativeTol = 0.001;
+GMAT ExtendedKalmanInv1.ShowAllResiduals = On;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create OrbitView OrbitView1;
+Create GroundTrackPlot GroundTrackPlot1;
+Create ReportFile ReportFile1;
+Create XYPlot XYPlot1;
+GMAT XYPlot1.XVariable = DefaultSC.A1ModJulian;
+GMAT XYPlot1.YVariables = {DefaultSC.EarthMJ2000Eq.X};
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 12000.0};
+BeginFiniteBurn DefaultFB(DefaultSC);
+ClearPlot XYPlot1;
+EndFiniteBurn DefaultFB(DefaultSC);
+GMAT 'my equation' Sat1 = DefaultSpacecraft;
+Global 'my global' DefaultSC;
+Maneuver 'my maneuver' DefaultIB(DefaultSC);
+MarkPoint 'my mark point' XYPlot1;
+
+Optimize 'my optimize' SQP1 {SolveMode = Solve, ExitMode = DiscardAndContinue};
+   Vary 'my vary' SQP1(DefaultIB.Element1 = 0.5, {Perturbation = 0.0001, Lower = 0.0, Upper = 3.14159, MaxStep = 0.2});
+   Minimize 'my minimize' SQP1(DefaultIB.Element1);
+   NonlinearConstraint 'my nlp' SQP1(DefaultSC.SMA=7000);
+EndOptimize 'my end optimize';  % For optimizer DC1
+
+PenDown 'my pen down' GroundTrackPlot1;
+PenUp 'my pen up' GroundTrackPlot1;
+
+Propagate 'my propagate' DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 12000.0};
+
+Report 'my report' ReportFile1 DefaultSC.A1ModJulian;
+RunEstimator 'my run estimator' BatchEstimatorInv1;
+RunSimulator 'my run simulator' Simulator1;
+
+Save 'my save' DefaultSC;
+SaveMission 'my save mission' 'MISSION_TREE-TestAllCommandsSaved.txt';
+
+BeginScript 'my begin script'
+EndScript 'my end script';
+
+Stop 'my stop';
+
+Target 'my target' DC1 {SolveMode = Solve, ExitMode = DiscardAndContinue};
+   Vary 'my vary' DC1(DefaultIB.Element1 = 0.5, {Perturbation = 0.0001, Lower = 0.0, Upper = 3.14159, MaxStep = 0.2});
+   Achieve 'my achieve' DC1(DefaultSC.Earth.RMAG = 42165.0, {Tolerance = 0.1});
+EndTarget 'my end target';  % For targeter DC1
+
+Toggle 'my toggle' OrbitView1 On;
+
+If 'my if1' DefaultSC.ElapsedDays < 1.0
+EndIf ' my end if1';
+If 'my if2' DefaultSC.ElapsedDays < 1.0
+Else 'my else2'
+EndIf 'my end if2';
+For 'my for' I = 1:1:10;
+EndFor 'my end for';
+While 'my while' DefaultSC.ElapsedDays < 1.0
+EndWhile 'my end while';
+
+%%--- Error
+%Target 'my target2' SQP1 {SolveMode = Solve, ExitMode = DiscardAndContinue};
+%   Vary DC1(DefaultIB.Element1 = 0.5, {Perturbation = 0.0001, Lower = 0.0, Upper = 3.14159, MaxStep = 0.2});
+%   Achieve DC1(DefaultSC.Earth.RMAG = 42165.0, {Tolerance = 0.1});
+%EndTarget 'my end target';  % For targeter DC1
+
+%Optimize 'my optimize2' DC1 {SolveMode = Solve, ExitMode = DiscardAndContinue};
+%   Vary 'my vary2' SQP1(DefaultIB.Element1 = 0.5, {Perturbation = 0.0001, Lower = 0.0, Upper = 3.14159, MaxStep = 0.2});
+%   Minimize 'my minimize2' SQP1(DefaultIB.Element1);
+%   NonlinearConstraint 'my nlp2' SQP1(DefaultSC.SMA=7000);
+%EndOptimize 'my end optimize';  % For optimizer DC1

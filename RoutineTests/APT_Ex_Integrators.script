@@ -83,13 +83,14 @@ GMAT  PrinceDormand78.MaxStep  = 1000;
 GMAT  PrinceDormand78.FM       =  PointMass;
 
 % Create a Bulirsch Stoer Propagator
-Create Propagator BulirschStoer;
-GMAT  BulirschStoer.Type     = BulirschStoer;
-GMAT  BulirschStoer.InitialStepSize = 30;;
-GMAT  BulirschStoer.Accuracy = 1e-12;
-GMAT  BulirschStoer.MinStep  = 1e-5;
-GMAT  BulirschStoer.MaxStep  = 1000;
-GMAT  BulirschStoer.FM       =  PointMass;
+% Note: Bulirsch Stoer is now plugin propagator (LOJ: 2012.06.15)
+%Create Propagator BulirschStoer;
+%GMAT  BulirschStoer.Type     = BulirschStoer;
+%GMAT  BulirschStoer.InitialStepSize = 30;;
+%GMAT  BulirschStoer.Accuracy = 1e-12;
+%GMAT  BulirschStoer.MinStep  = 1e-5;
+%GMAT  BulirschStoer.MaxStep  = 1000;
+%GMAT  BulirschStoer.FM       =  PointMass;
 
 % Create a Adams Bashforth Moulton Propagator
 Create Propagator AdamsBashfourthMoulton;
@@ -147,8 +148,9 @@ Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.
 Propagate  PrinceDormand78(Sat1,{Sat1.ElapsedDays = 1.0});
 Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
 
-Propagate  BulirschStoer(Sat1, {Sat1.ElapsedDays=1.0});
-Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
+% Note: Bulirsch Stoer is now plugin propagator (LOJ: 2012.06.15)
+%Propagate  BulirschStoer(Sat1, {Sat1.ElapsedDays=1.0});
+%Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
 
 Propagate  AdamsBashfourthMoulton( Sat1, { Sat1.ElapsedDays = 1.0 } );
 Report IntegratorRpt Sat1.A1ModJulian Sat1.X Sat1.Y Sat1.Z Sat1.VX Sat1.VY Sat1.VZ;
