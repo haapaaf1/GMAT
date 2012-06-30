@@ -18,7 +18,11 @@ datevec = datestr2vec(Spacecraft.Epoch);
 jd_ref  = greg2jd(datevec);
 
 %  Perform the Propagation
-[t,X] = ode78_FM('dynfunc', 0, TOF, X0, 1e-11 , [], [], ForceModel); 
+%[t,X] = ode78_FM('dynfunc', 0, TOF, X0, 1e-11 , [], [], ForceModel); 
+
+%  Perform the Propagation
+odeOptions = odeset('AbsTol',1e-11,'RelTol',1e-11);
+[t,X] = ode113('dynfunc', [0 TOF], X0, odeOptions,ForceModel); 
 
 %  Break out portions of the solution
 for i = 1:size(t,1)

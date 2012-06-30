@@ -38,7 +38,8 @@ end
 %  Calulate terms associated with point mass perturbations
 xdot_PM = zeros(3,1);
 C_PM    = zeros(3,3);
-[DeltaAT] = MJD2TimeCoeff(jd_ref);
+%[DeltaAT] = MJD2TimeCoeff(jd_ref);
+DeltaAT = 34;
 DeltaTT   = DeltaAT + 32.184;
 jd_tt     = jd_ref + (DeltaTT + t)/86400;
 for i = 1:size(ForceModel.PointMassIndeces,2)

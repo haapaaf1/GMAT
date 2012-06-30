@@ -8,27 +8,32 @@ dx  = [.001 .001 .001 0.00001 0 0];
 %   Define The Spacecraft State
 % --------------------------------------
 Sat.Epoch = '01 Jan 2000 11:59:28.000';
-Sat.X = 1463.475046306674;
-Sat.Y = 1306.933050619089;
-Sat.Z = 379.2951674693759;
-Sat.VX = -1.053689826526843;
-Sat.VY = 1.156596755746541;
-Sat.VZ = 0.08537397172999123;
+Sat.X =  6885.53341382836
+Sat.Y = -3.885780586188048e-013;
+Sat.Z = 1260.731287038995;
+Sat.VX = -0.1802775881646577;
+Sat.VY = 7.479371421867167;
+Sat.VZ = 0.9845929815146799;
 
 % --------------------------------------
 %   Define the Force Model
 % --------------------------------------
-ForceModel.CentralBody = 'Luna';
-ForceModel.PointMasses = {'Sun', 'Earth', 'Luna'};
-ForceModel.SRP = 'Off';
+ForceModel.CentralBody = 'Earth';
+ForceModel.PointMasses = {'Earth'};
+ForceModel.SRP = 'On';
 ForceModel.SolarRadiationPressure.Flux = 1367;
 ForceModel.SolarRadiationPressure.Nominal_Sun = 149597870.691;
 
 % --------------------------------------
 %   Propagate the nominal Orbit
 % --------------------------------------
-TOF     = 3600;
+
+TOF     =  86400;
 [t, X, Phi] = Propagate(Sat,ForceModel,TOF);
+n = size(X,1);
+X(n,:)'
+Phi(:,:,n)
+
 
 % --------------------------------------
 %   Output data for nominal orbit
@@ -50,12 +55,12 @@ x1 = X(n,1:6);
 % --------------------------------------
 %   Propagate the perturbed orbit
 % -------------------------------------
-Sat.X = 1463.475046306674 + dx(1);
-Sat.Y = 1306.933050619089 + dx(2);
-Sat.Z = 379.2951674693759 + dx(3);
-Sat.VX = -1.053689826526843 + dx(4);
-Sat.VY = 1.156596755746541 + dx(5);
-Sat.VZ = 0.08537397172999123 + dx(6);
+Sat.X = Sat.X + dx(1);
+Sat.Y = Sat.Y + dx(2);
+Sat.Z = Sat.Z + dx(3);
+Sat.VX = Sat.VX + dx(4);
+Sat.VY = Sat.VY + dx(5);
+Sat.VZ = Sat.VZ + dx(6);
 [t, X, Phi] = Propagate(Sat,ForceModel,TOF);
 
 % --------------------------------------

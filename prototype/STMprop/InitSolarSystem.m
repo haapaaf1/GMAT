@@ -27,6 +27,6 @@ SolarSystem.Mu = [22032.080486418
    
    
 %  Initialize the DE file 
-addpath('c:\Codes\EphemerisReader\KSC-12544\ephm')
+addpath('C:\Users\sphughe1\Documents\GMAT Files\Jazz\trunk\test\script\extern\utils\KSC_DEReader\ephm')
 init_eph('DE405.dat');
 

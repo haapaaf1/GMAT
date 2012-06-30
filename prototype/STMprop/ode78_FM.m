@@ -65,7 +65,7 @@ f = y*zeros(1,13);
 tout = t;
 yout = y.';
 tau = tol * max(norm(y, 'inf'), 1);
-
+h = 2*86400; hmin = 0;
 if trace
 %  clc, t, h, y
    clc, t, y
