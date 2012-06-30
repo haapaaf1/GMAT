@@ -15,7 +15,7 @@ Days    = (JD - 2415019.5) - ((Year-1900)*365.0+LeapYrs);
 if Days < 1.0
     Year = Year - 1;
     LeapYrs = fix((Year - 1900 -1)*0.25);
-    Days    = (JD - 2415019.5) - ((Year-1900)*365.0+LearYrs);
+    Days    = (JD - 2415019.5) - ((Year-1900)*365.0+LeapYrs);
 end
 if mod(Year,4) == 0
     LMonth(2) = 29;
