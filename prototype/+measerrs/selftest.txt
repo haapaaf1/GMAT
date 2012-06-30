@@ -1,0 +1,208 @@
+Noise-Free:
+{??? Error using ==> measerrs.mnoises.noisefree
+Error: <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\+mnoises\noisefree.m',4,33)">File: noisefree.m Line: 4 Column: 33</a>
+Unexpected MATLAB operator.
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',15,0)">measerr>measerr.measerr at 15</a>
+                me.mnoise = measerrs.mnoises.noisefree;
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',41,0)">measerr>measerr.selftest at 41</a>
+            nf = measerrs.measerr
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\demo.m',5,0)">demo at 5</a>
+allpass = measerr.selftest} 
+dbstop if error
+demo
+Noise-Free:
+{??? Error using ==> measerrs.mnoises.noisefree
+Error: <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\+mnoises\noisefree.m',4,33)">File: noisefree.m Line: 4 Column: 33</a>
+Unexpected MATLAB operator.
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',15,0)">measerr>measerr.measerr at 15</a>
+                me.mnoise = measerrs.mnoises.noisefree;
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',41,0)">measerr>measerr.selftest at 41</a>
+            nf = measerrs.measerr
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\demo.m',5,0)">demo at 5</a>
+allpass = measerr.selftest} 
+<a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',15,1)">15  </a>                me.mnoise = measerrs.mnoises.noisefree;
+dbquit
+doc import
+l= import('measerrs.*')
+
+l = 
+
+    'measerrs.*'
+
+doc import
+l= import
+
+l = 
+
+    'measerrs.*'
+
+clear import
+import measerrs.*
+l= import
+
+l = 
+
+    'measerrs.*'
+
+builtin('cd','C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\+biases');
+builtin('cd','C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\+mnoises');
+% Modify expression to add input arguments.
+% Example:
+%   a = [1 2 3; 4 5 6]; 
+%   foo(a);
+
+measerrs.demo
+Noise-Free:
+{??? Error using ==> measerrs.mnoises.noisefree
+Error: <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\+mnoises\noisefree.m',4,33)">File: noisefree.m Line: 4 Column: 33</a>
+Unexpected MATLAB operator.
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',15,0)">measerr>measerr.measerr at 15</a>
+                me.mnoise = measerrs.mnoises.noisefree;
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',41,0)">measerr>measerr.selftest at 41</a>
+            nf = measerrs.measerr
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\demo.m',9,0)">demo at 9</a>
+allpass = measerr.selftest} 
+l= import
+
+l = 
+
+   Empty cell array: 0-by-1
+
+dbquiit
+{??? Undefined function or variable 'dbquiit'.
+} 
+dbquiit
+{??? Undefined function or variable 'dbquiit'.
+} 
+dbquit
+l= import
+
+l = 
+
+    'measerrs.*'
+
+demo
+Noise-Free:
+{??? Error using ==> measerrs.mnoises.noisefree
+Error: <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\+mnoises\noisefree.m',4,33)">File: noisefree.m Line: 4 Column: 33</a>
+Unexpected MATLAB operator.
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',15,0)">measerr>measerr.measerr at 15</a>
+                me.mnoise = measerrs.mnoises.noisefree;
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',41,0)">measerr>measerr.selftest at 41</a>
+            nf = measerrs.measerr
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\demo.m',9,0)">demo at 9</a>
+allpass = measerr.selftest} 
+<a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',15,1)">15  </a>                me.mnoise = measerrs.mnoises.noisefree;
+dbquit
+l= import
+
+l = 
+
+    'measerrs.*'
+
+import measerrs.biases.*
+l= import
+
+l = 
+
+    'measerrs.*'
+    'measerrs.biases.*'
+
+% Modify expression to add input arguments.
+% Example:
+%   a = [1 2 3; 4 5 6]; 
+%   foo(a);
+
+measerrs.demo
+Noise-Free:
+{??? Error using ==> measerrs.mnoises.noisefree
+Error: <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\+mnoises\noisefree.m',4,33)">File: noisefree.m Line: 4 Column: 33</a>
+Unexpected MATLAB operator.
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',15,0)">measerr>measerr.measerr at 15</a>
+                me.mnoise = measerrs.mnoises.noisefree;
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',41,0)">measerr>measerr.selftest at 41</a>
+            nf = measerrs.measerr
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\demo.m',9,0)">demo at 9</a>
+allpass = measerr.selftest} 
+l=import
+
+l = 
+
+   Empty cell array: 0-by-1
+
+dbquit
+l=import
+
+l = 
+
+    'measerrs.*'
+    'measerrs.biases.*'
+
+clear import
+clc, clear classes; import measerrs.*
+import measerrs.biases.*
+import measerrs.mnoises.*
+import measerrs.biases.stms.*
+import measerrs.biases.pnoises.*
+l=import
+
+l = 
+
+    'measerrs.*'
+    'measerrs.biases.*'
+    'measerrs.mnoises.*'
+    'measerrs.biases.stms.*'
+    'measerrs.biases.pnoises.*'
+
+demo
+Noise-Free:
+{??? Error using ==> measerrs.mnoises.noisefree
+Error: <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\+mnoises\noisefree.m',4,33)">File: noisefree.m Line: 4 Column: 33</a>
+Unexpected MATLAB operator.
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',15,0)">measerr>measerr.measerr at 15</a>
+                me.mnoise = measerrs.mnoises.noisefree;
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',41,0)">measerr>measerr.selftest at 41</a>
+            nf = measerrs.measerr
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\demo.m',9,0)">demo at 9</a>
+allpass = measerr.selftest} 
+<a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',15,1)">15  </a>                me.mnoise = measerrs.mnoises.noisefree;
+dbquit all
+% Modify expression to add input arguments.
+% Example:
+%   a = [1 2 3; 4 5 6]; 
+%   foo(a);
+
+measerrs.demo
+Noise-Free:
+{??? Error using ==> measerrs.mnoises.noisefree
+Error: <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\+mnoises\noisefree.m',4,33)">File: noisefree.m Line: 4 Column: 33</a>
+Unexpected MATLAB operator.
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',15,0)">measerr>measerr.measerr at 15</a>
+                me.mnoise = measerrs.mnoises.noisefree;
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\measerr.m',41,0)">measerr>measerr.selftest at 41</a>
+            nf = measerrs.measerr
+
+Error in ==> <a href="matlab: opentoline('C:\GMATDocs\SourceForge\branches\development\prototype\+measerrs\demo.m',10,0)">demo at 10</a>
+allpass = measerr.selftest} 
+dbquit
+doc package

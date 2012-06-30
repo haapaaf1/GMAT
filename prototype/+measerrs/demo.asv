@@ -1,0 +1,8 @@
+%% Demo
+% Demo the measurement error package using the selftest method.
+clc, clear classes; import measerrs.*
+import biases.*
+import mnoises.*
+import stms.*
+%doc measerr
+allpass = measerr.selftest
