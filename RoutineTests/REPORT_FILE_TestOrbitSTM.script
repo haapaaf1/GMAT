@@ -100,7 +100,7 @@ GMAT str1 = 'Test string';
 
 Create ReportFile rf;
 GMAT rf.SolverIterations = Current;
-GMAT rf.Filename = 'OrbitSTM-FancyPropTest.report';
+GMAT rf.Filename = 'REPORT_FILE_TestOrbitSTM.report';
 GMAT rf.Precision = 16;
 GMAT rf.WriteHeaders = On;
 GMAT rf.LeftJustify = On;
@@ -146,6 +146,7 @@ GMAT OpenGLPlot2.ViewUpAxis = Z;
 GMAT OpenGLPlot2.CelestialPlane = Off;
 GMAT OpenGLPlot2.XYPlane = On;
 GMAT OpenGLPlot2.WireFrame = Off;
+GMAT OpenGLPlot2.WireFrame = false; %% just for testing
 GMAT OpenGLPlot2.Axes = On;
 GMAT OpenGLPlot2.Grid = Off;
 GMAT OpenGLPlot2.SunLine = Off;
@@ -154,6 +155,7 @@ GMAT OpenGLPlot2.DataCollectFrequency = 1;
 GMAT OpenGLPlot2.UpdatePlotFrequency = 50;
 GMAT OpenGLPlot2.NumPointsToRedraw = 0;
 GMAT OpenGLPlot2.ShowPlot = true;
+GMAT OpenGLPlot2.ShowPlot = on; %% just for testing
 
 BeginMissionSequence;
 

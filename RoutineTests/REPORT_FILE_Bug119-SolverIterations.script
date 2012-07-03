@@ -1,9 +1,4 @@
-%  Script Mission - Hohmann Transfer Example
-%
-%  This script demonstrates how to target a Hohmann Transfer
-%
-%  REVSION HISTORY
-%  $Id: Bug119-SolverIterationsForReportFiles.script,v 1.2 2008/09/26 17:02:38 ljun Exp $
+%$Id$
 
 %----------------------------------------
 %---------- Spacecraft
@@ -118,40 +113,40 @@ GMAT DC.DerivativeMethod = ForwardDifference;
 %---------- Plots/Reports
 %----------------------------------------
 
-Create ReportFile ReportAll;
-GMAT ReportAll.SolverIterations = All;
-GMAT ReportAll.UpperLeft = [ 0 0 ];
-GMAT ReportAll.Size = [ 0 0 ];
-GMAT ReportAll.RelativeZOrder = 0;
-GMAT ReportAll.Filename = 'Bug119-SolverDataAll.report';
-GMAT ReportAll.Precision = 16;
-GMAT ReportAll.Add = {sat.A1ModJulian, sat.X, sat.Earth.RMAG};
-GMAT ReportAll.WriteHeaders = On;
-GMAT ReportAll.LeftJustify = On;
-GMAT ReportAll.ZeroFill = Off;
-GMAT ReportAll.ColumnWidth = 20;
-GMAT ReportAll.WriteReport = true;
+%Create ReportFile ReportAll;
+%GMAT ReportAll.SolverIterations = All;
+%GMAT ReportAll.UpperLeft = [ 0 0 ];
+%GMAT ReportAll.Size = [ 0 0 ];
+%GMAT ReportAll.RelativeZOrder = 0;
+%GMAT ReportAll.Filename = 'REPORT_FILE_Bug119-SolverDataAll.report';
+%GMAT ReportAll.Precision = 16;
+%GMAT ReportAll.Add = {sat.A1ModJulian, sat.X, sat.Earth.RMAG};
+%GMAT ReportAll.WriteHeaders = On;
+%GMAT ReportAll.LeftJustify = On;
+%GMAT ReportAll.ZeroFill = Off;
+%GMAT ReportAll.ColumnWidth = 20;
+%GMAT ReportAll.WriteReport = true;
 
-Create ReportFile ReportCurrent;
-GMAT ReportCurrent.SolverIterations = Current;
-GMAT ReportCurrent.UpperLeft = [ 0 0 ];
-GMAT ReportCurrent.Size = [ 0 0 ];
-GMAT ReportCurrent.RelativeZOrder = 0;
-GMAT ReportCurrent.Filename = 'Bug119-SolverDataCurrent.report';
-GMAT ReportCurrent.Precision = 16;
-GMAT ReportCurrent.Add = {sat.A1ModJulian, sat.X, sat.Earth.RMAG};
-GMAT ReportCurrent.WriteHeaders = On;
-GMAT ReportCurrent.LeftJustify = On;
-GMAT ReportCurrent.ZeroFill = Off;
-GMAT ReportCurrent.ColumnWidth = 20;
-GMAT ReportCurrent.WriteReport = true;
+%Create ReportFile ReportCurrent;
+%GMAT ReportCurrent.SolverIterations = Current;
+%GMAT ReportCurrent.UpperLeft = [ 0 0 ];
+%GMAT ReportCurrent.Size = [ 0 0 ];
+%GMAT ReportCurrent.RelativeZOrder = 0;
+%GMAT ReportCurrent.Filename = 'REPORT_FILE_Bug119-SolverDataCurrent.report';
+%GMAT ReportCurrent.Precision = 16;
+%GMAT ReportCurrent.Add = {sat.A1ModJulian, sat.X, sat.Earth.RMAG};
+%GMAT ReportCurrent.WriteHeaders = On;
+%GMAT ReportCurrent.LeftJustify = On;
+%GMAT ReportCurrent.ZeroFill = Off;
+%GMAT ReportCurrent.ColumnWidth = 20;
+%GMAT ReportCurrent.WriteReport = true;
 
 Create ReportFile ReportNone;
 GMAT ReportNone.SolverIterations = None;
 GMAT ReportNone.UpperLeft = [ 0 0 ];
 GMAT ReportNone.Size = [ 0 0 ];
 GMAT ReportNone.RelativeZOrder = 0;
-GMAT ReportNone.Filename = 'Bug119-SolverDataNone.report';
+GMAT ReportNone.Filename = 'REPORT_FILE_Bug119-SolverDataNone.report';
 GMAT ReportNone.Precision = 16;
 GMAT ReportNone.Add = {sat.A1ModJulian, sat.X, sat.Earth.RMAG};
 GMAT ReportNone.WriteHeaders = On;
@@ -268,7 +263,7 @@ Target DC {SolveMode = Solve, ExitMode = DiscardAndContinue};
 EndTarget;  % For targeter DC
 
 
-Propagate DefaultProp(sat) {sat.ElapsedSecs = 8640};
+%Propagate DefaultProp(sat) {sat.ElapsedSecs = 8640};
 
 % Burn in the velocity direction to reach an alternate Periapsis point
 %%%Target DC;
