@@ -1,0 +1,144 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2011-08-02 12:15:11
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+GMAT DefaultSC.DateFormat = TAIModJulian;
+GMAT DefaultSC.Epoch = '21545';
+GMAT DefaultSC.CoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultSC.DisplayStateType = Cartesian;
+GMAT DefaultSC.X = 7100;
+GMAT DefaultSC.Y = 0;
+GMAT DefaultSC.Z = 1300;
+GMAT DefaultSC.VX = 0;
+GMAT DefaultSC.VY = 7.35;
+GMAT DefaultSC.VZ = 1;
+GMAT DefaultSC.DryMass = 850;
+GMAT DefaultSC.Cd = 2.2;
+GMAT DefaultSC.Cr = 1.8;
+GMAT DefaultSC.DragArea = 15;
+GMAT DefaultSC.SRPArea = 1;
+GMAT DefaultSC.NAIFId = -123456789;
+GMAT DefaultSC.NAIFIdReferenceFrame = -123456789;
+GMAT DefaultSC.Id = 'SatId';
+GMAT DefaultSC.Attitude = CoordinateSystemFixed;
+GMAT DefaultSC.ModelFile = '../data/vehicle/models/aura.3ds';
+GMAT DefaultSC.ModelOffsetX = 0;
+GMAT DefaultSC.ModelOffsetY = 0;
+GMAT DefaultSC.ModelOffsetZ = 0;
+GMAT DefaultSC.ModelRotationX = 0;
+GMAT DefaultSC.ModelRotationY = 0;
+GMAT DefaultSC.ModelRotationZ = 0;
+GMAT DefaultSC.ModelScale = 3;
+GMAT DefaultSC.AttitudeDisplayStateType = 'Quaternion';
+GMAT DefaultSC.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT DefaultSC.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT DefaultSC.Q1 = 0;
+GMAT DefaultSC.Q2 = 0;
+GMAT DefaultSC.Q3 = 0;
+GMAT DefaultSC.Q4 = 1;
+GMAT DefaultSC.EulerAngleSequence = '321';
+GMAT DefaultSC.AngularVelocityX = 0;
+GMAT DefaultSC.AngularVelocityY = 0;
+GMAT DefaultSC.AngularVelocityZ = 0;
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.RelativisticCorrection = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Degree = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Order = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+GMAT DefaultProp_ForceModel.GravityField.Earth.EarthTideModel = 'None';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-012;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 2700;
+GMAT DefaultProp.MaxStepAttempts = 50;
+GMAT DefaultProp.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn DefaultIB;
+GMAT DefaultIB.CoordinateSystem = Local;
+GMAT DefaultIB.Origin = Earth;
+GMAT DefaultIB.Axes = VNB;
+GMAT DefaultIB.Element1 = 0;
+GMAT DefaultIB.Element2 = 0;
+GMAT DefaultIB.Element3 = 0;
+GMAT DefaultIB.DecrementMass = false;
+GMAT DefaultIB.Isp = 300;
+GMAT DefaultIB.GravitationalAccel = 9.810000000000001;
+
+%----------------------------------------
+%---------- Arrays, Variables, Strings
+%----------------------------------------
+
+Create Array MyYZ[2,2];
+Create Array MySMA[3,3];
+Create Array MyEpoch[3,3];
+Create Variable MyX;
+Create String MyStr;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create ReportFile ReportFile1;
+ReportFile1.Add = {MyEpoch(1,1), MyX, MyYZ(1,1), MyYZ(2,2), MySMA(2,2)};
+ReportFile1.Filename = 'XY_PLOT_GMT2370-ArrayElement.txt';
+
+Create XYPlot XYPlot1;
+%GMAT XYPlot1.XVariable = DefaultSC.A1ModJulian;
+GMAT XYPlot1.XVariable = MyEpoch(1,1);
+%GMAT XYPlot1.XVariable = MyEpoch; %% <== Should throw an error during initialization
+%GMAT XYPlot1.XVariable = DefaultSC; %% <== Should throw an error during initialization
+GMAT XYPlot1.YVariables = {MyX, MyYZ(1,1), MyYZ(2,2), MySMA(2,2)};
+%GMAT XYPlot1.YVariables = {MySMA(2,2)};
+%GMAT XYPlot1.YVariables = {MyStr}; %% <== Should throw an error during initialization
+%GMAT XYPlot1.YVariables = {MySMA}; %% <== Should throw an error during initialization
+%GMAT XYPlot1.YVariables = {DefaultSC}; %% <== Should throw an error during initialization
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+
+GMAT MyX = DefaultSC.Earth.X;
+GMAT MyYZ(1,1) = DefaultSC.Y;
+GMAT MyYZ(2,2) = DefaultSC.Z;
+GMAT MySMA(2,2) = DefaultSC.Earth.SMA;
+GMAT MyEpoch(1,1) = DefaultSC.A1ModJulian;
+
+%%While DefaultSC.ElapsedDays < 1.0
+While DefaultSC.ElapsedDays < 0.1
+   Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 60};
+   GMAT MyX = DefaultSC.Earth.X;
+   GMAT MyYZ(1,1) = DefaultSC.Y;
+   GMAT MyYZ(2,2) = DefaultSC.Z;
+   GMAT MySMA(2,2) = DefaultSC.Earth.SMA;
+   GMAT MyEpoch(1,1) = DefaultSC.A1ModJulian;
+   %Report ReportFile1 MyEpoch(1,1) MyX MySMA(2,2);
+EndWhile;
