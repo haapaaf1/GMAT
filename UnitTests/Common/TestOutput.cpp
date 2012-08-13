@@ -40,7 +40,8 @@ using namespace std;
 TestOutput::TestOutput(const std::string &filename)
 {
    cout << "output file to open: " << filename << endl;
-   cout << "current path: " << GmatFileUtil::GetCurrentPath() << endl;
+   //cout << "current path: " << GmatFileUtil::GetCurrentPath() << endl;
+   cout << "current path: " << GmatFileUtil::GetWorkingDirectory() << endl;
    
    mOutFileName = filename;
    mOutPathName = GmatFileUtil::ParsePathName(mOutFileName);

@@ -87,15 +87,18 @@ int main(int argc, char *argv[])
 {
    ConsoleMessageReceiver *consoleMsg = ConsoleMessageReceiver::Instance();
    MessageInterface::SetMessageReceiver(consoleMsg);
-   std::string outPath = "../../TestFileUtil/";
+   //std::string outPath = "../../TestFileUtil/";
+   std::string outPath = "./";
    MessageInterface::SetLogFile(outPath + "GmatLog.txt");
    std::string outFile = outPath + "TestFileUtilOut.txt";   
    TestOutput out(outFile);
    
+   #if 0
    char *buffer;
    buffer = getenv("OS");
    if (buffer  != NULL)
       printf("Current OS is %s\n", buffer);
+   #endif
    
    try
    {

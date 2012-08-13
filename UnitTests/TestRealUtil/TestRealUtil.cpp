@@ -16,9 +16,8 @@
 #include <string>
 #include <math.h>
 #include "gmatdefs.hpp"
-#include "RealTypes.hpp"
 #include "TimeTypes.hpp"
-#include "PhysicalConstants.hpp"
+#include "GmatConstants.hpp"
 #include "RealUtilities.hpp"
 #include "TestOutput.hpp"
 #include "MessageInterface.hpp"
@@ -26,6 +25,7 @@
 #include "FileManager.hpp"             // for ReadStartupFile()
 
 using namespace std;
+using namespace GmatMathConstants;
 using namespace GmatMathUtil;
 
 //------------------------------------------------------------------------------
@@ -34,24 +34,26 @@ using namespace GmatMathUtil;
 int RunTest(TestOutput &out)
 {
    Real x = 0.0;
+   Real result = 0.0;
+   Real expResult = 0.0;
    Real tol = 1.0e-11;
    bool bval = false;
    
    out.Put("");
 
-   out.Put("============================== test GmatTimeUtil:: constants");
-   Real rval = GmatTimeUtil::SECS_PER_DAY;
-   out.Put("GmatTimeUtil::SECS_PER_DAY = ", rval);
+   out.Put("============================== test GmatTimeConstants:: constants");
+   Real rval = GmatTimeConstants::SECS_PER_DAY;
+   out.Put("GmatTimeConstants::SECS_PER_DAY = ", rval);
    out.Put("");
    
-   out.Put("============================== test GmatRealConst constants");
-   rval = GmatRealConst::REAL_TOL;
-   out.Put("GmatRealConst::REAL_TOL = ", rval);
+   out.Put("============================== test GmatRealConstants constants");
+   rval = GmatRealConstants::REAL_TOL;
+   out.Put("GmatRealConstants::REAL_TOL = ", rval);
    out.Put("");
    
-   out.Put("============================== test GmatPhysicalConst constants");
-   rval = GmatPhysicalConst::c;
-   out.Put("GmatPhysicalConst::c = ", rval);
+   out.Put("============================== test GmatPhysicalConstants constants");
+   rval = GmatPhysicalConstants::c;
+   out.Put("GmatPhysicalConstants::c = ", rval);
    out.Put("");
    
    out.Put("============================== test RealUtilities");
@@ -160,7 +162,51 @@ int RunTest(TestOutput &out)
       out.Put(e.GetFullMessage());
    }
    
+   try
+   {
+      x = 2.2;
+      expResult = 1.425416943070613;
+      out.Put("========================= Acosh(2.2)");
+      result = ACosh(x);
+      out.Validate(result, expResult);
+      out.Put("");
+      
+      x = 1.0;
+      expResult = 0.0;
+      out.Put("========================= Acosh(1.0)");
+      result = ACosh(x);
+      out.Validate(result, expResult);
+      out.Put("");
+      
+      x = 0.999999999999999;
+      expResult = 0.0;
+      out.Put("========================= Acosh(0.999999999999999) should throw an exception with MSVC++, nan with GCC");
+      result = ACosh(x);
+      out.Validate(result, expResult);
+      out.Put("");
+   }
+   catch (BaseException &e)
+   {
+      out.Put(e.GetFullMessage());
+   }
    
+   try
+   {
+      //===== Test invalid cycle in radians
+      x = 2.2;
+      expResult = 1.425416943070613;
+      out.Put("========================= Acosh(2.2, 0.0)");
+      result = ACosh(x, 0.0);
+      out.Validate(result, expResult);
+      out.Put("");
+   }
+   catch (BaseException &e)
+   {
+      out.Put(e.GetFullMessage());
+   }
+   
+   
+   return 1;
 }
 
 
@@ -169,13 +215,16 @@ int RunTest(TestOutput &out)
 //------------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
+   #if 0
    std::string startupFile = "gmat_startup_file.txt";
    FileManager *fm = FileManager::Instance();
    fm->ReadStartupFile(startupFile);
+   #endif
    
    ConsoleMessageReceiver *consoleMsg = ConsoleMessageReceiver::Instance();
    MessageInterface::SetMessageReceiver(consoleMsg);
-   std::string outPath = "../../TestRealUtil/";
+   //std::string outPath = "../../TestRealUtil/";
+   std::string outPath = "./";
    MessageInterface::SetLogFile(outPath + "GmatLog.txt");
    std::string outFile = outPath + "TestRealUtilOut.txt";
    TestOutput out(outFile);
