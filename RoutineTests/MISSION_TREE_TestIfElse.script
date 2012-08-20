@@ -33,6 +33,9 @@ GMAT Sat.SRPArea = 1;
 
 Create Spacecraft LaunchSat;
 Create Spacecraft DefaultSC;
+GMAT DefaultSC.Thrusters = {Thruster1};
+
+Create Thruster Thruster1;
 
 Create ForceModel EarthMoonL2Prop_ForceModel;
 GMAT EarthMoonL2Prop_ForceModel.CentralBody = Earth;
@@ -79,6 +82,7 @@ GMAT dVCirc.Origin = Earth;
 GMAT dVCirc.Element1 = -0.00003;
 
 Create FiniteBurn DefaultFB;
+GMAT DefaultFB.Thrusters = {Thruster1};
 
 Create DifferentialCorrector DC;
 GMAT DC.ReportFile = 'MISSION_TREE-TestIfElseDC.data';

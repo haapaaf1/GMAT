@@ -1,5 +1,6 @@
 Create Variable lhsVar;
 Create Array arr22[2,2] arr33[3,3] lhsArray[3,3];
+Create Array arr23[2,3] arr32[3,2]
 
 BeginMissionSequence;
 
@@ -12,7 +13,8 @@ lhsVar = 1 ' +
 lhsVar = arr33^(-1) @
 lhsVar = arr33^(-1) $
 lhsVar = inv(arr33) @
-arr22 = inv(inv(((arr_22*arr_22*arr_22)' )))-inv((arr_22*arr_23*arr_32))-(arr_22); %<-- Should pass
+arr22 = inv(inv(((arr22*arr22*arr22)' )))-inv((arr22*arr23*arr32))-(arr22); %<-- Should pass
+arr22 = inv(inv(((arr_22*arr_22*arr_22)' )))-inv((arr_22*arr_23*arr_32))-(arr_22); %<-- Should fail
 
 %%--- validation done at run time
 %lhsArray = arr33 ^ 1

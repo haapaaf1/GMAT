@@ -1,0 +1,42 @@
+%--- OrbitView field validation
+
+Create OrbitView OrbitView1;
+
+GMAT OrbitView1.SolverIterations = SI_Current;
+GMAT OrbitView1.UpperLeft = [ UL_0 UL_0 ];
+GMAT OrbitView1.UpperLeft = [ UL2 0 ];
+GMAT OrbitView1.Size = [ SZ_0 SZ_0 ];
+GMAT OrbitView1.Size = [ 0 SZ2_0 ];
+GMAT OrbitView1.RelativeZOrder = ZO_0;
+GMAT OrbitView1.Add = {ADD_DefaultSC, ADD_Earth};
+GMAT OrbitView1.CoordinateSystem = CS_EarthMJ2000Eq;
+GMAT OrbitView1.DrawObject = [ DO_true DO_true ];
+GMAT OrbitView1.DrawObject = [ true DO2_true ];
+GMAT OrbitView1.OrbitColor = [ OC_255 OC_32768 ];
+GMAT OrbitView1.OrbitColor = [ 255 OC2_32768 ];
+GMAT OrbitView1.TargetColor = [ TC_8421440 TC_0 ];
+GMAT OrbitView1.TargetColor = [ 8421440 TC2_0 ];
+GMAT OrbitView1.DataCollectFrequency = DF_1;
+GMAT OrbitView1.UpdatePlotFrequency = UF_50;
+GMAT OrbitView1.NumPointsToRedraw = NP_0;
+GMAT OrbitView1.ShowPlot = SP_true;
+GMAT OrbitView1.ViewPointReference = VPR_Earth;
+GMAT OrbitView1.ViewPointVector = [ VPV_30000 VPV_0 VPV_0 ];
+GMAT OrbitView1.ViewPointVector = [ 30000 VPV2_0 VPV2_0 ];
+GMAT OrbitView1.ViewDirection = VD_Earth;
+GMAT OrbitView1.ViewScaleFactor = SF_1;
+GMAT OrbitView1.ViewUpCoordinateSystem = UPCS_EarthMJ2000Eq;
+GMAT OrbitView1.ViewUpAxis = UPAXIS_Z;
+GMAT OrbitView1.CelestialPlane = CP_Off;
+GMAT OrbitView1.XYPlane = XYP_On;
+GMAT OrbitView1.WireFrame = WF_Off;
+GMAT OrbitView1.Axes = AXES_On;
+GMAT OrbitView1.Grid = GRID_Off;
+GMAT OrbitView1.SunLine = SUNLINE_Off;
+GMAT OrbitView1.UseInitialView = IVIEW_On;
+GMAT OrbitView1.StarCount = STARCOUNT_7000;
+GMAT OrbitView1.EnableStars = ENABLESTAR_On;
+GMAT OrbitView1.EnableConstellations = CONST_On;
+
+
+BeginMissionSequence

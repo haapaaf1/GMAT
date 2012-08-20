@@ -1,0 +1,20 @@
+%--- XYPlot field validation
+
+Create Spacecraft SC1;
+Create XYPlot XYPlot1;
+
+GMAT XYPlot1.SolverIterations = SI_Current;
+GMAT XYPlot1.UpperLeft = [ UL_0 UL_0 ];
+GMAT XYPlot1.UpperLeft = [ UL2_0 0 ];
+GMAT XYPlot1.Size = [ SZ_0 SZ_0 ];
+GMAT XYPlot1.Size = [ 0 SZ2_0 ];
+GMAT XYPlot1.RelativeZOrder = ZO_0;
+GMAT XYPlot1.XVariable = XVAR_SC1.A1ModJulian;
+GMAT XYPlot1.YVariables = {YVAR_SC1.EarthMJ2000Eq.X YVAR_SC1.EarthMJ2000Eq.Y};
+GMAT XYPlot1.YVariables = {SC1.EarthMJ2000Eq.X YVAR2_SC1.EarthMJ2000Eq.Y};
+GMAT XYPlot1.YVariables = {YVAR3_SC1.EarthMJ2000Eq.X SC1.EarthMJ2000Eq.Y};
+GMAT XYPlot1.ShowGrid = SG_true;
+GMAT XYPlot1.ShowPlot = SP_true;
+
+
+BeginMissionSequence
