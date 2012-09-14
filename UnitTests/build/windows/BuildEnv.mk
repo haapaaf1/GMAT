@@ -10,6 +10,7 @@ GMAT_CONSOLE = c:/Projects/GmatDev/src/console
 # Flags used to control the build
 CONSOLE_APP = 1
 USE_SPICE = 0
+USE_F2C_VERSION = 1
 
 # MATLAB data
 # location of MATLAB headers and libraries
@@ -39,10 +40,13 @@ BASE_LINK_FLAGS = $(SPICE_LIBRARIES)
 CPP = g++
 C = gcc
 FORTRAN = gfortran
+
 ifeq ($(USE_F2C_VERSION), 1)
-FORTRAN_LIB =
-else
+F2C_INCLUDE = -IC:/f2c/include
 FORTRAN_LIB = C:/f2c/lib/libf2c.a
+else
+F2C_INCLUDE = 
+FORTRAN_LIB = 
 endif
 
 ifeq ($(PROFILE_BUILD), 1)

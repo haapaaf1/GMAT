@@ -1,4 +1,4 @@
-//$Header: /cygdrive/p/dev/cvs/test/common/TestOutput.cpp,v 1.20 2008/08/22 14:46:37 lojun Exp $
+//$Id$
 //------------------------------------------------------------------------------
 //                             TestOutput
 //------------------------------------------------------------------------------
@@ -235,9 +235,9 @@ void TestOutput::Put(const std::string &str, bool bval)
 
 
 //------------------------------------------------------------------------------
-// void Put(const std::string &str, char *sval)
+// void Put(const std::string &str, const char *sval)
 //------------------------------------------------------------------------------
-void TestOutput::Put(const std::string &str, char *sval)
+void TestOutput::Put(const std::string &str, const char *sval)
 {
    mOutfile << str << sval << endl;
    cout << str << sval << endl;

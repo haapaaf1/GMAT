@@ -49,7 +49,7 @@ public:
             const std::string &str2 = "", int ival2 = -99999,
             const std::string &str3 = "", int ival3 = -99999);
    void Put(const std::string &str, bool bval);
-   void Put(const std::string &str, char *sval);
+   void Put(const std::string &str, const char *sval);
    void Put(const std::string &str, const std::string &sval);
    void Put(const std::string &str1, const std::string &str2,
             const std::string &str3);

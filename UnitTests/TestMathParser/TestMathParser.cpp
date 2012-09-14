@@ -47,7 +47,6 @@
 #include "BaseException.hpp"
 #include "Rmatrix33.hpp"
 #include "ArrayWrapper.hpp"
-#include "FileManager.hpp"         // for ReadStartupFile()
 #include "MessageInterface.hpp"
 #include "ConsoleMessageReceiver.hpp"
 #include "TestOutput.hpp"
@@ -320,8 +319,34 @@ void TestFindLowestOperator(TestOutput &out, MathParser &mp)
    std::string expstr;
    Integer opIndex;
    std::string str1;
-
+   
    #if 1
+   //------------------------------
+   expstr = "y^2^(-1)";
+   str1 = mp.FindLowestOperator(expstr, opIndex);
+   out.Put(expstr);
+   out.Validate(str1, "^");
+   out.Validate(opIndex, 3);
+   out.Put("");
+   #endif
+   
+   //------------------------------
+   expstr = "y^(-1)^2";
+   str1 = mp.FindLowestOperator(expstr, opIndex);
+   out.Put(expstr);
+   out.Validate(str1, "^");
+   out.Validate(opIndex, 6);
+   out.Put("");
+   #endif
+   
+   //------------------------------
+   expstr = "A'^(-1)";
+   str1 = mp.FindLowestOperator(expstr, opIndex);
+   out.Put(expstr);
+   out.Validate(str1, "^(-1)");
+   out.Validate(opIndex, 2);
+   out.Put("");
+   
    //------------------------------
    expstr = "-tan(11.907)+1.47756418563724";
    str1 = mp.FindLowestOperator(expstr, opIndex);
@@ -329,9 +354,7 @@ void TestFindLowestOperator(TestOutput &out, MathParser &mp)
    out.Validate(str1, "+");
    out.Validate(opIndex, 12);
    out.Put("");
-   #endif
    
-   #if 1
    //------------------------------
    expstr = "2.0e-1+3.0e-1+4.0e+0";
    str1 = mp.FindLowestOperator(expstr, opIndex);
@@ -1563,9 +1586,9 @@ void TestVariable(TestOutput &out, MathParser &mp)
 
 
 //------------------------------------------------------------------------------
-// void TestArray(TestOutput &out, MathParser &mp)
+// void TestMatrixOpsAndFunctions(TestOutput &out, MathParser &mp)
 //------------------------------------------------------------------------------
-void TestArray(TestOutput &out, MathParser &mp)
+void TestMatrixOpsAndFunctions(TestOutput &out, MathParser &mp)
 {
    out.Put("============================== Test Math Operation and Function with Array");
    
@@ -2357,7 +2380,8 @@ void TestValidation(TestOutput &out, MathParser &mp)
    Real expRealVal;
    Rmatrix unsetMat;
    MathNode *node = NULL;
-   
+
+   #if 0
    try
    {
       expstr = "-norm(2,3)";
@@ -2370,6 +2394,7 @@ void TestValidation(TestOutput &out, MathParser &mp)
       MessageInterface::ShowMessage(be.GetFullMessage() + "\n");
       out.Put(be.GetFullMessage() + "\n");
    }
+   #endif
    
    #if 0
    try
@@ -2483,7 +2508,7 @@ int RunTest(TestOutput &out)
    
    try
    {
-      #if 0
+      #if 1
       TestFindLowestOperator(out, mp);
       #endif
       
@@ -2499,7 +2524,7 @@ int RunTest(TestOutput &out)
       TestMathFunctions(out, mp);
       #endif
       
-      #if 1
+      #if 0
       TestValidation(out, mp);
       #endif
       
@@ -2517,8 +2542,11 @@ int RunTest(TestOutput &out)
       TestLongEquations(out, mp);
       TestJustParsing(out, mp);
       TestSpecialCase(out, mp);
+      #endif
+      
+      #if 0
       ////TestVariable(out, mp); // currently not working due to NULL ElementWrapper
-      ////TestArray(out, mp);    // currently not working due to NULL ElementWrapper
+      ////TestMatrixOpsAndFunctions(out, mp);    // currently not working due to NULL ElementWrapper
       ////TestFunctionRunner(out, mp); // currently not working due to NULL Function
       #endif
       
@@ -2562,14 +2590,10 @@ int RunTest(TestOutput &out)
 // int main(int argc, char *argv[])
 //------------------------------------------------------------------------------
 int main(int argc, char *argv[])
-{
-   std::string startupFile = "gmat_startup_file.txt";
-   FileManager *fm = FileManager::Instance();
-   fm->ReadStartupFile(startupFile);
-   
+{   
    ConsoleMessageReceiver *consoleMsg = ConsoleMessageReceiver::Instance();
    MessageInterface::SetMessageReceiver(consoleMsg);
-   std::string outPath = "../../TestMathParser/";
+   std::string outPath = "./";
    MessageInterface::SetLogFile(outPath + "GmatLog.txt");
    std::string outFile = outPath + "TestMathParserOut.txt";
    TestOutput out(outFile);

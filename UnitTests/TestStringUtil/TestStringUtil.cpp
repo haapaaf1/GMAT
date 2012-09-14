@@ -15,6 +15,7 @@
 #include <iostream>
 #include <string>
 #include "gmatdefs.hpp"
+#include "TimeTypes.hpp"                // for GmatTileUtil::
 #include "StringUtil.hpp"
 #include "UtilityException.hpp"
 #include "TestOutput.hpp"
@@ -30,6 +31,7 @@ using namespace GmatStringUtil;
 int RunTest(TestOutput &out)
 {
    MessageInterface::ShowMessage("=========== TestStringUtil\n");
+   out.Put("=========== TestStringUtil\n");
    
    std::string str, str1;
    Real rval, expRval;
@@ -540,7 +542,7 @@ int RunTest(TestOutput &out)
    }
    else
    {
-      throw UtilityException(str + " is a valid Integer number");
+      throw UtilityException(str + " is not a valid Integer number");
    }
    
    
@@ -555,7 +557,7 @@ int RunTest(TestOutput &out)
    }
    else
    {
-      throw UtilityException(str + " is a valid Integer number");
+      throw UtilityException(str + " is not a valid Integer number");
    }
    
    
@@ -570,7 +572,7 @@ int RunTest(TestOutput &out)
    }
    else
    {
-      throw UtilityException(str + " is a valid Integer number");
+      throw UtilityException(str + " is not a valid Integer number");
    }
    
    
@@ -585,7 +587,7 @@ int RunTest(TestOutput &out)
    }
    else
    {
-      throw UtilityException(str + " is a valid Integer number");
+      throw UtilityException(str + " is not a valid Integer number");
    }
    
    
@@ -600,7 +602,7 @@ int RunTest(TestOutput &out)
    }
    else
    {
-      throw UtilityException(str + " is a valid Integer number");
+      throw UtilityException(str + " is not a valid Integer number");
    }
    
    
@@ -1191,7 +1193,7 @@ int RunTest(TestOutput &out)
    
    out.Put("============================== test GmatStringUtil::GetArrayIndex(row, col)");
    Integer row, col;
-   
+      
    //------------------------------
    str = "A(1,2)";
    GetArrayIndex(str, row, col, name);
@@ -1234,6 +1236,27 @@ int RunTest(TestOutput &out)
    out.Put("");
    
    out.Put("============================== test GmatStringUtil::IsEnclosedWithExtraParen()");
+   
+   //------------------------------
+   str = "(A)";
+   bval = IsEnclosedWithExtraParen(str);
+   out.Put(str);
+   out.Validate(bval, true);
+   out.Put("");
+   
+   //------------------------------
+   str = "((1))";
+   bval = IsEnclosedWithExtraParen(str);
+   out.Put(str);
+   out.Validate(bval, true);
+   out.Put("");
+   
+   //------------------------------
+   str = "(())";
+   bval = IsEnclosedWithExtraParen(str);
+   out.Put(str);
+   out.Validate(bval, false);
+   out.Put("");
    
    //------------------------------
    str = "(vec(1,1)*vec(2,1))*vec(3,1)*vec(4,1)";
@@ -1400,6 +1423,29 @@ int RunTest(TestOutput &out)
    out.Validate(bval, false);
    out.Put("");
    
+   out.Put("============================== test GmatStringUtil::IsParenEmpty()");
+   
+   //------------------------------
+   str = "(())";
+   bval = IsParenEmpty(str);
+   out.Put(str);
+   out.Validate(bval, true);
+   out.Put("");
+   
+   //------------------------------
+   str = "dne(())";
+   bval = IsParenEmpty(str);
+   out.Put(str);
+   out.Validate(bval, false);
+   out.Put("");
+   
+   //------------------------------
+   str = "((1))";
+   bval = IsParenEmpty(str);
+   out.Put(str);
+   out.Validate(bval, false);
+   out.Put("");
+   
    out.Put("============================== test GmatStringUtil::FindMatchingParen()");
    
    Integer openParen, closeParen;
@@ -1464,6 +1510,104 @@ int RunTest(TestOutput &out)
    out.Put("============================== test GmatStringUtil::RemoveExtraParen()");
    
    //------------------------------
+   str = "(0.5,0.5)";
+   str1 = RemoveExtraParen(str);
+   out.Put(str);
+   out.Validate(str1, str);
+   out.Put("");
+   
+   //------------------------------
+   str = "vec(1,1)/(1000/c/vec(4,1))";
+   str1 = RemoveExtraParen(str);
+   out.Put(str);
+   out.Validate(str1, "vec(1,1)/(1000/c/vec(4,1))");
+   out.Put("");
+   
+   //------------------------------
+   str = "(1-cos(phi))*av*av'";
+   str1 = RemoveExtraParen(str);
+   out.Put(str);
+   out.Validate(str1, "(1-cos(phi))*av*av'");
+   out.Put("");
+   
+   //------------------------------
+   str = "(((arr_23*arr_31)*(arr_13*arr_32))' - ((arr_22))^(-1))";
+   str1 = RemoveExtraParen(str);
+   out.Put(str);
+   out.Validate(str1, "(((arr_23*arr_31)*(arr_13*arr_32))' - (arr_22)^(-1))");
+   out.Put("");
+   
+   //------------------------------
+   str = "(())";
+   str1 = RemoveExtraParen(str);
+   out.Put(str);
+   out.Validate(str1, "(())");
+   out.Put("");
+   
+   //------------------------------
+   str = "()";
+   str1 = RemoveExtraParen(str);
+   out.Put(str);
+   out.Validate(str1, "()");
+   out.Put("");
+   
+   //------------------------------
+   str = "5116.1085 - (-4237.076770)";
+   str1 = RemoveExtraParen(str);
+   out.Put(str);
+   out.Validate(str1, "5116.1085 - (-4237.076770)");
+   out.Put("");
+   
+   //------------------------------
+   str = "Sat.X*(b*c*vec(4,1)) - 10.9056168";
+   str1 = RemoveExtraParen(str);
+   out.Put(str);
+   out.Validate(str1, "Sat.X*(b*c*vec(4,1)) - 10.9056168");
+   out.Put("");
+   
+   //------------------------------
+   str = "cos(phi)*I3 + (1 - cos(phi))*av*av' - sin(phi)*across";
+   str1 = RemoveExtraParen(str);
+   out.Put(str);
+   out.Validate(str1, "cos(phi)*I3 + (1 - cos(phi))*av*av' - sin(phi)*across");
+   out.Put("");
+   
+   //------------------------------
+   str = "((x^(-1)))";
+   str1 = RemoveExtraParen(str);
+   out.Put(str);
+   out.Validate(str1, "(x^(-1))");
+   out.Put("");
+   
+   //------------------------------
+   str = "( (x^(-1)) )";
+   str1 = RemoveExtraParen(str);
+   out.Put(str);
+   out.Validate(str1, "( x^(-1) )");
+   out.Put("");
+   
+   //------------------------------
+   str = "(A')^(-1)";
+   str1 = RemoveExtraParen(str);
+   out.Put(str);
+   out.Validate(str1, "(A')^(-1)");
+   out.Put("");
+   
+   //------------------------------
+   str = "A (1,1)";
+   str1 = RemoveExtraParen(str);
+   out.Put(str);
+   out.Validate(str1, "A (1,1)");
+   out.Put("");
+   
+   //------------------------------
+   str = "Acos  (A  (1, 1))";
+   str1 = RemoveExtraParen(str);
+   out.Put(str);
+   out.Validate(str1, "Acos  (A  (1, 1))");
+   out.Put("");
+   
+   //------------------------------
    str = "((a))";
    str1 = RemoveExtraParen(str);
    out.Put(str);
@@ -1474,14 +1618,15 @@ int RunTest(TestOutput &out)
    str = "((a+b))";
    str1 = RemoveExtraParen(str);
    out.Put(str);
-   out.Validate(str1, "(a+b)");
+   out.Validate(str1, "((a+b))");
    out.Put("");
    
    //------------------------------
    str = "(((a) + (((a+b)*c)) + a^(-1)))";
    str1 = RemoveExtraParen(str);
    out.Put(str);
-   out.Validate(str1, "(a + ((a+b)*c) + a^(-1))");
+   //OLD out.Validate(str1, "(a + ((a+b)*c) + a^(-1))");
+   out.Validate(str1, "((a + (((a+b)*c)) + a^(-1)))");
    out.Put("");
    
    //------------------------------
@@ -1509,22 +1654,30 @@ int RunTest(TestOutput &out)
    str = "(a(1,1) + 10.0)";
    str1 = RemoveExtraParen(str);
    out.Put(str);
-   //temp out.Validate(str1, str);
-   out.Validate(str1, "a(1,1) + 10.0");
+   out.Validate(str1, "(a(1,1) + 10.0)");
+   out.Put("");
+
+   //------------------------------
+   str = "1 + (a(1,1) + 10.0) * 2";
+   str1 = RemoveExtraParen(str);
+   out.Put(str);
+   out.Validate(str1, "1 + (a(1,1) + 10.0) * 2");
    out.Put("");
 
    //------------------------------
    str = "2.34/1000*34.78*(Sat.VX) -  1.09056168*10^(-5)";
    str1 = RemoveExtraParen(str);
    out.Put(str);
-   out.Validate(str1, "2.34/1000*34.78*Sat.VX -  1.09056168*10^(-5)");
+   //OLD out.Validate(str1, "2.34/1000*34.78*Sat.VX -  1.09056168*10^(-5)");
+   out.Validate(str1, "2.34/1000*34.78*(Sat.VX) -  1.09056168*10^(-5)");
    out.Put("");
    
    //------------------------------
    str = "a*b*c/(vec(4,1))/100000000 - 6.0735223880597";
    str1 = RemoveExtraParen(str);
    out.Put(str);
-   out.Validate(str1, "a*b*c/vec(4,1)/100000000 - 6.0735223880597");
+   //OLD out.Validate(str1, "a*b*c/vec(4,1)/100000000 - 6.0735223880597");
+   out.Validate(str1, "a*b*c/(vec(4,1))/100000000 - 6.0735223880597");
    out.Put("");
    
    //------------------------------
@@ -1542,13 +1695,6 @@ int RunTest(TestOutput &out)
    out.Put("");
    
    //------------------------------
-   str = "a*b*c/(Sat.VX)/100000000 - 6.0735223880597";
-   str1 = RemoveExtraParen(str);
-   out.Put(str);
-   out.Validate(str1, "a*b*c/Sat.VX/100000000 - 6.0735223880597");
-   out.Put("");
-   
-   //------------------------------
    str = "Sat.X/(1000/c/d) - 1.09056168*10^(-5)";
    str1 = RemoveExtraParen(str);
    out.Put(str);
@@ -1559,23 +1705,26 @@ int RunTest(TestOutput &out)
    str = "vec(1,1)/(1000/c/vec(4,1)) - 1.09056168*10^(-5)";
    str1 = RemoveExtraParen(str);
    out.Put(str);
-   //temp out.Validate(str1, str);
-   out.Validate(str1, "vec(1,1)/1000/c/vec(4,1) - 1.09056168*10^(-5)");
+   out.Validate(str1, "vec(1,1)/(1000/c/vec(4,1)) - 1.09056168*10^(-5)");
    out.Put("");
    
    //------------------------------
    str = "((a)) + ((a+b)) + ((a*b))";
    str1 = RemoveExtraParen(str);
    out.Put(str);
-   out.Validate(str1, "a + (a+b) + (a*b)");
+   //OLD out.Validate(str1, "a + (a+b) + (a*b)");
+   out.Validate(str1, "(a) + ((a+b)) + ((a*b))");
    out.Put("");
    
    //------------------------------
+   //str = "( ( ((vec(1,1)))/ (((1000/c/vec(4,1)))) - 1.09056168*10^(-5) ) )";
+   //str = "(vec(1,1)/(1000/c/vec(4,1)) - 1.09056168*10^(-5))";
+   //str = "(vec(1,1)/(1000/c/vec(4,1)) - 1.09056168*10^(-5))";
    str = "((((vec(1,1)))/(((1000/c/vec(4,1)))) - 1.09056168*10^(-5)))";
    str1 = RemoveExtraParen(str);
    out.Put(str);
-   //out.Validate(str1, "(vec(1,1)/(1000/c/vec(4,1)) - 1.09056168*10^(-5))");
-   out.Validate(str1, "(vec(1,1)/1000/c/vec(4,1) - 1.09056168*10^(-5))");
+   //OLD out.Validate(str1, "(vec(1,1)/1000/c/vec(4,1) - 1.09056168*10^(-5))");
+   out.Validate(str1, "((vec(1,1)/(1000/c/vec(4,1)) - 1.09056168*10^(-5)))");
    out.Put("");
    
    //------------------------------
@@ -1589,7 +1738,7 @@ int RunTest(TestOutput &out)
    str = "((3*a+4)-(9*b-20)*(cos(c)^2))*(-a/b)*d-0.00267522370194881";
    str1 = RemoveExtraParen(str);
    out.Put(str);
-   out.Validate(str1, "((3*a+4)-(9*b-20)*cos(c)^2)*(-a/b)*d-0.00267522370194881");
+   out.Validate(str1, str);
    out.Put("");
    
    out.Put("============================== test GmatStringUtil::ParseFunctionName(str)");
@@ -1635,15 +1784,12 @@ int main(int argc, char *argv[])
 {
    ConsoleMessageReceiver *consoleMsg = ConsoleMessageReceiver::Instance();
    MessageInterface::SetMessageReceiver(consoleMsg);
-   std::string outPath = "../../TestStringUtil/";
+   std::string outPath = "./";
    MessageInterface::SetLogFile(outPath + "GmatLog.txt");
    std::string outFile = outPath + "TestStringUtilOut.txt";   
    TestOutput out(outFile);
-   
-   char *buffer;
-   buffer = getenv("OS");
-   if (buffer  != NULL)
-      printf("Current OS is %s\n", buffer);
+   out.Put(GmatTimeUtil::FormatCurrentTime());
+   MessageInterface::ShowMessage("%s\n", GmatTimeUtil::FormatCurrentTime().c_str());
    
    try
    {
