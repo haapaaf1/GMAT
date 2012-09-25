@@ -9,8 +9,7 @@
 
 %  Create a report to output error data
 Create ReportFile ErrorData;
-GMAT ErrorData.Filename = ErrorData.report;
-
+GMAT ErrorData.Filename = MATH_ErrorData.report;
 
 %   Create variables and arrays that are needed in calculations
 Create Variable phi pi2
@@ -90,6 +89,7 @@ GMAT R = cos(phi)*I3 + (1 - cos(phi))*av*av' - sin(phi)*across;
 GMAT E = R - Sol;
 
 %  Report the error data.
+Report ErrorData R Sol
 Report ErrorData E;
 
 %%% Note: It matches better with MSVC++ run

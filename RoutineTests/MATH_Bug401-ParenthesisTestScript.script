@@ -3,7 +3,7 @@ Create Spacecraft Sat;
 
 Create ReportFile Data;
 GMAT Data.WriteHeaders = Off;
-GMAT Data.Filename = Bug401-ParenthesisTest.report
+GMAT Data.Filename = MATH_Bug401-ParenthesisTest.report
 
 Create Variable a b c d Test TestNum;
 Create Array vec[4,1];
