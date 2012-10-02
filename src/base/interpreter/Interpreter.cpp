@@ -119,16 +119,20 @@ const std::string Interpreter::defaultIndicator = "DFLT__";
 //------------------------------------------------------------------------------
 Interpreter::Interpreter(SolarSystem *ss, ObjectMap *objMap)
 {
+   inCommandMode = false;
+   inRealCommandMode = false;
    initialized = false;
    continueOnError = true;
    parsingDelayedBlock = false;
    ignoreError = false;
    inScriptEvent = false;
+   gmatFunctionsAvailable = false;
    inFunctionMode = false;
    hasFunctionDefinition = false;
    currentFunction = NULL;
    theSolarSystem = NULL;
    theObjectMap = NULL;
+   currentBlockType = Gmat::COMMENT_BLOCK;      // Initialize to something here
    
    theModerator  = Moderator::Instance();
    theReadWriter = ScriptReadWriter::Instance();
@@ -210,7 +214,7 @@ void Interpreter::Initialize()
    
    // Initialize TextParser command list
    theTextParser.Initialize(commandList);
-   
+
    initialized = true;
    
    #ifdef DEBUG_INIT
@@ -342,6 +346,8 @@ void Interpreter::BuildCreatableObjectMaps()
    copy(fns.begin(), fns.end(), back_inserter(allObjectTypeList));
    for (UnsignedInt i = 0; i < functionList.size(); i++)
       objectTypeMap.insert(std::make_pair(functionList[i], Gmat::FUNCTION));
+   gmatFunctionsAvailable =
+         (find(fns.begin(), fns.end(), "GmatFunction") != fns.end());
    
    hardwareList.clear();
    StringArray hws = theModerator->GetListOfFactoryItems(Gmat::HARDWARE);
@@ -524,6 +530,9 @@ void Interpreter::BuildCreatableObjectMaps()
       for (pos = spl.begin(); pos != spl.end(); ++pos)
          MessageInterface::ShowMessage(*pos + "\n   ");
       
+      MessageInterface::ShowMessage("GmatFunctions %s available\n",
+            gmatFunctionsAvailable ? "are" : "are not");
+
       MessageInterface::ShowMessage("\n");
    #endif
    
@@ -1441,7 +1450,7 @@ bool Interpreter::ValidateCommand(GmatCommand *cmd)
    // Even in the function we still need to create automatic Parameters,
    // such sat.X in mySatX = sat.X in the assignment command, in order for Validator
    // to set wrapper reference for auto object used in the function command sequence
-   // during the function initiaization. But we don't want to add to function's
+   // during the function initialization. But we don't want to add to function's
    // automatic store at this time. It will be added during function initialization.
    #ifdef DEBUG_VALIDATE_COMMAND
    MessageInterface::ShowMessage
@@ -1877,7 +1886,15 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
          if (func != NULL && func->IsOfType("MatlabFunction"))
             type1 = "CallMatlabFunction";
          else
-            type1 = "CallGmatFunction";
+         {
+            if (gmatFunctionsAvailable)
+               type1 = "CallGmatFunction";
+            else
+               throw InterpreterException("The function \"" + funcName +
+                     "\" is not available; if it is a GmatFunction, you may "
+                     "need to enable the GmatFunction plugin "
+                     "(libGmatFunction)");
+         }
       }
       
       #ifdef DEBUG_CREATE_CALLFUNCTION
@@ -1926,7 +1943,15 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
             if (func != NULL && func->IsOfType("MatlabFunction"))
                type1 = "CallMatlabFunction";
             else
-               type1 = "CallGmatFunction";
+            {
+               if (gmatFunctionsAvailable)
+                  type1 = "CallGmatFunction";
+               else
+                  throw InterpreterException("The function \"" + funcName +
+                        "\" is not available; if it is a GmatFunction, you may "
+                        "need to enable the GmatFunction plugin "
+                        "(libGmatFunction)");
+            }
          }
          
          #ifdef DEBUG_CREATE_CALLFUNCTION
@@ -1977,7 +2002,15 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
                if (funcPtr != NULL && funcPtr->IsOfType("MatlabFunction"))
                   type1 = "CallMatlabFunction";
                else
-                  type1 = "CallGmatFunction";
+               {
+                  if (gmatFunctionsAvailable)
+                     type1 = "CallGmatFunction";
+                  else
+                     throw InterpreterException("The function \"" + funcName +
+                           "\" is not available; if it is a GmatFunction, you "
+                           "may need to enable the GmatFunction plugin "
+                           "(libGmatFunction)");
+               }
             }
          }
       }
@@ -2174,7 +2207,7 @@ GmatCommand* Interpreter::CreateCommand(const std::string &type,
        cmd, retFlag);
    #endif
    
-   return cmd;;
+   return cmd;
 }
 
 
@@ -3278,7 +3311,7 @@ bool Interpreter::AssembleCreateCommand(GmatCommand *cmd, const std::string &des
    
    try
    {
-      // if object is MatlabFunction make sure we add .m extenstion to avoid
+      // if object is MatlabFunction make sure we add .m extension to avoid
       // automatically creating GmatFunction in the Sandbox::HandleGmatFunction()
       cmd->SetStringParameter("ObjectType", objTypeStrToUse);
       for (UnsignedInt i=0; i<objNames.size(); i++)
@@ -3293,7 +3326,7 @@ bool Interpreter::AssembleCreateCommand(GmatCommand *cmd, const std::string &des
    //----------------------------------------------------------------------
    // Check all object names in the Create command for global objects.
    // If object type is automatic global and the same object names found in
-   // the GlobalObjectStore, throw an exception exception
+   // the GlobalObjectStore, throw an exception.
    // Just give warning for now (LOJ: 2010.12.16)
    //----------------------------------------------------------------------
    bool globalObjFound = false;
@@ -4083,7 +4116,9 @@ bool Interpreter::SetObjectToObject(GmatBase *toObj, GmatBase *fromObj,
    }
    else
    {
-      InterpreterException ex("Object type of LHS and RHS are not the same.");
+      //InterpreterException ex("Object type of LHS and RHS are not the same.");
+      InterpreterException ex
+         ("Setting \"" + toObj->GetName() + "\" to \"" + rhs + "\" is not allowed before BeginMissionSequence");
       HandleError(ex);
       return false;
    }
@@ -4304,11 +4339,8 @@ bool Interpreter::SetObjectToValue(GmatBase *toObj, const std::string &value)
        toObjType.c_str(), toObj->GetName().c_str(), value.c_str());
    #endif
    
-   if (toObjType != "Variable" && toObjType != "String")
+   if (toObjType != "Variable" && toObjType != "String" && toObjType != "Array")
    {
-      //InterpreterException ex
-      //   ("Setting a String value \"" + value + "\" to an object \"" + toObj->GetName() +
-      //    "\" of type \"" + toObjType + "\" is not allowed");
       InterpreterException ex
          ("Setting an object \"" + toObj->GetName() + "\" of type \"" + toObjType +
           "\" to a value \"" + value + "\" is not allowed");
@@ -4316,8 +4348,40 @@ bool Interpreter::SetObjectToValue(GmatBase *toObj, const std::string &value)
       return false;
    }
    
-   if (toObjType == "String")
+   if (toObjType == "Array")
    {
+      // Check if array is one element array
+      std::string desc = toObj->GetStringParameter("Description");
+      #ifdef DEBUG_SET
+      MessageInterface::ShowMessage("   Array = '%s'\n", desc.c_str());
+      #endif
+      if (GmatStringUtil::IsOneElementArray(desc))
+      {
+         // Replace [] to () so that value can be assigned
+         std::string initialValueStr = GmatStringUtil::Replace(desc, "[", "(");
+         initialValueStr = GmatStringUtil::Replace(initialValueStr, "]", ")");
+         initialValueStr = initialValueStr + "=" + value;
+         #ifdef DEBUG_SET
+         MessageInterface::ShowMessage
+            ("   Setting initial value to '%s'\n", initialValueStr.c_str());
+         #endif
+         toObj->SetStringParameter("InitialValue", initialValueStr);
+      }
+      else
+      {
+         InterpreterException ex
+            ("Setting an object \"" + toObj->GetName() + "\" of type \"" + toObjType +
+             "\" to a value \"" + value + "\" is not allowed");
+         HandleError(ex);
+         return false;
+      }
+   }
+   else if (toObjType == "String")
+   {
+      #ifdef DEBUG_SET
+      MessageInterface::ShowMessage("   Checking if value is enclosed with quotes\n");
+      #endif
+      
       // check for unpaired single quotes
       if (GmatStringUtil::HasMissingQuote(value, "'"))
       {
@@ -4326,7 +4390,13 @@ bool Interpreter::SetObjectToValue(GmatBase *toObj, const std::string &value)
          return false;
       }
       
-      std::string valueToUse = GmatStringUtil::RemoveEnclosingString(value, "'");
+      #ifdef DEBUG_SET
+      MessageInterface::ShowMessage("   It is enclosed with quotes, now removing trailing spaces\n");
+      #endif
+      
+      // Remove trailing spaces
+      std::string valueToUse = GmatStringUtil::Trim(value, GmatStringUtil::TRAILING);
+      valueToUse = GmatStringUtil::RemoveEnclosingString(valueToUse, "'");
       
       #ifdef DEBUG_SET
       MessageInterface::ShowMessage
@@ -5389,6 +5459,7 @@ bool Interpreter::SetPropertyValue(GmatBase *obj, const Integer id,
          ("Interpreter::SetPropertyValue() Cannot handle the type: " +
           GmatBase::PARAM_TYPE_STRING[type] + " yet.\n");
       HandleError(ex);
+      break;
    }
    
    #ifdef DEBUG_SET
@@ -5681,6 +5752,8 @@ bool Interpreter::SetPropertyObjectValue(GmatBase *obj, const Integer id,
       
       return false;
    }
+
+   return false;     // Function must have return type on all paths
 }
 
 

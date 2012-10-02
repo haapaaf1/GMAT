@@ -154,8 +154,23 @@ bool ScriptInterpreter::Interpret()
    }
    
    // Write any error messages collected
-   for (UnsignedInt i=0; i<errorList.size(); i++)
-      MessageInterface::ShowMessage("%d: %s\n", i+1, errorList[i].c_str());
+   std::string errorMsg;
+   std::string truncMsg = " .......... Message is too long so truncated.\n";
+   Integer truncLength = truncMsg.size();
+   Integer numErrors = errorList.size();
+   Integer errorLength;
+   for (Integer i = 0; i < numErrors; i++)
+   {
+      errorMsg = errorList[i];
+      errorLength = errorMsg.size();
+      // If message is too long truncate it
+      if (errorLength > MessageInterface::MAX_MESSAGE_LENGTH)
+      {
+         errorMsg = errorMsg.substr(0, MessageInterface::MAX_MESSAGE_LENGTH - truncLength);
+         errorMsg = errorMsg + truncMsg;
+      }
+      MessageInterface::ShowMessage("%d: %s\n", i+1, errorMsg.c_str());
+   }
    
    #if DBGLVL_SCRIPT_READING
    MessageInterface::ShowMessage
@@ -846,13 +861,12 @@ bool ScriptInterpreter::Parse(GmatCommand *inCmd)
          emptyChunks++;
    #ifdef DEBUG_PARSE
    MessageInterface::ShowMessage
-      ("   emptyChunks=%d, count=%d\n",
-       emptyChunks, count);
+      ("   emptyChunks=%d, count=%d\n", emptyChunks, count);
    #endif
    
+   // Ignore lines with just a semicolon
    if (emptyChunks == count)
-      return true;   // ignore lines with just a semicolon
- //     return false;
+      return true;
    
    // actual script line
    std::string actualScript = sarray[count-1];
@@ -860,6 +874,15 @@ bool ScriptInterpreter::Parse(GmatCommand *inCmd)
    // check for function definition line
    if (currentBlockType == Gmat::FUNCTION_BLOCK)
    {
+      #ifdef DEBUG_PARSE
+      MessageInterface::ShowMessage("   => currentBlockType is FUNCTION_BLOCK\n");
+      #endif
+      
+      // If function keyword is used in the main script, throw an exception
+      // (For GMT-1566 fix, LOJ:2012.09.28)
+      if (!inFunctionMode)
+         throw InterpreterException("The \"function\" keyword is not allowd in the main script");
+      
       // Check if function already defined
       // GMAT function test criteria states:
       // 2.11 The system must only allow one function to be defined inside of a function file. 
@@ -1221,42 +1244,6 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
       WriteObjects(objs, "Burns", mode);
    
    //-----------------------------------
-   // Array, Variable and String
-   //-----------------------------------
-   objs = theModerator->GetListOfObjects(Gmat::PARAMETER);
-   #ifdef DEBUG_SCRIPT_WRITING
-   MessageInterface::ShowMessage("   Found %d Parameters\n", objs.size());
-   #endif
-   bool foundVarsAndArrays = false;
-   bool foundOtherParameter = false; // such as Create X pos; where X is Parameter name
-   if (objs.size() > 0)
-   {
-      for (current = objs.begin(); current != objs.end(); ++current)
-      {
-         #ifdef DEBUG_SCRIPT_WRITING
-         MessageInterface::ShowMessage("      name = '%s'\n", (*current).c_str());
-         #endif
-         
-         object = FindObject(*current);
-         if (object == NULL)
-            throw InterpreterException("Cannot write NULL object \"" + (*current) + "\"");
-         
-         if ((object->GetTypeName() == "Array") ||
-             (object->GetTypeName() == "Variable") ||
-             (object->GetTypeName() == "String"))
-            foundVarsAndArrays = true;
-         else
-            foundOtherParameter = true;
-      }
-   }
-   
-   if (foundVarsAndArrays)
-      WriteVariablesAndArrays(objs, mode);
-   
-   if (foundOtherParameter)
-      WriteOtherParameters(objs, mode);
-   
-   //-----------------------------------
    // Coordinate System
    //-----------------------------------
    // Don't write default coordinate systems since they are automatically created
@@ -1349,6 +1336,42 @@ bool ScriptInterpreter::WriteScript(Gmat::WriteMode mode)
       WriteObjects(objs, "Functions", mode);
    
    //-----------------------------------
+   // Array, Variable and String
+   //-----------------------------------
+   objs = theModerator->GetListOfObjects(Gmat::PARAMETER);
+   #ifdef DEBUG_SCRIPT_WRITING
+   MessageInterface::ShowMessage("   Found %d Parameters\n", objs.size());
+   #endif
+   bool foundVarsAndArrays = false;
+   bool foundOtherParameter = false; // such as Create X pos; where X is Parameter name
+   if (objs.size() > 0)
+   {
+      for (current = objs.begin(); current != objs.end(); ++current)
+      {
+         #ifdef DEBUG_SCRIPT_WRITING
+         MessageInterface::ShowMessage("      name = '%s'\n", (*current).c_str());
+         #endif
+
+         object = FindObject(*current);
+         if (object == NULL)
+            throw InterpreterException("Cannot write NULL object \"" + (*current) + "\"");
+
+         if ((object->GetTypeName() == "Array") ||
+             (object->GetTypeName() == "Variable") ||
+             (object->GetTypeName() == "String"))
+            foundVarsAndArrays = true;
+         else
+            foundOtherParameter = true;
+      }
+   }
+
+   if (foundVarsAndArrays)
+      WriteVariablesAndArrays(objs, mode);
+
+   if (foundOtherParameter)
+      WriteOtherParameters(objs, mode);
+
+   //-----------------------------------
    // Command sequence
    //-----------------------------------
    WriteCommandSequence(mode);
@@ -1409,8 +1432,14 @@ bool ScriptInterpreter::ParseDefinitionBlock(const StringArray &chunks,
          InterpreterException ex
             ("GMAT currently requires that all objects are created before the "
              "mission sequence begins");
+         // Changed to show as an error (Fix for GMT-2958 LOJ:2012.09.25)
+         #if 0
          HandleError(ex, true, true);
          return true; // just a warning, so return true
+         #else
+         HandleError(ex, true, false);
+         return false; // error, so return false
+         #endif
       }
    }
    #endif

@@ -443,6 +443,7 @@ protected:
    #ifdef __USE_SPICE__
       /// the SPICE file (kernel) reader
       SpiceOrbitKernelReader      *kernelReader;
+      std::string                 mainSPK;
    #endif
    
    /// flag indicating whether or not to get data from potential file
@@ -477,7 +478,7 @@ protected:
    StringArray              default_orbitSpiceKernelNames;
    /// default value for rotation data source
    Gmat::RotationDataSource default_rotationSrc; 
-   /// default value for two-body intial epoch
+   /// default value for two-body initial epoch
    A1Mjd                    default_twoBodyEpoch;
    /// default value for initial two-body state
    Rvector6                 default_twoBodyKepler;

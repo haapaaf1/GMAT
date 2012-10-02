@@ -17,10 +17,7 @@
 //------------------------------------------------------------------------------
 #include "CoordSystemConfigPanel.hpp"
 
-// gui includes
 #include "gmatwxdefs.hpp"
-
-// base includes
 #include "gmatdefs.hpp"
 #include "AxisSystem.hpp"
 #include "DateUtil.hpp"
@@ -29,6 +26,7 @@
 //#define DEBUG_COORD_PANEL_LOAD 1
 //#define DEBUG_COORD_PANEL_SAVE 1
 //#define DEBUG_COORD_PANEL_TEXT
+//#define DEBUG_COORD_PANEL_XYZ
 
 //------------------------------------------------------------------------------
 // event tables and other macros for wxWindows
@@ -42,7 +40,7 @@ END_EVENT_TABLE()
 // CoordSystemConfigPanel()
 //------------------------------------------------------------------------------
 /**
- * A constructor.
+ * Default constructor.
  */
 //------------------------------------------------------------------------------
 CoordSystemConfigPanel::CoordSystemConfigPanel(wxWindow *parent,
@@ -64,6 +62,10 @@ CoordSystemConfigPanel::CoordSystemConfigPanel(wxWindow *parent,
 //------------------------------------------------------------------------------
 // ~CoordSystemConfigPanel()
 //------------------------------------------------------------------------------
+/**
+ * Destructor.
+ */
+//------------------------------------------------------------------------------
 CoordSystemConfigPanel::~CoordSystemConfigPanel()
 {
 }
@@ -74,6 +76,10 @@ CoordSystemConfigPanel::~CoordSystemConfigPanel()
 
 //------------------------------------------------------------------------------
 // void Create()
+//------------------------------------------------------------------------------
+/**
+ * Creates the panel.
+ */
 //------------------------------------------------------------------------------
 void CoordSystemConfigPanel::Create()
 {
@@ -92,6 +98,10 @@ void CoordSystemConfigPanel::Create()
 //------------------------------------------------------------------------------
 // void LoadData()
 //------------------------------------------------------------------------------
+/**
+ * Loads the data onto the panel.
+ */
+//------------------------------------------------------------------------------
 void CoordSystemConfigPanel::LoadData()
 {
    #if DEBUG_COORD_PANEL_LOAD
@@ -102,12 +112,10 @@ void CoordSystemConfigPanel::LoadData()
    mObject = theCoordSys;
    
    epochTextCtrl = mCoordPanel->GetEpochTextCtrl();
-//   intervalTextCtrl = mCoordPanel->GetIntervalTextCtrl();
    
    originComboBox = mCoordPanel->GetOriginComboBox();
    typeComboBox = mCoordPanel->GetTypeComboBox();
    primaryComboBox = mCoordPanel->GetPrimaryComboBox();
-//   formatComboBox = mCoordPanel->GetFormatComboBox();
    secondaryComboBox = mCoordPanel->GetSecondaryComboBox();
    
    xComboBox = mCoordPanel->GetXComboBox();
@@ -154,6 +162,10 @@ void CoordSystemConfigPanel::LoadData()
 //------------------------------------------------------------------------------
 // void SaveData()
 //------------------------------------------------------------------------------
+/**
+ * Saves the data from the panel to the coordinate system object.
+ */
+//------------------------------------------------------------------------------
 void CoordSystemConfigPanel::SaveData()
 {
    canClose = true;
@@ -186,9 +198,6 @@ void CoordSystemConfigPanel::SaveData()
          #endif
 
          // check range here too
-
-//         if (isValid && epoch < 0.0)
-//            isValid = CheckReal(epoch, str, "Epoch", "Real Number >= 0", true);
          if (isValid)
             isValid = CheckRealRange(str, epoch, "Epoch", DateUtil::EARLIEST_VALID_MJD_VALUE, DateUtil::LATEST_VALID_MJD_VALUE, true, true, true, true);
          if (!isValid)
@@ -235,16 +244,16 @@ void CoordSystemConfigPanel::SaveData()
       if (mObjRefChanged)
       {
          AxisSystem *axis = mCoordPanel->CreateAxis();
+         #ifdef DEBUG_COORD_PANEL_XYZ
+            MessageInterface::ShowMessage("CoordSystemConfigPanel:: CreateAxis returned %s\n",
+                  (axis? "not NULL" : "NULL"));
+         #endif
          
          if (axis != NULL)
          {
-            //loj: 2007.07.10
-            // old axis is deleted in the base CoordianteSyatem::SetRefObject();
-            //AxisSystem *oldAxis =
-            //   (AxisSystem *)theCoordSys->GetRefObject(Gmat::AXIS_SYSTEM, "");
-            // delete old axis and set new axis
-            //delete oldAxis;
-            
+            #ifdef DEBUG_COORD_PANEL_XYZ
+               MessageInterface::ShowMessage("CoordSystemConfigPanel:: executing axis not equal to NULL part ...\n");
+            #endif
             canClose = mCoordPanel->SaveData(theCoordSys->GetName(), axis, mEpochFormat);
             
             if (canClose)
@@ -256,6 +265,9 @@ void CoordSystemConfigPanel::SaveData()
          }
          else
          {
+            #ifdef DEBUG_COORD_PANEL_XYZ
+               MessageInterface::ShowMessage("CoordSystemConfigPanel:: executing axis EQUAL to NULL part ...\n");
+            #endif
             MessageInterface::ShowMessage
                ("CoordSystemConfigPanel::SaveData() Cannot create AxisSystem.\n");
             canClose = false;
@@ -272,6 +284,12 @@ void CoordSystemConfigPanel::SaveData()
 
 //------------------------------------------------------------------------------
 // void OnTextUpdate(wxCommandEvent& event)
+//------------------------------------------------------------------------------
+/**
+ * Event handler for event triggered when text is updated.
+ *
+ * @param event   command event to be handled
+ */
 //------------------------------------------------------------------------------
 void CoordSystemConfigPanel::OnTextUpdate(wxCommandEvent& event)
 {
@@ -290,6 +308,12 @@ void CoordSystemConfigPanel::OnTextUpdate(wxCommandEvent& event)
 //------------------------------------------------------------------------------
 // void OnComboUpdate(wxCommandEvent& event)
 //------------------------------------------------------------------------------
+/**
+ * Event handler for event triggered when a combo box is updated.
+ *
+ * @param event   command event to be handled
+ */
+//------------------------------------------------------------------------------
 void CoordSystemConfigPanel::OnComboUpdate(wxCommandEvent& event)
 {
    if (event.GetEventObject() == originComboBox)
@@ -301,10 +325,6 @@ void CoordSystemConfigPanel::OnComboUpdate(wxCommandEvent& event)
       mCoordPanel->EnableOptions();
       mObjRefChanged = true;
    }
-//   else if (event.GetEventObject() == formatComboBox)
-//   {
-//      mCoordPanel->ChangeEpoch(mEpochFormat);
-//   }
    else if (event.GetEventObject() == primaryComboBox ||
             event.GetEventObject() == secondaryComboBox)
    {

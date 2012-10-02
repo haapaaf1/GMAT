@@ -37,7 +37,18 @@
 #include "CommandFactory.hpp"
 #include "CoordinateSystemFactory.hpp"
 #include "ODEModelFactory.hpp"
-#include "FunctionFactory.hpp"
+//#include "FunctionFactory.hpp"
+#ifdef __BUILD_GMAT_FUNCTION__
+#include "GmatFunctionFactory.hpp"
+#endif
+#ifdef __BUILD_MATLAB_FUNCTION__
+#include "MatlabInterfaceFactory.hpp"
+#include "MatlabFunctionFactory.hpp"
+#include "CallMatlabFunctionFactory.hpp"
+#endif
+#ifdef __BUILD_FMINCON_OPTIMIZER__
+#include "FminconOptimizerFactory.hpp"
+#endif
 #include "HardwareFactory.hpp"
 #include "ParameterFactory.hpp"
 #include "PhysicalModelFactory.hpp"
@@ -208,7 +219,18 @@ bool Moderator::Initialize(const std::string &startupFile, bool fromGui)
       theFactoryManager->RegisterFactory(new CommandFactory());
       theFactoryManager->RegisterFactory(new CoordinateSystemFactory());
       theFactoryManager->RegisterFactory(new ODEModelFactory());
-      theFactoryManager->RegisterFactory(new FunctionFactory());
+//      theFactoryManager->RegisterFactory(new FunctionFactory());
+      #ifdef __BUILD_GMAT_FUNCTION__
+      theFactoryManager->RegisterFactory(new GmatFunctionFactory());
+      #endif
+      #ifdef __BUILD_MATLAB_FUNCTION__
+      theFactoryManager->RegisterFactory(new MatlabInterfaceFactory());
+      theFactoryManager->RegisterFactory(new MatlabFunctionFactory());
+      theFactoryManager->RegisterFactory(new CallMatlabFunctionFactory());
+      #endif
+      #ifdef __BUILD_FMINCON_OPTIMIZER__
+      theFactoryManager->RegisterFactory(new FminconOptimizerFactory());
+      #endif
       theFactoryManager->RegisterFactory(new HardwareFactory());
       theFactoryManager->RegisterFactory(new MathFactory());
       theFactoryManager->RegisterFactory(new ParameterFactory());
@@ -1759,6 +1781,9 @@ bool Moderator::RemoveObject(Gmat::ObjectType type, const std::string &name,
    
    if (!delOnlyIfNotUsed)
    {
+      #if DEBUG_REMOVE
+      MessageInterface::ShowMessage("   No need to check for items using, deleting %s\n", name.c_str());
+      #endif
       return theConfigManager->RemoveItem(type, name);
    }
    else
@@ -1780,12 +1805,12 @@ bool Moderator::RemoveObject(Gmat::ObjectType type, const std::string &name,
       {
          #if DEBUG_REMOVE
          MessageInterface::ShowMessage
-            ("   '%s' is not used in resource, checking command\n", name.c_str());
+            ("   '%s' is not used in resource, checking command %s\n", name.c_str(), (cmd->GetName()).c_str());
          #endif
          // remove if object is not used in the command sequence
          std::string cmdName;
          GmatCommand *cmdUsing = NULL;
-         if (GmatCommandUtil::FindObject(cmd, type, name, cmdName, &cmdUsing))
+         if (GmatCommandUtil::FindObject(cmd, type, name, cmdName, &cmdUsing, true))
          {
             MessageInterface::ShowMessage
                ("*** WARNING *** Cannot remove \"%s.\"  It is used in the %s "

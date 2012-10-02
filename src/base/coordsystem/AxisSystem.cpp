@@ -38,7 +38,7 @@
 #include <iostream>
 
 
-using namespace GmatMathUtil;      // for trig functions, etc.
+using namespace GmatMathUtil;           // for trig functions, etc.
 using namespace GmatMathConstants;      // for RAD_PER_ARCSEC, etc.
 using namespace GmatTimeConstants;      // for SECS_PER_DAY
 
@@ -114,7 +114,7 @@ AxisSystem::AxisSystem(const std::string &itsType,
                        const std::string &itsName) :
 CoordinateBase(Gmat::AXIS_SYSTEM,itsType,itsName),
 coordName        (""),
-baseSystem       ("FK5"),  // ******** this should be set in each axisSystem class ********
+baseSystem       ("FK5"),
 eop              (NULL),
 itrf             (NULL),
 epochFormat      ("A1ModJulian"),
@@ -148,10 +148,10 @@ DpVals           (NULL)
    rotMatrix    = Rmatrix33(false); // want zero matrix, not identity matrix
    rotDotMatrix = Rmatrix33(false); // want zero matrix, not identity matrix
    epoch        = GmatTimeConstants::A1MJD_OF_J2000;
-   lastPRECEpoch       = A1Mjd(0.0); // 1941?  strange, but ...
-   lastNUTEpoch        = A1Mjd(0.0); // 1941?  strange, but ...
-   lastSTDerivEpoch    = A1Mjd(0.0); // 1941?  strange, but ...
-   lastPMEpoch         = A1Mjd(0.0); // 1941?  strange, but ...
+   lastPRECEpoch       = A1Mjd(0.0);
+   lastNUTEpoch        = A1Mjd(0.0);
+   lastSTDerivEpoch    = A1Mjd(0.0);
+   lastPMEpoch         = A1Mjd(0.0);
 }
 
 //---------------------------------------------------------------------------
@@ -220,16 +220,16 @@ const AxisSystem& AxisSystem::operator=(const AxisSystem &axisSys)
    if (&axisSys == this)
       return *this;
    CoordinateBase::operator=(axisSys);
-   coordName      = axisSys.coordName;
-   baseSystem     = axisSys.baseSystem;
-   rotMatrix      = axisSys.rotMatrix;
-   rotDotMatrix   = axisSys.rotDotMatrix;
-   epoch          = axisSys.epoch;
-   eop            = axisSys.eop;
-   itrf           = axisSys.itrf;
-   epochFormat    = axisSys.epochFormat;
-   updateInterval = axisSys.updateInterval;
-   updateIntervalToUse = axisSys.updateIntervalToUse;
+   rotMatrix         = axisSys.rotMatrix;
+   rotDotMatrix      = axisSys.rotDotMatrix;
+   epoch             = axisSys.epoch;
+   coordName         = axisSys.coordName;
+   baseSystem        = axisSys.baseSystem;
+   eop               = axisSys.eop;
+   itrf              = axisSys.itrf;
+   epochFormat       = axisSys.epochFormat;
+   updateInterval    = axisSys.updateInterval;
+   updateIntervalToUse    = axisSys.updateIntervalToUse;
    overrideOriginInterval = axisSys.overrideOriginInterval;
    lastPRECEpoch     = axisSys.lastPRECEpoch;
    lastNUTEpoch      = axisSys.lastNUTEpoch;   
@@ -269,7 +269,7 @@ const AxisSystem& AxisSystem::operator=(const AxisSystem &axisSys)
 //  ~AxisSystem()
 //---------------------------------------------------------------------------
 /**
- * Destructor.
+ * Destructor.  Destroys this AxisSystem object.
  */
 //---------------------------------------------------------------------------
 AxisSystem::~AxisSystem()
@@ -302,51 +302,161 @@ AxisSystem::~AxisSystem()
    #endif
 }
 
+//---------------------------------------------------------------------------
+//  GmatCoordinate::ParameterUsage UsesEopFile(const std::string &forBaseSystem) const
+//---------------------------------------------------------------------------
+/**
+ * Returns enum value indicating whether or not this axis system uses the EOP file,
+ * for the input base system.
+ *
+ * @param <forBaseSystem> input base system   <future>
+ *
+ * @return enum value indicating whether or not this axis system uses the EOP file
+ */
+//---------------------------------------------------------------------------
 GmatCoordinate::ParameterUsage AxisSystem::UsesEopFile(const std::string &forBaseSystem) const
 {
    return GmatCoordinate::NOT_USED;
 }
 
+//---------------------------------------------------------------------------
+//  GmatCoordinate::ParameterUsage UsesItrfFile() const
+//---------------------------------------------------------------------------
+/**
+ * Returns enum value indicating whether or not this axis system uses the ITRF
+ * coefficients file.
+ *
+ * @return enum value indicating whether or not this axis system uses the ITRF
+ *        coefficients file
+ */
+//---------------------------------------------------------------------------
 GmatCoordinate::ParameterUsage AxisSystem::UsesItrfFile() const
 {
    return GmatCoordinate::NOT_USED;
 }
 
+//---------------------------------------------------------------------------
+//  GmatCoordinate::ParameterUsage UsesEpoch() const
+//---------------------------------------------------------------------------
+/**
+ * Returns enum value indicating whether or not this axis system uses an epoch.
+ *
+ * @return enum value indicating whether or not this axis system uses an epoch
+ */
+//---------------------------------------------------------------------------
 GmatCoordinate::ParameterUsage AxisSystem::UsesEpoch() const
 {
    return GmatCoordinate::NOT_USED;
 }
 
+//---------------------------------------------------------------------------
+//  GmatCoordinate::ParameterUsage UsesPrimary() const
+//---------------------------------------------------------------------------
+/**
+ * Returns enum value indicating whether or not this axis system uses a
+ * primary object.
+ *
+ * @return enum value indicating whether or not this axis system uses a
+ *         primary object
+ */
+//---------------------------------------------------------------------------
 GmatCoordinate::ParameterUsage AxisSystem::UsesPrimary() const
 {
    return GmatCoordinate::NOT_USED;
 }
 
+//---------------------------------------------------------------------------
+//  GmatCoordinate::ParameterUsage UsesPrimary() const
+//---------------------------------------------------------------------------
+/**
+ * Returns enum value indicating whether or not this axis system uses a
+ * secondary object.
+ *
+ * @return enum value indicating whether or not this axis system uses a
+ *         secondary object
+ */
+//---------------------------------------------------------------------------
 GmatCoordinate::ParameterUsage AxisSystem::UsesSecondary() const
 {
    return GmatCoordinate::NOT_USED;
 }
 
+//---------------------------------------------------------------------------
+//  GmatCoordinate::ParameterUsage UsesXAxis() const
+//---------------------------------------------------------------------------
+/**
+ * Returns enum value indicating whether or not this axis system uses an
+ * X axis.
+ *
+ * @return enum value indicating whether or not this axis system uses an
+ *         X axis
+ */
+//---------------------------------------------------------------------------
 GmatCoordinate::ParameterUsage AxisSystem::UsesXAxis() const
 {
    return GmatCoordinate::NOT_USED;
 }
 
+//---------------------------------------------------------------------------
+//  GmatCoordinate::ParameterUsage UsesYAxis() const
+//---------------------------------------------------------------------------
+/**
+ * Returns enum value indicating whether or not this axis system uses a
+ * Y axis.
+ *
+ * @return enum value indicating whether or not this axis system uses a
+ *         Y axis
+ */
+//---------------------------------------------------------------------------
 GmatCoordinate::ParameterUsage AxisSystem::UsesYAxis() const
 {
    return GmatCoordinate::NOT_USED;
 }
 
+//---------------------------------------------------------------------------
+//  GmatCoordinate::ParameterUsage UsesZAxis() const
+//---------------------------------------------------------------------------
+/**
+ * Returns enum value indicating whether or not this axis system uses a
+ * Z axis.
+ *
+ * @return enum value indicating whether or not this axis system uses a
+ *         Z axis
+ */
+//---------------------------------------------------------------------------
 GmatCoordinate::ParameterUsage AxisSystem::UsesZAxis() const
 {
    return GmatCoordinate::NOT_USED;
 }
 
+//---------------------------------------------------------------------------
+//  GmatCoordinate::ParameterUsage UsesNutationUpdateInterval() const
+//---------------------------------------------------------------------------
+/**
+ * Returns enum value indicating whether or not this axis system uses a
+ * nutation update interval.
+ *
+ * @return enum value indicating whether or not this axis system uses a
+ *         nutation update interval
+ */
+//---------------------------------------------------------------------------
 GmatCoordinate::ParameterUsage AxisSystem::UsesNutationUpdateInterval() const
 {
    return GmatCoordinate::NOT_USED;
 }
 
+//---------------------------------------------------------------------------
+//  bool UsesSpacecraft(const std::string &withName) const
+//---------------------------------------------------------------------------
+/**
+ * Returns flag indicating whether or not this axis system uses any
+ * spacecraft as origin, primary, or secondary if withName == "", or
+ * if it uses the specific spacecraft if the name is specified
+ *
+ * @return flag indicating whether or not this axis system uses the
+ *         spacecraft as origin, primary, or secondary
+ */
+//---------------------------------------------------------------------------
 bool AxisSystem::UsesSpacecraft(const std::string &withName) const
 {
    if (origin && origin->IsOfType("Spacecraft"))
@@ -372,6 +482,17 @@ bool AxisSystem::UsesSpacecraft(const std::string &withName) const
    return false;
 }
 
+//---------------------------------------------------------------------------
+//  bool HasCelestialBodyOrigin() const
+//---------------------------------------------------------------------------
+/**
+ * Returns flag indicating whether or not this axis system has a
+ * celestial body origin
+ *
+ * @return flag indicating whether or not this axis system has a
+ *         celestial body as origin
+ */
+//---------------------------------------------------------------------------
 bool AxisSystem::HasCelestialBodyOrigin() const
 {
    if (origin && origin->IsOfType("CelestialBody")) return true;
@@ -381,11 +502,31 @@ bool AxisSystem::HasCelestialBodyOrigin() const
 
 // methods to set parameters for the AxisSystems - AxisSystems that need these
 // will need to override these implementations
+//---------------------------------------------------------------------------
+//  void SetPrimaryObject(SpacePoint *prim)
+//---------------------------------------------------------------------------
+/**
+ * Sets the primary object to the input SpacePoint
+ *
+ * @param <prim> primary SpacePoint object
+ *
+ */
+//---------------------------------------------------------------------------
 void AxisSystem::SetPrimaryObject(SpacePoint *prim)
 {
    // default behavior is to ignore this - should I throw an exception here??
 }
 
+//---------------------------------------------------------------------------
+//  void SetPrimaryObject(SpacePoint *second)
+//---------------------------------------------------------------------------
+/**
+ * Sets the secondary object to the input SpacePoint
+ *
+ * @param <second> secondary SpacePoint object
+ *
+ */
+//---------------------------------------------------------------------------
 void AxisSystem::SetSecondaryObject(SpacePoint *second)
 {
    // default behavior is to ignore this
@@ -399,9 +540,6 @@ void AxisSystem::SetSecondaryObject(SpacePoint *second)
  * Sets the epoch for the AxisSystem class.
  *
  * @param <toEpoch> epoch value to use.
- *
- * @return true if successful; false, otherwise.
- *
  */
 //---------------------------------------------------------------------------
 void AxisSystem::SetEpoch(const A1Mjd &toEpoch)
@@ -409,16 +547,43 @@ void AxisSystem::SetEpoch(const A1Mjd &toEpoch)
    epoch = toEpoch;
 }
 
+//---------------------------------------------------------------------------
+//  void SetXAxis(const std::string &toValue)
+//---------------------------------------------------------------------------
+/**
+ * Sets the X axis for the AxisSystem object.
+ *
+ * @param <toValue> X axis value to use.
+ */
+//---------------------------------------------------------------------------
 void AxisSystem::SetXAxis(const std::string &toValue)
 {
    // default behavior is to ignore this
 }
 
+//---------------------------------------------------------------------------
+//  void SetYAxis(const std::string &toValue)
+//---------------------------------------------------------------------------
+/**
+ * Sets the Y axis for the AxisSystem object.
+ *
+ * @param <toValue> Y axis value to use.
+ */
+//---------------------------------------------------------------------------
 void AxisSystem::SetYAxis(const std::string &toValue)
 {
    // default behavior is to ignore this
 }
 
+//---------------------------------------------------------------------------
+//  void SetZAxis(const std::string &toValue)
+//---------------------------------------------------------------------------
+/**
+ * Sets the Z axis for the AxisSystem object.
+ *
+ * @param <toValue> Z axis value to use.
+ */
+//---------------------------------------------------------------------------
 void AxisSystem::SetZAxis(const std::string &toValue)
 {
    // default behavior is to ignore this
@@ -454,16 +619,46 @@ void AxisSystem::SetCoefficientsFile(ItrfCoefficientsFile *itrfF)
    itrf = itrfF;
 }
 
+//------------------------------------------------------------------------------
+//  void SetEpochFormat(const std::string &fmt)
+//------------------------------------------------------------------------------
+/**
+ * Method to set the epoch format for this system.
+ *
+ * @param <fmt>  the epoch format
+ *
+ */
+//------------------------------------------------------------------------------
 void AxisSystem::SetEpochFormat(const std::string &fmt)
 {
    epochFormat = fmt;
 }
 
+//------------------------------------------------------------------------------
+//  SpacePoint* GetPrimaryObject() const
+//------------------------------------------------------------------------------
+/**
+ * Returns a pointer to the primary SpacePoint object.
+ *
+ * @return  a pointer to the primary SpacePoint object
+ *
+ */
+//------------------------------------------------------------------------------
 SpacePoint* AxisSystem::GetPrimaryObject() const
 {
    return NULL;
 }
 
+//------------------------------------------------------------------------------
+//  SpacePoint* GetSecondaryObject() const
+//------------------------------------------------------------------------------
+/**
+ * Returns a pointer to the secondary SpacePoint object.
+ *
+ * @return  a pointer to the secondary SpacePoint object
+ *
+ */
+//------------------------------------------------------------------------------
 SpacePoint* AxisSystem::GetSecondaryObject() const
 {
    return NULL;
@@ -485,46 +680,138 @@ A1Mjd AxisSystem::GetEpoch() const
 }
 
 
+//---------------------------------------------------------------------------
+//  std::string GetXAxis() const
+//---------------------------------------------------------------------------
+/**
+ * Returns the X axis value of the AxisSystem class.
+ *
+ * @return X axis value.
+ *
+ */
+//---------------------------------------------------------------------------
 std::string AxisSystem::GetXAxis() const
 {
    return "";
 }
 
+//---------------------------------------------------------------------------
+//  std::string GetYAxis() const
+//---------------------------------------------------------------------------
+/**
+ * Returns the Y axis value of the AxisSystem class.
+ *
+ * @return Y axis value.
+ *
+ */
+//---------------------------------------------------------------------------
 std::string AxisSystem::GetYAxis() const
 {
    return "";
 }
 
+//---------------------------------------------------------------------------
+//  std::string GetZAxis() const
+//---------------------------------------------------------------------------
+/**
+ * Returns the Z axis value of the AxisSystem class.
+ *
+ * @return Z axis value.
+ *
+ */
+//---------------------------------------------------------------------------
 std::string AxisSystem::GetZAxis() const
 {
    return "";
 }
 
+//---------------------------------------------------------------------------
+//  EopFile* GetEopFile() const
+//---------------------------------------------------------------------------
+/**
+ * Returns the pointer to the EOP file used by the AxisSystem class.
+ *
+ * @return pointer to EOP file
+ *
+ */
+//---------------------------------------------------------------------------
 EopFile* AxisSystem::GetEopFile() const
 {
    return eop;
 }
 
+//---------------------------------------------------------------------------
+//  std::string GetBaseSystem() const
+//---------------------------------------------------------------------------
+/**
+ * Returns the base system used by the AxisSystem class.
+ *
+ * @return base system
+ *
+ */
+//---------------------------------------------------------------------------
 std::string AxisSystem::GetBaseSystem() const
 {
    return baseSystem;
 }
 
+//---------------------------------------------------------------------------
+//  ItrfCoefficientsFile* GetItrfCoefficientsFile() const
+//---------------------------------------------------------------------------
+/**
+ * Returns the pointer to the ITRF coefficients file used by the AxisSystem class.
+ *
+ * @return pointer to ITRF coefficients file
+ *
+ */
+//---------------------------------------------------------------------------
 ItrfCoefficientsFile* AxisSystem::GetItrfCoefficientsFile()
 {
    return itrf;
 }
 
+//---------------------------------------------------------------------------
+//  std::string GetEpochFormat() const
+//---------------------------------------------------------------------------
+/**
+ * Returns the epoch format used by the AxisSystem class.
+ *
+ * @return epoch format
+ *
+ */
+//---------------------------------------------------------------------------
 std::string AxisSystem::GetEpochFormat() const
 {
    return epochFormat;
 }
 
+//---------------------------------------------------------------------------
+//  Rmatrix33 GetLastRotationMatrix() const
+//---------------------------------------------------------------------------
+/**
+ * Returns the last-computed rotation matrix.
+ *
+ * @return last rotation matrix
+ *
+ */
+//---------------------------------------------------------------------------
 Rmatrix33 AxisSystem::GetLastRotationMatrix() const
 {
    return rotMatrix;
 }
 
+//---------------------------------------------------------------------------
+//  Rmatrix33 GetLastRotationMatrix() const
+//---------------------------------------------------------------------------
+/**
+ * Returns the last-computed rotation matrix.
+ *
+ * @param <mat> output last rotation matrix
+ *
+ * @return last rotation matrix
+ *
+ */
+//---------------------------------------------------------------------------
 void AxisSystem::GetLastRotationMatrix(Real *mat) const
 {
    for (Integer i=0; i<9; i++)
@@ -532,11 +819,33 @@ void AxisSystem::GetLastRotationMatrix(Real *mat) const
    
 }
 
+//---------------------------------------------------------------------------
+//  Rmatrix33 GetLastRotationDotMatrix() const
+//---------------------------------------------------------------------------
+/**
+ * Returns the last-computed rotation dot matrix.
+ *
+ * @return last rotation dot matrix
+ *
+ */
+//---------------------------------------------------------------------------
 Rmatrix33 AxisSystem::GetLastRotationDotMatrix() const
 {
    return rotDotMatrix;
 }
 
+//---------------------------------------------------------------------------
+//  Rmatrix33 GetLastRotationDotMatrix() const
+//---------------------------------------------------------------------------
+/**
+ * Returns the last-computed rotation dot matrix.
+ *
+ * @param <mat> last-computed rotation dot matrix
+ *
+ * @return last rotation dot matrix
+ *
+ */
+//---------------------------------------------------------------------------
 void AxisSystem::GetLastRotationDotMatrix(Real *mat) const
 {
    for (Integer i=0; i<9; i++)
@@ -544,6 +853,16 @@ void AxisSystem::GetLastRotationDotMatrix(Real *mat) const
    
 }
 
+//---------------------------------------------------------------------------
+//  void SetCoordinateSystemName(const std::string &csName)
+//---------------------------------------------------------------------------
+/**
+ * Sets the coordinate system name.
+ *
+ * @param <csName> coordinate system name
+ *
+ */
+//---------------------------------------------------------------------------
 void AxisSystem::SetCoordinateSystemName(const std::string &csName)
 {
    coordName = csName;
@@ -585,10 +904,11 @@ bool AxisSystem::Initialize()
 /**
  * This method will rotate the input inState into the BaseSystem frame.
  *
- * @param epoch     the epoch at which to perform the rotation.
- * @param inState   the input state (in this AxisSystem) to be rotated.
- * @param iutState  the output state, in the BaseSystem AxisSystem, the result
- *                  of rotating the input inState.
+ * @param epoch            the epoch at which to perform the rotation.
+ * @param inState          the input state (in this AxisSystem) to be rotated.
+ * @param outState         the output state, in the BaseSystem AxisSystem, the result
+ *                         of rotating the input inState.
+ * @param forceComputation flag to force the computation
  *
  * @return success or failure of the operation.
  */
@@ -609,7 +929,7 @@ bool AxisSystem::RotateToBaseSystem(const A1Mjd &epoch, const Rvector &inState,
    
    #ifdef DEBUG_CALCS
       MessageInterface::ShowMessage(
-         "Input vector to ToMJ2000 = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
+         "Input vector to RotateToBaseSystem = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
          inState[0], inState[1], inState[2], inState[3], inState[4], inState[5]);
       MessageInterface::ShowMessage(
       "the rotation matrix is : %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f\n",
@@ -621,9 +941,6 @@ bool AxisSystem::RotateToBaseSystem(const A1Mjd &epoch, const Rvector &inState,
       rotDotMatrix(0,0),rotDotMatrix(0,1),rotDotMatrix(0,2),
       rotDotMatrix(1,0),rotDotMatrix(1,1),rotDotMatrix(1,2),
       rotDotMatrix(2,0),rotDotMatrix(2,1),rotDotMatrix(2,2));
-      //MessageInterface::ShowMessage(
-      //   "Input vector as datavec = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
-      //   tmpPosTo[0], tmpPosTo[1], tmpPosTo[2], tmpVelTo[0], tmpVelTo[1], tmpVelTo[2]);
    #endif
    Real  outPos[3];
    Real  outVel[3];
@@ -647,10 +964,10 @@ bool AxisSystem::RotateToBaseSystem(const A1Mjd &epoch, const Rvector &inState,
                   outVel[0], outVel[1], outVel[2]);
    #ifdef DEBUG_CALCS
       MessageInterface::ShowMessage(
-         "Computed Output vector in ToMJ2000 = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
+         "Computed Output vector in ToBaseSystem = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
          outPos[0], outPos[1], outPos[2], outVel[0], outVel[1], outVel[2]);
       MessageInterface::ShowMessage(
-         "Output vector from ToMJ2000 = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
+         "Output vector from ToBaseSystem = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
          outState[0], outState[1], outState[2], outState[3], outState[4], outState[5]);
    #endif
 
@@ -682,6 +999,22 @@ bool AxisSystem::RotateToBaseSystem(const A1Mjd &epoch, const Rvector &inState,
    return true;
 }
 
+//------------------------------------------------------------------------------
+//  bool RotateToBaseSystem(const A1Mjd &epoch, const Rvector &inState,
+//                        Rvector &outState, bool forceComputation)
+//------------------------------------------------------------------------------
+/**
+ * This method will rotate the input inState into the BaseSystem frame.
+ *
+ * @param epoch            the epoch at which to perform the rotation.
+ * @param inState          the input state (in this AxisSystem) to be rotated.
+ * @param outState         the output state, in the BaseSystem AxisSystem, the result
+ *                         of rotating the input inState.
+ * @param forceComputation flag to force the computation
+ *
+ * @return success or failure of the operation.
+ */
+//------------------------------------------------------------------------------
 bool AxisSystem::RotateToBaseSystem(const A1Mjd &epoch, const Real *inState,
                                   Real *outState,
                                   bool forceComputation)
@@ -692,7 +1025,7 @@ bool AxisSystem::RotateToBaseSystem(const A1Mjd &epoch, const Real *inState,
    Real vel[3] = {inState[3], inState[4], inState[5]};   
    #ifdef DEBUG_CALCS
       MessageInterface::ShowMessage(
-         "Input vector to ToMJ2000 = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
+         "Input vector to RotateToBaseSystem = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
          inState[0], inState[1], inState[2], inState[3], inState[4], inState[5]);
       MessageInterface::ShowMessage(
       "the rotation matrix is : %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f\n",
@@ -704,13 +1037,6 @@ bool AxisSystem::RotateToBaseSystem(const A1Mjd &epoch, const Real *inState,
       rotDotMatrix(0,0),rotDotMatrix(0,1),rotDotMatrix(0,2),
       rotDotMatrix(1,0),rotDotMatrix(1,1),rotDotMatrix(1,2),
       rotDotMatrix(2,0),rotDotMatrix(2,1),rotDotMatrix(2,2));
-//      MessageInterface::ShowMessage(
-//      "the rotation matrix (as array) is : %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f\n",
-//      rotData[0],rotData[1],rotData[2],rotData[3],rotData[4],
-//      rotData[5],rotData[6],rotData[7],rotData[8]);
-      //MessageInterface::ShowMessage(
-      //   "Input vector as datavec = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
-      //   tmpPosTo[0], tmpPosTo[1], tmpPosTo[2], tmpVelTo[0], tmpVelTo[1], tmpVelTo[2]);
    #endif
    Integer p3 = 0;
    for (Integer p = 0; p < 3; ++p)
@@ -731,11 +1057,8 @@ bool AxisSystem::RotateToBaseSystem(const A1Mjd &epoch, const Real *inState,
    
  
    #ifdef DEBUG_CALCS
-      //MessageInterface::ShowMessage(
-      //   "Computed Output vector in ToMJ2000 = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
-      //   outPos[0], outPos[1], outPos[2], outVel[0], outVel[1], outVel[2]);
       MessageInterface::ShowMessage(
-         "Output vector from ToMJ2000 = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
+         "Output vector from ToBaseSystem = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
          outState[0], outState[1], outState[2], outState[3], outState[4], outState[5]);
    #endif
 
@@ -757,10 +1080,6 @@ bool AxisSystem::RotateToBaseSystem(const A1Mjd &epoch, const Real *inState,
             "   input State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
             inState[0], inState[1], inState[2], inState[3], inState[4], 
             inState[5]);
-         //MessageInterface::ShowMessage(
-         //   "   outpt State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
-         //   outPos[0], outPos[1], outPos[2], outVel[0], outVel[1], 
-         //   outVel[2]);
       }
    #endif
 
@@ -774,11 +1093,11 @@ bool AxisSystem::RotateToBaseSystem(const A1Mjd &epoch, const Real *inState,
  * This method will rotate the input inState from the BaseSystem frame into
  * this AxisSystem.
  *
- * @param epoch     the epoch at which to perform the rotation.
- * @param inState   the input state (in BaseSystem AxisSystem) to be rotated.
- * @param iutState  the output state, in this AxisSystem, the result 
- *                  of rotating the input inState.
- * @param j2000Body the origin of the input EquatorAxes frame.
+ * @param epoch            the epoch at which to perform the rotation.
+ * @param inState          the input state (in BaseSystem AxisSystem) to be rotated.
+ * @param outState         the output state, in this AxisSystem, the result
+ *                         of rotating the input inState.
+ * @param forceComputation flag to force the computation
  *
  * @return success or failure of the operation.
  */
@@ -807,7 +1126,7 @@ bool AxisSystem::RotateFromBaseSystem(const A1Mjd &epoch,
 
    #ifdef DEBUG_CALCS
       MessageInterface::ShowMessage(
-         "Input vector to FromMJ2000 = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
+         "Input vector to AxisSystem = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
          inState[0], inState[1], inState[2], inState[3], inState[4], inState[5]);
       MessageInterface::ShowMessage(
       "the rotation matrix is : %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f\n",
@@ -843,10 +1162,10 @@ bool AxisSystem::RotateFromBaseSystem(const A1Mjd &epoch,
 
    #ifdef DEBUG_CALCS
       MessageInterface::ShowMessage(
-         "Computed Output vector in FromMJ2000 = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
+         "Computed Output vector in FromBaseSystem = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
          outPos[0], outPos[1], outPos[2], outVel[0], outVel[1], outVel[2]);
       MessageInterface::ShowMessage(
-         "Output vector from FromMJ2000 = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
+         "Output vector from FromBaseSystem = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
          outState[0], outState[1], outState[2], outState[3], outState[4], outState[5]);
    #endif
    #ifdef DEBUG_FIRST_CALL
@@ -878,6 +1197,23 @@ bool AxisSystem::RotateFromBaseSystem(const A1Mjd &epoch,
    return true;
 }
 
+//------------------------------------------------------------------------------
+//  bool RotateFromBaseSystem(const A1Mjd &epoch, const Rvector &inState,
+//                          Rvector &outState, bool forceComputation)
+//------------------------------------------------------------------------------
+/**
+ * This method will rotate the input inState from the BaseSystem frame into
+ * this AxisSystem.
+ *
+ * @param epoch            the epoch at which to perform the rotation.
+ * @param inState          the input state (in BaseSystem AxisSystem) to be rotated.
+ * @param outState         the output state, in this AxisSystem, the result
+ *                         of rotating the input inState.
+ * @param forceComputation flag to force the computation
+ *
+ * @return success or failure of the operation.
+ */
+//------------------------------------------------------------------------------
 bool AxisSystem::RotateFromBaseSystem(const A1Mjd &epoch,
                                     const Real *inState,
                                     Real *outState,
@@ -889,7 +1225,7 @@ bool AxisSystem::RotateFromBaseSystem(const A1Mjd &epoch,
    Real vel[3] = {inState[3], inState[4], inState[5]};   
    #ifdef DEBUG_CALCS
       MessageInterface::ShowMessage(
-         "Input vector to AxisSystem::FromMJ2000 = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
+         "Input vector to AxisSystem::FromBaseSystem = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
          inState[0], inState[1], inState[2], inState[3], inState[4], inState[5]);
       MessageInterface::ShowMessage(
       "the rotation matrix is : %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f %.17f\n",
@@ -924,7 +1260,7 @@ bool AxisSystem::RotateFromBaseSystem(const A1Mjd &epoch,
    }     
    #ifdef DEBUG_CALCS
       MessageInterface::ShowMessage(
-         "Output vector from AxisSystem::FromMJ2000 = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
+         "Output vector from AxisSystem::FromBaseSystem = %.17f  %.17f  %.17f  %.17f  %.17f  %.17f\n",
          outState[0], outState[1], outState[2], outState[3], outState[4], outState[5]);
    #endif
    #ifdef DEBUG_FIRST_CALL
@@ -945,9 +1281,6 @@ bool AxisSystem::RotateFromBaseSystem(const A1Mjd &epoch,
             "   input State = [%.10lf %.10lf %.10lf %.16lf %.16lf %.16lf]\n",
             inState[0], inState[1], inState[2], inState[3], inState[4], 
             inState[5]);
-         //MessageInterface::ShowMessage(
-         //   outPos[0], outPos[1], outPos[2], outVel[0], outVel[1], 
-         //   outVel[2]);
          firstCallFired = true;
       }
    #endif
@@ -1038,6 +1371,13 @@ std::string AxisSystem::GetParameterTypeString(const Integer id) const
 }
 
 
+//---------------------------------------------------------------------------
+//  bool IsParameterReadOnly(const Integer id) const
+//---------------------------------------------------------------------------
+/**
+ * @see GmatBase
+ */
+//---------------------------------------------------------------------------
 bool AxisSystem::IsParameterReadOnly(const Integer id) const
 {
    if ((id == ORIGIN_NAME) || (id == J2000_BODY_NAME) ||
@@ -1132,6 +1472,18 @@ Real AxisSystem::SetRealParameter(const std::string &label, const Real value)
    return SetRealParameter(GetParameterID(label), value);
 }
 
+//------------------------------------------------------------------------------
+//  bool  GetBooleanParameter(const Integer id) const
+//------------------------------------------------------------------------------
+/**
+ * This method returns the boolean value, given the input parameter id.
+ *
+ * @param <id> id for the requested parameter.
+ *
+ * @return bool value of the requested parameter.
+ *
+ */
+//------------------------------------------------------------------------------
 bool AxisSystem::GetBooleanParameter(const Integer id) const
 {
    if (id == OVERRIDE_ORIGIN_INTERVAL) return overrideOriginInterval;
@@ -1141,6 +1493,15 @@ bool AxisSystem::GetBooleanParameter(const Integer id) const
 //------------------------------------------------------------------------------
 // bool GetBooleanParameter(const std::string &label) const
 //------------------------------------------------------------------------------
+/**
+ * This method returns the boolean value, given the input parameter label.
+ *
+ * @param <label> label for the requested parameter.
+ *
+ * @return bool value of the requested parameter.
+ *
+ */
+//------------------------------------------------------------------------------
 bool AxisSystem::GetBooleanParameter(const std::string &label) const
 {
    return GetBooleanParameter(GetParameterID(label));
@@ -1148,6 +1509,16 @@ bool AxisSystem::GetBooleanParameter(const std::string &label) const
 
 //------------------------------------------------------------------------------
 // bool SetBooleanParameter(const Integer id, const bool value)
+//------------------------------------------------------------------------------
+/**
+ * This method sets the boolean value for the input parameter id.
+ *
+ * @param <id>    id for the requested parameter.
+ * @param <value> boolean value to use for the specified parameter
+ *
+ * @return true if set successfully; false otherwise
+ *
+ */
 //------------------------------------------------------------------------------
 bool AxisSystem::SetBooleanParameter(const Integer id,
                                      const bool value)
@@ -1163,6 +1534,16 @@ bool AxisSystem::SetBooleanParameter(const Integer id,
 //------------------------------------------------------------------------------
 // bool SetBooleanParameter(const std::string &label, const bool value)
 //------------------------------------------------------------------------------
+/**
+ * This method sets the boolean value for the input parameter label.
+ *
+ * @param <label> id for the requested parameter.
+ * @param <value> boolean value to use for the specified parameter
+ *
+ * @return true if set successfully; false otherwise
+ *
+ */
+//------------------------------------------------------------------------------
 bool AxisSystem::SetBooleanParameter(const std::string &label,
                                      const bool value)
 {
@@ -1172,152 +1553,152 @@ bool AxisSystem::SetBooleanParameter(const std::string &label,
 //------------------------------------------------------------------------------
 // void InitializeFK5()
 //------------------------------------------------------------------------------
+/**
+ * This method initializes the FK5 computations.
+ *
+ */
+//------------------------------------------------------------------------------
 void AxisSystem::InitializeFK5()
 {
    #ifdef DEBUG_AXIS_SYSTEM_INIT
       MessageInterface::ShowMessage("Entering InitializeFK5 for coordinate system %s of type %s\n",
             (GetName()).c_str(), (GetTypeName()).c_str());
    #endif
-//   if (originName == SolarSystem::EARTH_NAME)
-//   {
-      if (eop == NULL)
-         throw CoordinateSystemException(
-               "EOP file has not been set for " + instanceName);
-      if (itrf == NULL)
-         throw CoordinateSystemException(
-               "Coefficient file has not been set for " + instanceName);
-      
-      nutationSrc    = itrf->GetNutationTermsSource();
-      planetarySrc   = itrf->GetPlanetaryTermsSource();
-      Integer numNut = itrf->GetNumberOfNutationTerms();
-      A.SetSize(numNut);   A.MakeZeroVector();
-      #ifdef DEBUG_ITRF_UPDATES
-      MessageInterface::ShowMessage("In Axis System, nutation source is %d\n",
-                        (Integer) nutationSrc);
-      //for (Integer ii = 0; ii < A.GetSize(); ii++)
-      //   MessageInterface::ShowMessage("In AxisSystem, A(%d) = %f\n", ii, A(ii));
+   if (eop == NULL)
+      throw CoordinateSystemException(
+            "EOP file has not been set for " + instanceName);
+   if (itrf == NULL)
+      throw CoordinateSystemException(
+            "Coefficient file has not been set for " + instanceName);
+
+   nutationSrc    = itrf->GetNutationTermsSource();
+   planetarySrc   = itrf->GetPlanetaryTermsSource();
+   Integer numNut = itrf->GetNumberOfNutationTerms();
+   A.SetSize(numNut);   A.MakeZeroVector();
+   #ifdef DEBUG_ITRF_UPDATES
+   MessageInterface::ShowMessage("In Axis System, nutation source is %d\n",
+                     (Integer) nutationSrc);
+   #endif
+   B.SetSize(numNut);   B.MakeZeroVector();
+   C.SetSize(numNut);   C.MakeZeroVector();
+   D.SetSize(numNut);   D.MakeZeroVector();
+   E.SetSize(numNut);   E.MakeZeroVector();
+   F.SetSize(numNut);   F.MakeZeroVector();
+
+   Integer numPlan = itrf->GetNumberOfPlanetaryTerms();
+   Ap.SetSize(numPlan);   Ap.MakeZeroVector();
+   Bp.SetSize(numPlan);   Bp.MakeZeroVector();
+   Cp.SetSize(numPlan);   Cp.MakeZeroVector();
+   Dp.SetSize(numPlan);   Dp.MakeZeroVector();
+
+   bool OK = itrf->GetNutationTerms(a, A, B, C, D, E, F);
+   if (!OK) throw CoordinateSystemException("Error getting nutation data.");
+   #ifdef DEBUG_ITRF_UPDATES
+   for (Integer ii = 0; ii < A.GetSize(); ii++)
+      MessageInterface::ShowMessage("In AxisSystem, after getting nutation data, A(%d) = %f\n", ii, A(ii));
+   #endif
+
+   if (aVals)
+   {
+      #ifdef DEBUG_MEMORY
+      MemoryTracker::Instance()->Remove
+         (aVals, "aVals", "AxisSystem::InitializeFK5()", "deleting aVals");
       #endif
-      B.SetSize(numNut);   B.MakeZeroVector();
-      C.SetSize(numNut);   C.MakeZeroVector();
-      D.SetSize(numNut);   D.MakeZeroVector();
-      E.SetSize(numNut);   E.MakeZeroVector();
-      F.SetSize(numNut);   F.MakeZeroVector();
-      
-      Integer numPlan = itrf->GetNumberOfPlanetaryTerms();
-      Ap.SetSize(numPlan);   Ap.MakeZeroVector();
-      Bp.SetSize(numPlan);   Bp.MakeZeroVector();
-      Cp.SetSize(numPlan);   Cp.MakeZeroVector();
-      Dp.SetSize(numPlan);   Dp.MakeZeroVector();
-      
-      bool OK = itrf->GetNutationTerms(a, A, B, C, D, E, F);
-      if (!OK) throw CoordinateSystemException("Error getting nutation data.");
-      #ifdef DEBUG_ITRF_UPDATES
-      for (Integer ii = 0; ii < A.GetSize(); ii++)
-         MessageInterface::ShowMessage("In AxisSystem, after getting nutation data, A(%d) = %f\n", ii, A(ii));
-      #endif
-      
-      if (aVals)
+      delete [] aVals;
+   }
+
+   aVals = new Integer[numNut * 5];
+   #ifdef DEBUG_MEMORY
+   MemoryTracker::Instance()->Add
+      (aVals, "aVals", "AxisSystem::InitializeFK5()", "aVals = new Integer[numNut * 5]");
+   #endif
+
+   for (Integer i = 0; i < 5; i++)
+   {
+      for (Integer j=0; j< numNut; j++)
+      {
+         aVals[i*numNut+j] = (a.at(i)).at(j);
+      }
+   }
+
+   #ifdef DEBUG_a_MATRIX
+      MessageInterface::ShowMessage("aVals = \n");
+      for (Integer q = 0; q < numNut; ++q)
+         MessageInterface::ShowMessage("         %3d: %8d %8d %8d %8d %8d\n",
+            q+1, aVals[q], aVals[q+numNut], aVals[q+2*numNut],
+            aVals[q+3*numNut], aVals[q+4*numNut]);
+   #endif
+
+   if (nutationSrc == GmatItrf::NUTATION_1996)
+   {
+      OK      = itrf->GetPlanetaryTerms(ap, Ap, Bp, Cp, Dp);
+      if (!OK) throw CoordinateSystemException("Error getting planetary data.");
+
+      if (apVals)
       {
          #ifdef DEBUG_MEMORY
          MemoryTracker::Instance()->Remove
-            (aVals, "aVals", "AxisSystem::InitializeFK5()", "deleting aVals");
+            (apVals, "apVals", "AxisSystem::InitializeFK5()", "deleting apVals");
          #endif
-         delete [] aVals;
+         delete [] apVals;
       }
       
-      aVals = new Integer[numNut * 5];
+      apVals = new Integer[numPlan*10];
       #ifdef DEBUG_MEMORY
       MemoryTracker::Instance()->Add
-         (aVals, "aVals", "AxisSystem::InitializeFK5()", "aVals = new Integer[numNut * 5]");
+         (apVals, "apVals", "AxisSystem::InitializeFK5()", "apVals = new Integer[numPlan*10]");
       #endif
       
-      for (Integer i = 0; i < 5; i++)
+      for (Integer i = 0; i < 10; i++)
       {
-         for (Integer j=0; j< numNut; j++)
+         for (Integer j=0; j< numPlan; j++)
          {
-            aVals[i*numNut+j] = (a.at(i)).at(j);
+            apVals[i*numPlan+j] = (ap.at(i)).at(j);
          }
       }
-      
-      #ifdef DEBUG_a_MATRIX
-         MessageInterface::ShowMessage("aVals = \n");
-         for (Integer q = 0; q < numNut; ++q)
-            MessageInterface::ShowMessage("         %3d: %8d %8d %8d %8d %8d\n",
-               q+1, aVals[q], aVals[q+numNut], aVals[q+2*numNut], 
-               aVals[q+3*numNut], aVals[q+4*numNut]);
+
+      #ifdef DEBUG_Ap_MATRIX
+          MessageInterface::ShowMessage("apVals = \n");
+         for (Integer q = 0; q < numPlan; ++q)
+             MessageInterface::ShowMessage(
+               "         %3d: %8d %8d %8d %8d %8d   %8d %8d %8d %8d %8d\n",
+               q+1, apVals[q], apVals[q+numPlan], apVals[q+2*numPlan],
+               apVals[q+3*numPlan], apVals[q+4*numPlan], apVals[q+5*numPlan],
+               apVals[q+6*numPlan], apVals[q+7*numPlan], apVals[q+8*numPlan],
+               apVals[q+9*numPlan]);
       #endif
-      
-      if (nutationSrc == GmatItrf::NUTATION_1996)
-      {
-         OK      = itrf->GetPlanetaryTerms(ap, Ap, Bp, Cp, Dp);
-         if (!OK) throw CoordinateSystemException("Error getting planetary data.");
+    }
 
-         if (apVals)
-         {
-            #ifdef DEBUG_MEMORY
-            MemoryTracker::Instance()->Remove
-               (apVals, "apVals", "AxisSystem::InitializeFK5()", "deleting apVals");
-            #endif
-            delete [] apVals;
-         }
-         
-         apVals = new Integer[numPlan*10];
-         #ifdef DEBUG_MEMORY
-         MemoryTracker::Instance()->Add
-            (apVals, "apVals", "AxisSystem::InitializeFK5()", "apVals = new Integer[numPlan*10]");
-         #endif
-         
-         for (Integer i = 0; i < 10; i++)
-         {
-            for (Integer j=0; j< numPlan; j++)
-            {
-               apVals[i*numPlan+j] = (ap.at(i)).at(j);
-            }
-         }
-
-         #ifdef DEBUG_Ap_MATRIX
-             MessageInterface::ShowMessage("apVals = \n");
-            for (Integer q = 0; q < numPlan; ++q)
-                MessageInterface::ShowMessage(
-                  "         %3d: %8d %8d %8d %8d %8d   %8d %8d %8d %8d %8d\n",
-                  q+1, apVals[q], apVals[q+numPlan], apVals[q+2*numPlan], 
-                  apVals[q+3*numPlan], apVals[q+4*numPlan], apVals[q+5*numPlan], 
-                  apVals[q+6*numPlan], apVals[q+7*numPlan], apVals[q+8*numPlan], 
-                  apVals[q+9*numPlan]);
-         #endif
-       }
-      
-         AVals = A.GetDataVector();
-         #ifdef DEBUG_ITRF_UPDATES
-         for (Integer ii = 0; ii < A.GetSize(); ii++)
-            MessageInterface::ShowMessage("AVals(%d) = %f\n", ii, AVals[ii]);
-         #endif
-         BVals = B.GetDataVector();
-         CVals = C.GetDataVector();
-         DVals = D.GetDataVector();
-         EVals = E.GetDataVector();
-         FVals = F.GetDataVector();
-         ApVals = Ap.GetDataVector();
-         BpVals = Bp.GetDataVector();
-         CpVals = Cp.GetDataVector();
+   AVals = A.GetDataVector();
+   #ifdef DEBUG_ITRF_UPDATES
+   for (Integer ii = 0; ii < A.GetSize(); ii++)
+      MessageInterface::ShowMessage("AVals(%d) = %f\n", ii, AVals[ii]);
+   #endif
+   BVals = B.GetDataVector();
+   CVals = C.GetDataVector();
+   DVals = D.GetDataVector();
+   EVals = E.GetDataVector();
+   FVals = F.GetDataVector();
+   ApVals = Ap.GetDataVector();
+   BpVals = Bp.GetDataVector();
+   CpVals = Cp.GetDataVector();
          DpVals = Dp.GetDataVector();
-//   }
 }   
 
 //------------------------------------------------------------------------------
-//  void ComputePrecessionMatrix(const A1Mjd &forEpoch)
+//  void ComputePrecessionMatrix(const Real tTDB, A1Mjd atEpoch)
 //------------------------------------------------------------------------------
 /**
  * This method will compute the Precession rotation matrix.
  *
- * @param forEpoch  epoch at which to compute the rotation matrix
+ * @param tTDB     TDB time
+ * @param atEpoch  epoch at which to compute the rotation matrix
  *
  * @note Code (for Earth) adapted from C code written by Steve Queen/ GSFC, 
  *       based on Vallado, pgs. 211- 227.  Equation references in parentheses
  *       will refer to those of the Vallado book.
  */
 //------------------------------------------------------------------------------
-//Rmatrix33 AxisSystem::ComputePrecessionMatrix(const Real tTDB, A1Mjd atEpoch)
 void AxisSystem::ComputePrecessionMatrix(const Real tTDB, A1Mjd atEpoch)
 {
 
@@ -1326,7 +1707,6 @@ void AxisSystem::ComputePrecessionMatrix(const Real tTDB, A1Mjd atEpoch)
          MessageInterface::ShowMessage(
             "   AxisSystem::ComputePrecessionMatrix(%.12lf, %.12lf)\n", tTDB, 
             atEpoch.Get());
-//         InitializeFK5();
    #endif
    
    #ifdef DEBUG_ROT_MATRIX
@@ -1369,7 +1749,24 @@ void AxisSystem::ComputePrecessionMatrix(const Real tTDB, A1Mjd atEpoch)
    lastPRECEpoch = atEpoch;
 }
 
-//Rmatrix33 AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
+//------------------------------------------------------------------------------
+//  void ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
+//                             Real &dPsi,
+//                             Real &longAscNodeLunar,
+//                             Real &cosEpsbar,
+//                             bool forceComputation)
+//------------------------------------------------------------------------------
+/**
+ * This method will compute the Nutation rotation matrix.
+ *
+ * @param tTDB              TDB time
+ * @param forEpoch          epoch at which to compute the rotation matrix
+ * @param longAscNodeLunar  lunar longitude of the ascending node
+ * @param cosEpsbar         computed quantity
+ * @param forceComputation  force matrix computation?
+ *
+ */
+//------------------------------------------------------------------------------
 void AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
                                             Real &dPsi,
                                             Real &longAscNodeLunar,
@@ -1394,14 +1791,14 @@ void AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
    static const Real const357 = 357.52910918*RAD_PER_DEG;
    static const Real const93  =  93.27209062*RAD_PER_DEG;
    static const Real const297 = 297.85019547*RAD_PER_DEG;
-#ifdef DEBUG_UPDATE
-   MessageInterface::ShowMessage("static consts computed ... \n");
-   MessageInterface::ShowMessage("  const125 = %12.10f\n", const125);
-   MessageInterface::ShowMessage("  const134 = %12.10f\n", const134);
-   MessageInterface::ShowMessage("  const357 = %12.10f\n", const357);
-   MessageInterface::ShowMessage("  const93  = %12.10f\n", const93);
-   MessageInterface::ShowMessage("  const297 = %12.10f\n", const297);
-#endif
+   #ifdef DEBUG_UPDATE
+      MessageInterface::ShowMessage("static consts computed ... \n");
+      MessageInterface::ShowMessage("  const125 = %12.10f\n", const125);
+      MessageInterface::ShowMessage("  const134 = %12.10f\n", const134);
+      MessageInterface::ShowMessage("  const357 = %12.10f\n", const357);
+      MessageInterface::ShowMessage("  const93  = %12.10f\n", const93);
+      MessageInterface::ShowMessage("  const297 = %12.10f\n", const297);
+   #endif
 
    register Real tTDB2   = tTDB  * tTDB;
    register Real tTDB3   = tTDB2 * tTDB;
@@ -1412,12 +1809,12 @@ void AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
    // floor, roll around and under the door, down the stairs and into
    // the neighbor's yard.  It can also be used, but is not tested, 
    // with the 2000 Theory.
-#ifdef DEBUG_UPDATE
-   MessageInterface::ShowMessage("registers set up\n");
-   MessageInterface::ShowMessage("  tTDB2 = %12.10f\n", tTDB2);
-   MessageInterface::ShowMessage("  tTDB3 = %12.10f\n", tTDB3);
-   MessageInterface::ShowMessage("  tTDB4 = %12.10f\n", tTDB4);
-#endif
+   #ifdef DEBUG_UPDATE
+      MessageInterface::ShowMessage("registers set up\n");
+      MessageInterface::ShowMessage("  tTDB2 = %12.10f\n", tTDB2);
+      MessageInterface::ShowMessage("  tTDB3 = %12.10f\n", tTDB3);
+      MessageInterface::ShowMessage("  tTDB4 = %12.10f\n", tTDB4);
+   #endif
 
    // Compute values to be passed out first ... 
    longAscNodeLunar  = const125 + (  -6962890.2665*tTDB 
@@ -1756,13 +2153,35 @@ void AxisSystem::ComputeNutationMatrix(const Real tTDB, A1Mjd atEpoch,
 //   return NUT;
 }
 
+//------------------------------------------------------------------------------
+//  void ComputeSiderealTimeRotation(const Real jdTT,
+//                                   const Real tUT1,
+//                                   Real dPsi,
+//                                   Real longAscNodeLunar,
+//                                   Real cosEpsbar,
+//                                   Real &cosAst,
+//                                   Real &sinAst)
+//------------------------------------------------------------------------------
+/**
+ * This method will compute the Sidereal time rotation matrix.
+ *
+ * @param jdTT              TT Julian Date
+ * @param tUT1              UT1 time
+ * @param dPsi              delta Psi
+ * @param longAscNodeLunar  lunar longitude of the ascending node
+ * @param cosEpsbar         computed quantity
+ * @param cosAst            cos quantity
+ * @param sinAst            sin quantity
+ *
+ */
+//------------------------------------------------------------------------------
 void AxisSystem::ComputeSiderealTimeRotation(const Real jdTT,
-                                                  const Real tUT1,
-                                                  Real dPsi,
-                                                  Real longAscNodeLunar,
-                                                  Real cosEpsbar,
-                                                  Real &cosAst,
-                                                  Real &sinAst)
+                                             const Real tUT1,
+                                             Real dPsi,
+                                             Real longAscNodeLunar,
+                                             Real cosEpsbar,
+                                             Real &cosAst,
+                                             Real &sinAst)
 {
    #ifdef DEBUG_FIRST_CALL
       if (!firstCallFired)
@@ -1829,6 +2248,23 @@ void AxisSystem::ComputeSiderealTimeRotation(const Real jdTT,
 //   return ST;
 }
 
+//------------------------------------------------------------------------------
+//  void ComputeSiderealTimeDotRotation(const Real mjdUTC,
+//                                      A1Mjd atEpoch,
+//                                      Real &cosAst,
+//                                      Real &sinAst,
+//                                      bool forceComputation)
+//------------------------------------------------------------------------------
+/**
+ * This method will compute the Sidereal time dot rotation matrix.
+ *
+ * @param mjdUTC            UTC mean julian day
+ * @param atEpoch           A1Mjd epoch
+ * @param cosAst            cos quantity
+ * @param sinAst            sin quantity
+ * @param forceComputation  force matrix computation?
+ */
+//------------------------------------------------------------------------------
 void AxisSystem::ComputeSiderealTimeDotRotation(const Real mjdUTC, 
                                                      A1Mjd atEpoch,
                                                      Real cosAst, Real sinAst,
@@ -1842,15 +2278,6 @@ void AxisSystem::ComputeSiderealTimeDotRotation(const Real mjdUTC,
             cosAst, sinAst);
    #endif
 
-//   Real dt = fabs(atEpoch.Subtract(lastSTDerivEpoch)) * SECS_PER_DAY;
-//   if (( dt < updateIntervalToUse) && (!forceComputation))
-//   {
-//      #ifdef DEBUG_UPDATE
-//         MessageInterface::ShowMessage(">>> In ComputeSiderealTimeDotRotation, using previous saved STDeriv values ......\n");
-//         MessageInterface::ShowMessage("lastSTderiv = %s\n", (lastSTDeriv.ToString()).c_str());
-//      #endif
-//      return;
-//   }
    #ifdef DEBUG_UPDATE
       MessageInterface::ShowMessage("----> Computing NEW STderiv matrix at time %12.10f\n",
          atEpoch.Get());
@@ -1885,6 +2312,20 @@ void AxisSystem::ComputeSiderealTimeDotRotation(const Real mjdUTC,
    
 }
 
+//------------------------------------------------------------------------------
+//  void ComputePolarMotionRotation(const Real mjdUTC,
+//                                  A1Mjd atEpoch,
+//                                  bool forceComputation)
+//------------------------------------------------------------------------------
+/**
+ * This method will compute the polar motion rotation matrix.
+ *
+ * @param mjdUTC            UTC mean julian day
+ * @param atEpoch           A1Mjd epoch
+ * @param forceComputation  force matrix computation?
+ *
+ */
+//------------------------------------------------------------------------------
 void AxisSystem::ComputePolarMotionRotation(const Real mjdUTC, A1Mjd atEpoch,
                                             bool forceComputation)
 {
@@ -1895,15 +2336,6 @@ void AxisSystem::ComputePolarMotionRotation(const Real mjdUTC, A1Mjd atEpoch,
             mjdUTC, atEpoch.Get());
    #endif
 
-//   Real dt = fabs(atEpoch.Subtract(lastPMEpoch)) * SECS_PER_DAY;
-//   if (( dt < updateIntervalToUse) && (!forceComputation))
-//   {
-//      #ifdef DEBUG_UPDATE
-//         MessageInterface::ShowMessage(">>> In ComputePolarMotionRotation, using previous saved PM values ......\n");
-//         MessageInterface::ShowMessage("lastPM = %s\n", (lastPM.ToString()).c_str());
-//      #endif
-//      return;
-//   }
    #ifdef DEBUG_UPDATE
       MessageInterface::ShowMessage("----> Computing NEW PM matrix at time %12.10f\n",
          atEpoch.Get());
@@ -1953,6 +2385,17 @@ void AxisSystem::ComputePolarMotionRotation(const Real mjdUTC, A1Mjd atEpoch,
 
 }
 
+//---------------------------------------------------------------------------
+//  void InitializeOrigin()
+//---------------------------------------------------------------------------
+/**
+ * Initialization of the origin for the AxisSystem.
+ *
+ * @note  This is necessary for the BodyFixedPoint origins because they
+ *        require local coordinate systems that must be created/handled.
+ *
+ */
+//---------------------------------------------------------------------------
 void AxisSystem::InitializeOrigin()
 {
    // if the origin is a BodyFixedPoint it needs to be initialized

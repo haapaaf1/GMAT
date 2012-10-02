@@ -1,6 +1,6 @@
-//$Id$
+//$Id: MatlabFunctionFactory.hpp 9513 2011-04-30 21:23:06Z djcinsb $
 //------------------------------------------------------------------------------
-//                              FunctionFactory
+//                              MatlabFunctionFactory
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -15,30 +15,31 @@
 // Created: 2004/9/22
 //
 /**
- * Implementation code for the FunctionFactory class, responsible for creating
- * Function objects.
+ * Implementation code for the MatlabFunctionFactory class, responsible for
+ * creating MATLAB Function objects.
  */
 //------------------------------------------------------------------------------
 
 
-#ifndef FunctionFactory_hpp
-#define FunctionFactory_hpp
+#ifndef MatlabFunctionFactory_hpp
+#define MatlabFunctionFactory_hpp
 
+#include "matlabinterface_defs.hpp"
 #include "Factory.hpp"
 #include "Function.hpp"
 
-class GMAT_API FunctionFactory : public Factory
+class MATLAB_API MatlabFunctionFactory : public Factory
 {
 public:
    Function* CreateFunction(const std::string &ofType, const std::string &withName = "");
 
-   FunctionFactory();
-   virtual ~FunctionFactory();
-   FunctionFactory(StringArray createList);
-   FunctionFactory(const FunctionFactory& fact);
-   FunctionFactory& operator= (const FunctionFactory& fact);
+   MatlabFunctionFactory();
+   virtual ~MatlabFunctionFactory();
+   MatlabFunctionFactory(StringArray createList);
+   MatlabFunctionFactory(const MatlabFunctionFactory& fact);
+   MatlabFunctionFactory& operator= (const MatlabFunctionFactory& fact);
 
 };
 
 
-#endif // FunctionFactory_hpp
+#endif // MatlabFunctionFactory_hpp

@@ -1,6 +1,6 @@
-//$Id$
+//$Id: MatlabFunctionFactory.cpp 9513 2011-04-30 21:23:06Z djcinsb $
 //------------------------------------------------------------------------------
-//                              FunctionFactory
+//                              MatlabFunctionFactory
 //------------------------------------------------------------------------------
 // GMAT: General Mission Analysis Tool
 //
@@ -15,15 +15,14 @@
 // Created: 2004/9/22
 //
 /**
- * Implementation code for the FunctionFactory class, responsible for creating
- * Function objects.
+ * Implementation code for the MatlabFunctionFactory class, responsible for
+ * creating MATLAB Function objects.
  */
 //------------------------------------------------------------------------------
 
 
-#include "FunctionFactory.hpp"
+#include "MatlabFunctionFactory.hpp"
 #include "MatlabFunction.hpp"
-#include "GmatFunction.hpp"
 
 //---------------------------------
 //  public methods
@@ -38,13 +37,11 @@
  * @param <ofType> the Function object to create and return.
  */
 //------------------------------------------------------------------------------
-Function* FunctionFactory::CreateFunction(const std::string &ofType,
+Function* MatlabFunctionFactory::CreateFunction(const std::string &ofType,
          const std::string &withName)
 {
    if (ofType == "MatlabFunction")
       return new MatlabFunction(withName);
-   else if (ofType == "GmatFunction")
-      return new GmatFunction(withName);
    // add more here .......
    else {
       return NULL;   // doesn't match any known type of Function
@@ -54,85 +51,83 @@ Function* FunctionFactory::CreateFunction(const std::string &ofType,
 
 
 //------------------------------------------------------------------------------
-//  FunctionFactory()
+//  MatlabFunctionFactory()
 //------------------------------------------------------------------------------
 /**
- * This method creates an object of the class FunctionFactory.
+ * This method creates an object of the class MatlabFunctionFactory.
  * (default constructor)
  *
  */
 //------------------------------------------------------------------------------
-FunctionFactory::FunctionFactory() :
+MatlabFunctionFactory::MatlabFunctionFactory() :
     Factory     (Gmat::FUNCTION)
 {
    if (creatables.empty())
    {
       creatables.push_back("MatlabFunction");
-      creatables.push_back("GmatFunction");
    }
 }
 
 //------------------------------------------------------------------------------
-//  FunctionFactory(StringArray createList)
+//  MatlabFunctionFactory(StringArray createList)
 //------------------------------------------------------------------------------
 /**
- * This method creates an object of the class FunctionFactory.
+ * This method creates an object of the class MatlabFunctionFactory.
  *
  * @param <createList> list of creatable Function objects
  *
  */
 //------------------------------------------------------------------------------
-FunctionFactory::FunctionFactory(StringArray createList) :
+MatlabFunctionFactory::MatlabFunctionFactory(StringArray createList) :
     Factory     (createList, Gmat::FUNCTION)
 {
 }
 
 //------------------------------------------------------------------------------
-//  FunctionFactory(const FunctionFactory& fact)
+//  MatlabFunctionFactory(const MatlabFunctionFactory& fact)
 //------------------------------------------------------------------------------
 /**
-   * This method creates an object of the class FunctionFactory (called by
+   * This method creates an object of the class MatlabFunctionFactory (called by
    * copy constructors of derived classes).  (copy constructor)
    *
    * @param <fact> the factory object to copy to "this" factory.
    */
 //------------------------------------------------------------------------------
-FunctionFactory::FunctionFactory(const FunctionFactory& fact) :
+MatlabFunctionFactory::MatlabFunctionFactory(const MatlabFunctionFactory& fact) :
     Factory     (fact)
 {
    if (creatables.empty())
    {
       creatables.push_back("MatlabFunction");
-      creatables.push_back("GmatFunction");
    }
 }
 
 //------------------------------------------------------------------------------
-//  FunctionFactory& operator= (const FunctionFactory& fact)
+//  MatlabFunctionFactory& operator= (const MatlabFunctionFactory& fact)
 //------------------------------------------------------------------------------
 /**
-   * Assignment operator for the FunctionFactory base class.
+   * Assignment operator for the MatlabFunctionFactory base class.
    *
-   * @param <fact> the FunctionFactory object whose data to assign to "this" factory.
+   * @param <fact> the MatlabFunctionFactory object whose data to assign to "this" factory.
    *
-   * @return "this" FunctionFactory with data of input factory fact.
+   * @return "this" MatlabFunctionFactory with data of input factory fact.
    */
 //------------------------------------------------------------------------------
-FunctionFactory& FunctionFactory::operator=(const FunctionFactory& fact)
+MatlabFunctionFactory& MatlabFunctionFactory::operator=(const MatlabFunctionFactory& fact)
 {
    Factory::operator=(fact);
    return *this;
 }
 
 //------------------------------------------------------------------------------
-// ~FunctionFactory()
+// ~MatlabFunctionFactory()
 //------------------------------------------------------------------------------
 /**
-   * Destructor for the FunctionFactory class.
+   * Destructor for the MatlabFunctionFactory class.
    *
    */
 //------------------------------------------------------------------------------
-FunctionFactory::~FunctionFactory()
+MatlabFunctionFactory::~MatlabFunctionFactory()
 {
    // deletes handled by Factory destructor
 }

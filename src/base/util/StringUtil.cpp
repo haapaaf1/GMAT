@@ -38,10 +38,11 @@
 //#define DEBUG_STRING_UTIL_SEP 2
 //#define DEBUG_NO_BRACKETS
 //#define DEBUG_BALANCED_BRACKETS
-//#define DEBUG_MATH_EQ 1
+//#define DEBUG_MATH_EQ 2
 //#define DEBUG_STRING_UTIL_SEP_COMMA
 //#define DEBUG_STRING_UTIL_STRING_ARRAY
 //#define DEBUG_REPLACE_NAME
+//#define DEBUG_EXTRA_PAREN 1
 //#define DEBUG_REMOVE_EXTRA_PAREN 1
 
 //------------------------------------------------------------------------------
@@ -65,6 +66,26 @@ std::string GmatStringUtil::RemoveAll(const std::string &str, char ch,
    }
 
    return str2;
+}
+
+
+//------------------------------------------------------------------------------
+// std::string RemoveAll(const std::string &str, const std::string &removeStr, Integer start = 0)
+//------------------------------------------------------------------------------
+/**
+ * Removes all occurance of characters in removeStr starting at start.
+ */
+//------------------------------------------------------------------------------
+std::string GmatStringUtil::RemoveAll(const std::string &str, const std::string &removeStr,
+                                      Integer start)
+{
+   std::string str1 = str.substr(start);
+   std::string::size_type removeLength = removeStr.size();
+   
+   for (UnsignedInt i = 0; i < removeLength; i++)
+      str1 = RemoveAll(str1, removeStr[i]);
+   
+   return str1;
 }
 
 
@@ -672,6 +693,111 @@ std::string GmatStringUtil::ReplaceNumber(const std::string &str, const std::str
    #endif
 
    return str1;
+}
+
+
+//------------------------------------------------------------------------------
+// std::string ReplaceRepeatedPlusMinusSigns(const std::string &str)
+//------------------------------------------------------------------------------
+/**
+ * Replaces repeated plus (+) or minus (-) signs with one sign.
+ * For example "+--+abc-+--def+-+-ghi" will give "+abc-def_ghi".
+ */
+//------------------------------------------------------------------------------
+std::string GmatStringUtil::ReplaceRepeatedPlusMinusSigns(const std::string &str)
+{
+   #ifdef DEBUG_REPLACE_PLUSMINUS
+   MessageInterface::ShowMessage
+      ("GmatStringUtil::ReplaceRepeatedPlusMinusSigns() entered, str='%s'\n", str.c_str());
+   #endif
+   
+   std::string str1 = RemoveAllBlanks(str);
+   Integer length = str1.size();
+   std::string signs, nonSigns, finalStr;
+   bool signFound = false, signDone = false;
+   bool nonSignFound = false, nonSignDone = false;
+   
+   for (int i = 0; i < length; i++)
+   {
+      if (str1[i] == '+' || str1[i] == '-')
+      {
+         if (nonSignFound)
+            nonSignDone = true;
+         
+         signFound = true;
+         nonSignFound = false;
+         
+         if (nonSignDone)
+         {
+            #ifdef DEBUG_REPLACE_PLUSMINUS
+            MessageInterface::ShowMessage("   nonSigns = '%s'\n", nonSigns.c_str());
+            #endif
+            finalStr = finalStr + nonSigns;
+            nonSignDone = false;
+            nonSigns = "";
+            signs = str1[i];
+         }
+         else
+         {
+            signs = signs + str1[i];
+         }
+      }
+      else
+      {
+         if (signFound)
+            signDone = true;
+         
+         signFound = false;
+         nonSignFound = true;
+         
+         if (signDone)
+         {
+            #ifdef DEBUG_REPLACE_PLUSMINUS
+            MessageInterface::ShowMessage("   signs = '%s'\n", signs.c_str());
+            #endif
+            Integer numMinus = NumberOfOccurrences(signs, '-');
+            char finalSign = '-';
+            if ((numMinus % 2) == 0)
+               finalSign = '+';
+            
+            finalStr = finalStr + finalSign;
+            signDone = false;
+            signs = "";
+            nonSigns = str1[i];
+         }
+         else
+         {
+            nonSigns = nonSigns + str1[i];
+         }
+      }
+   }
+   
+   #ifdef DEBUG_REPLACE_PLUSMINUS
+   MessageInterface::ShowMessage("   last signs = '%s'\n", signs.c_str());
+   MessageInterface::ShowMessage("   last nonSigns = '%s'\n", nonSigns.c_str());
+   #endif
+   
+   // Put last part
+   if (signs != "")
+   {
+      Integer numMinus = NumberOfOccurrences(signs, '-');
+      char finalSign = '-';
+      if ((numMinus % 2) == 0)
+         finalSign = '+';
+      
+      finalStr = finalStr + finalSign;
+   }
+   else if (nonSigns != "")
+   {
+      finalStr = finalStr + nonSigns;
+   }
+   
+   #ifdef DEBUG_REPLACE_PLUSMINUS
+   MessageInterface::ShowMessage
+      ("GmatStringUtil::ReplaceRepeatedPlusMinusSigns() returning '%s'\n", finalStr.c_str());
+   #endif
+   
+   return finalStr;
 }
 
 
@@ -2033,6 +2159,23 @@ std::string GmatStringUtil::GetArrayName(const std::string &str,
 
 
 //------------------------------------------------------------------------------
+// bool IsOneElementArray(const std::string &str)
+//------------------------------------------------------------------------------
+bool GmatStringUtil::IsOneElementArray(const std::string &str)
+{
+   Integer row = -1, col = -1;
+   std::string name;
+   
+   GetArrayIndex(str, row, col, name, "[]");
+   
+   if (row == 1 && col == 1)
+      return true;
+   else
+      return false;
+}
+
+
+//------------------------------------------------------------------------------
 // void FindFirstAndLast(const std::string &str, char ch, Integer &first,
 //                       Integer &last)
 //------------------------------------------------------------------------------
@@ -2297,39 +2440,62 @@ bool GmatStringUtil::IsEnclosedWith(const std::string &str,
 /*
  * Returns true if item is enclosed with extra parentheses
  * It will return true: ((a+b)), (a(1,1)),
- * It wiill return false: (123.456), (1,2), (a*b(1,1)), ((3+5)*2)
+ * It wiill return false: (123.456), (1,2), (a*b(1,1)), ((3+5)*2), (), (())
  *
  */
 //------------------------------------------------------------------------------
-bool GmatStringUtil::IsEnclosedWithExtraParen(const std::string &str, bool checkOps)
+bool GmatStringUtil::IsEnclosedWithExtraParen(const std::string &str, bool checkOps,
+                                              bool ignoreComma)
 {
-   #if DEBUG_STRING_UTIL
-   MessageInterface::ShowMessage("IsEnclosedWithExtraParen() str=%s\n", str.c_str());
+   #if DEBUG_EXTRA_PAREN
+   MessageInterface::ShowMessage
+      ("IsEnclosedWithExtraParen() str=%s, checkOps=%d, ignoreComma=%d\n", str.c_str(),
+       checkOps, ignoreComma);
    #endif
-
+   
    int length = str.size();
    bool isEnclosed = false;
    Integer openCounter = 0;
+   
+   Integer openParen = (Integer)str.find_first_of('(');
+   
+   //if (openParen == (Integer)str.npos)
+   //   openParen = -1;
 
-   Integer openParen = str.find_first_of('(');
-   if (openParen == (Integer)str.npos)
-      openParen = -1;
-
-   Integer closeParen = str.find_last_of(')');
-   if (closeParen == (Integer)str.npos)
-      closeParen = -1;
-
-   #if DEBUG_STRING_UTIL
+   Integer closeParen = (Integer)str.find_last_of(')');
+   //if (closeParen == (Integer)str.npos)
+   //   closeParen = -1;
+   
+   #if DEBUG_EXTRA_PAREN
    MessageInterface::ShowMessage
       ("IsEnclosedWithExtraParen() openParen=%d, closeParen=%d\n", openParen, closeParen);
    #endif
-
+   
    if (openParen == -1 || closeParen == -1)
+   {
+      #if DEBUG_EXTRA_PAREN
+      MessageInterface::ShowMessage
+         ("IsEnclosedWithExtraParen() returning false, no open or close paren found\n");
+      #endif
       return false;
-
+   }
+   
    if (openParen != 0 || closeParen != length-1)
+   {
+      #if DEBUG_EXTRA_PAREN
+      MessageInterface::ShowMessage
+         ("IsEnclosedWithExtraParen() returning false, no outer open or close paren found\n");
+      #endif
       return false;
-
+   }
+   
+   // Check for empty parenthesis such as () or (())
+   std::string str1 = RemoveAllBlanks(str);
+   std::string::size_type lastOpenParen = str1.find_last_of('(');
+   std::string::size_type firstCloseParen = str1.find_first_of(')');
+   if (firstCloseParen == lastOpenParen + 1)
+      return false;
+   
    for (int i=0; i<length; i++)
    {
       if (str[i] == '(')
@@ -2361,39 +2527,50 @@ bool GmatStringUtil::IsEnclosedWithExtraParen(const std::string &str, bool check
          if (close2 == length-2)
             isEnclosed = true;
       }
-
+      
       if (!checkOps)
          isEnclosed = true;
-
+      
       if (!isEnclosed)
       {
          // check if there is any operator
          std::string substr = str.substr(1, length-2);
          Real rval;
-
-         #if DEBUG_STRING_UTIL
+         
+         #if DEBUG_EXTRA_PAREN
          MessageInterface::ShowMessage
             ("IsEnclosedWithExtraParen() substr=%s\n", substr.c_str());
          #endif
-
+         
          if (IsParenPartOfArray(substr))
             isEnclosed = true;
          else if (ToReal(substr, rval))
             isEnclosed = true;
          else
          {
-            if (substr.find('+') == substr.npos && substr.find('-') == substr.npos &&
-                substr.find('*') == substr.npos && substr.find('/') == substr.npos)
+            #if DEBUG_EXTRA_PAREN
+            MessageInterface::ShowMessage
+               ("IsEnclosedWithExtraParen() Checking for math symbol and command\n");
+            #endif
+            // if there is math symbol then it is not enclosed with parenthesis
+            if (IsThereMathSymbol(substr))
+               isEnclosed = false;
+            else if (substr.find(",") != substr.npos)
+               if (ignoreComma)
+                  isEnclosed = true;
+               else
+                  isEnclosed = false;
+            else
                isEnclosed = true;
          }
       }
    }
-
-   #if DEBUG_STRING_UTIL
+   
+   #if DEBUG_EXTRA_PAREN
    MessageInterface::ShowMessage
-      ("IsEnclosedWithExtraParen() isEnclosed=%d\n", isEnclosed);
+      ("IsEnclosedWithExtraParen() returning isEnclosed=%d\n", isEnclosed);
    #endif
-
+   
    return isEnclosed;
 }
 
@@ -2450,6 +2627,32 @@ bool GmatStringUtil::IsParenBalanced(const std::string &str)
       retval = true;
 
    return retval;
+}
+
+
+//------------------------------------------------------------------------------
+// bool IsParenEmpty(const std::string &str)
+//------------------------------------------------------------------------------
+bool GmatStringUtil::IsParenEmpty(const std::string &str)
+{
+   std::string str1 = RemoveAllBlanks(str);
+   
+   if (!IsParenBalanced(str1))
+      return false;
+   
+   Integer length = str1.size();
+   for (int i = 0; i < length; i++)
+   {
+      if (str1[i] != '(' && str1[i] != ')')
+         return false;
+   }
+   
+   std::string::size_type lastOpenParen = str1.find_last_of('(');
+   std::string::size_type firstCloseParen = str1.find_first_of(')');
+   if (firstCloseParen == (lastOpenParen + 1))
+      return true;
+   else
+      return false;
 }
 
 
@@ -3092,17 +3295,18 @@ bool GmatStringUtil::IsSingleItem(const std::string &str)
 //------------------------------------------------------------------------------
 /*
  * This method removs extra pair of parentheses.
- * If input string is "(a(1,1) + 10.0)" it return a(1,1) + 10.0.
- *
- * *** NOTES ***
- * This method is not complete and needs more testing.
+ * If input string is "(a(1,1) + 10.0)" it returns "a(1,1) + 10.0"
+ *                    "1 + (a(1,1) + 10) * 2" returns "1 + (a(1,1) + 10) * 2"
+ *                    "(())" returns "(())"
  */
 //------------------------------------------------------------------------------
-std::string GmatStringUtil::RemoveExtraParen(const std::string &str, bool ignoreSingleQuotes)
+std::string GmatStringUtil::RemoveExtraParen(const std::string &str, bool ignoreComma,
+                                             bool ignoreSingleQuotes)
 {
    #if DEBUG_REMOVE_EXTRA_PAREN
    MessageInterface::ShowMessage
-      ("RemoveExtraParen() entering str=%s\n", str.c_str());
+      ("\nRemoveExtraParen() entering, ignoreComma=%d, ignoreSingleQuotes=%d\n   str=%s\n",
+       ignoreComma, ignoreSingleQuotes, str.c_str());
    #endif
    
    if (!ignoreSingleQuotes && IsEnclosedWith(str, "'"))
@@ -3120,21 +3324,17 @@ std::string GmatStringUtil::RemoveExtraParen(const std::string &str, bool ignore
    Integer length = str.size();
    Integer openCounter = 0;
    Integer openParen = 0, closeParen = 0;
-   Integer counter = 0;
    std::map<Integer, Integer> openParenMap;
    std::map<Integer, Integer> closeParenMap;
-   //@note using '\a' (bell) for parenthesis removal, is it safe to that? (LOJ: 2012.08.29)
-   char charToRemove = '\a';
+   //@note using '\b' (backspace) for parenthesis removal, is it safe to that? (LOJ: 2012.08.29)
+   char charToRemove = '\b';
    
    // remove outer parentheses
-   while (IsEnclosedWithExtraParen(str1))
-   {
-      counter++;
-      str1 = str.substr(counter, length-counter-counter);
-   }
+   while (IsEnclosedWithExtraParen(str1, true, ignoreComma))
+      str1 = str1.substr(1, str1.size() - 2);
    
    #if DEBUG_REMOVE_EXTRA_PAREN
-   MessageInterface::ShowMessage("RemoveExtraParen() str1=%s\n", str1.c_str());
+   MessageInterface::ShowMessage("  str1=%s\n", str1.c_str());
    #endif
    
    std::string str2 = str1;
@@ -3151,7 +3351,7 @@ std::string GmatStringUtil::RemoveExtraParen(const std::string &str, bool ignore
          
          #if DEBUG_REMOVE_EXTRA_PAREN
          MessageInterface::ShowMessage
-            ("===> openParen:  i=%d, openCounter=%d\n", i, openCounter);
+            ("   openParen:  i=%d, openCounter=%d\n", i, openCounter);
          #endif
       }
       else if (str1[i] == ')')
@@ -3161,7 +3361,7 @@ std::string GmatStringUtil::RemoveExtraParen(const std::string &str, bool ignore
          
          #if DEBUG_REMOVE_EXTRA_PAREN
          MessageInterface::ShowMessage
-            ("===> closeParen: i=%d, openCounter=%d\n", i, openCounter);
+            ("   closeParen: i=%d, openCounter=%d\n", i, openCounter);
          #endif
          
          //-----------------------------------------------------------
@@ -3172,40 +3372,91 @@ std::string GmatStringUtil::RemoveExtraParen(const std::string &str, bool ignore
          closeParen = closeParenMap[openCounter];
          
          substr = str1.substr(openParen, closeParen-openParen+1);
-         char beforeOpenParen = str1[openParen-1];
-         std::string substr1 = str1.substr(0, openParen);
+         char chBeforeOpenParen = charToRemove;
+         char chAfterCloseParen = charToRemove;
+         std::string strBeforeOpenParen = str1.substr(0, openParen);
+         strBeforeOpenParen = RemoveAllBlanks(strBeforeOpenParen);
+         Integer lenBeforeOpenParen = strBeforeOpenParen.size();
+         std::string strAfterCloseParen = str1.substr(closeParen + 1);
+         strAfterCloseParen = RemoveAllBlanks(strAfterCloseParen);
+         Integer lenAfterCloseParen = strAfterCloseParen.size();
+         
+         // Check if parenthesis is part of array of function 
          bool isParenPartOfName = false;
-         substr1 = RemoveAllBlanks(substr1);
-         if (substr1.size() > 0 && isalnum(substr1[substr1.size() - 1]))
+         if (strBeforeOpenParen.size() > 0 && isalnum(strBeforeOpenParen[lenBeforeOpenParen - 1]))
             isParenPartOfName = true;
+         
+         // Get character before and after parenthesis
+         if (openParen > 0 && lenBeforeOpenParen > 0)
+            chBeforeOpenParen = strBeforeOpenParen[lenBeforeOpenParen - 1];
+         if (closeParen < length && lenAfterCloseParen > 0)
+            chAfterCloseParen = strAfterCloseParen[0];
+         
+         std::string trimmedStr = RemoveAllBlanks(substr);
+         
          #if DEBUG_REMOVE_EXTRA_PAREN
          MessageInterface::ShowMessage
-            ("   substr=<%s>\n   openParen=%d, closeParen=%d, openCounter=%d\n",
+            ("   =====> substr='%s'\n   openParen=%d, closeParen=%d, openCounter=%d\n",
              substr.c_str(), openParen, closeParen, openCounter);
          MessageInterface::ShowMessage
-            ("   substr1=<%s>, isParenPartOfName=%d, beforeOpenParen=<%c>\n",
-             substr1.c_str(), isParenPartOfName, beforeOpenParen);
+            ("   strBeforeOpenParen='%s', strAfterCloseParen='%s', lenBeforeOpenParen=%d, "
+             "lenAfterCloseParen=%d\n", strBeforeOpenParen.c_str(), strAfterCloseParen.c_str(),
+             lenBeforeOpenParen, lenAfterCloseParen);
+         MessageInterface::ShowMessage
+            ("   chBeforeOpenParen='%c', chAfterCloseParen='%c', isParenPartOfName=%d\n",
+             chBeforeOpenParen, chAfterCloseParen, isParenPartOfName);
+         MessageInterface::ShowMessage("   trimmedStr='%s'\n", trimmedStr.c_str());
          #endif
          
-         // if ( is not part of function or array
-         if (!isParenPartOfName &&
-             (openParen == 0 ||
-              beforeOpenParen == '+' || beforeOpenParen == '-' ||
-              beforeOpenParen == '*' || beforeOpenParen == '/' ||
-              beforeOpenParen == '(' || beforeOpenParen == ' '))
+         Integer removeStatus = -99;
+         
+         // Check if extra parenthesis can be removed. Several Else-If cases for
+         // better debugging.
+         if (isParenPartOfName)
          {
-            if (str1[closeParen+1] != '^')
-            {
-               if (IsEnclosedWithExtraParen(substr))
-               {
-                  #if DEBUG_REMOVE_EXTRA_PAREN
-                  MessageInterface::ShowMessage
-                     ("   <%s> is enclosed with outer parenthesis\n", substr.c_str());
-                  #endif
-                  str2[openParen] = charToRemove;
-                  str2[closeParen] = charToRemove;
-               }
-            }
+            removeStatus = -10;
+         }
+         else if (IsMathOperator(chBeforeOpenParen) && IsMathOperator(chAfterCloseParen))
+         {
+            removeStatus = -11;
+         }
+         else if (chBeforeOpenParen == '(' && chAfterCloseParen == ')')
+         {
+            if (IsEnclosedWithExtraParen(trimmedStr))
+               removeStatus = 1;
+            else
+               removeStatus = -1;
+         }
+         else if (chBeforeOpenParen == '(' && IsMathOperator(chAfterCloseParen))
+         {
+            if (IsEnclosedWithExtraParen(trimmedStr))
+               removeStatus = 2;
+            else
+               removeStatus = -2;
+         }
+         else if (openParen == 0 || IsMathOperator(chBeforeOpenParen))
+         {
+            // Check for unary - sign first
+            if ((trimmedStr.size() > 1 && trimmedStr[1] != '-') &&
+                (IsEnclosedWithExtraParen(trimmedStr, true, true)) &&
+                (!IsMathOperator(chAfterCloseParen)) &&
+                (!IsMathOperator(chBeforeOpenParen)) &&
+                (!IsThereMathSymbol(trimmedStr)))
+               removeStatus = 3;
+            else
+               removeStatus = -3;
+         }
+         
+         #if DEBUG_REMOVE_EXTRA_PAREN
+         MessageInterface::ShowMessage
+            ("   -----> %d %s parenthesis in '%s' %d and %d\n", removeStatus,
+             removeStatus > 0 ? "Removing" : "Not removing", substr.c_str(), openParen, closeParen);
+         #endif
+         
+         if (removeStatus > 0)
+         {
+            str2[openParen] = charToRemove;
+            str2[closeParen] = charToRemove;
          }
          
          openCounter--;
@@ -3213,13 +3464,38 @@ std::string GmatStringUtil::RemoveExtraParen(const std::string &str, bool ignore
       }
    }
    
+   #if DEBUG_REMOVE_EXTRA_PAREN
+   MessageInterface::ShowMessage("   Before removing temp char = '%s'\n", str2.c_str());
+   #endif
+   
    str2 = RemoveAll(str2, charToRemove, 0);
    
+   // Remove leading and trailing spaces again
+   str2 = Trim(str2);
+   
    #if DEBUG_REMOVE_EXTRA_PAREN
-   MessageInterface::ShowMessage("RemoveExtraParen() exiting str2=%s\n", str2.c_str());
+   MessageInterface::ShowMessage("RemoveExtraParen() exiting str2='%s'\n", str2.c_str());
    #endif
    
    return str2;
+}
+
+
+//------------------------------------------------------------------------------
+// std::string RemoveOuterParen(const std::string &str)
+//------------------------------------------------------------------------------
+/**
+ * Removes outer pair of parenthesis if it has one.
+ */
+//------------------------------------------------------------------------------
+std::string GmatStringUtil::RemoveOuterParen(const std::string &str)
+{
+   std::string str1 = str;
+   
+   if (StartsWith(str, "(") && EndsWith(str, ")"))
+      str1 = str.substr(1, str.size() - 2);
+   
+   return str1;
 }
 
 
@@ -3228,7 +3504,7 @@ std::string GmatStringUtil::RemoveExtraParen(const std::string &str, bool ignore
 //                               const std::string end)
 //------------------------------------------------------------------------------
 /*
- * This method removes outer pair of bracket if it has one.
+ * This method removes outer string if it has one.
  * If input string is "(a(1,1) + 10.0)" it return a(1,1) + 10.0.
  *
  * @param  str  Input string
@@ -3245,9 +3521,9 @@ std::string GmatStringUtil::RemoveOuterString(const std::string &str,
       ("RemoveOuterString() entering str=\"%s\", start='%s', end='%s'\n", str.c_str(),
        start.c_str(), end.c_str());
    #endif
-
+   
    std::string str1 = str;
-
+   
    if (StartsWith(str, start) && EndsWith(str, end))
       str1 = str.substr(1, str.size() - 2);
 
@@ -3271,19 +3547,19 @@ std::string GmatStringUtil::RemoveEnclosingString(const std::string &str,
                                                   const std::string &enStr)
 {
    std::string str1 = str;
-
+      
    // First check if string is enclosed with given string
    if (IsEnclosedWith(str, enStr))
    {
       str1 = str.substr(enStr.size());
       str1 = str1.substr(0, str1.size() - enStr.size());
    }
-
+   
    #ifdef DEBUG_REMOVE_ENCLOSING_STRING
    MessageInterface::ShowMessage
       ("GmatStringUtil::RemoveEnclosingString() returning <%s>\n", str1.c_str());
    #endif
-
+   
    return str1;
 }
 
@@ -3617,25 +3893,66 @@ bool GmatStringUtil::IsBlank(const std::string &text, bool ignoreEol)
 
 
 //------------------------------------------------------------------------------
-// bool HasMissingQuote(const std::string &str, const std::string &quote)
+// bool HasMissingQuote(const std::string &str, const std::string &quote,
+//                      bool ignoreSpaceAfterQuote = true)
 //------------------------------------------------------------------------------
 /*
  * Checks if string has missing starting or ending quote.
  *
  * @param  str    input text
  * @param  quote  quote to be used for checking
+ * @param  ignoreSpace  if this flag is set, it will remove spaces after quote
+ *                      before checking
  *
  * @return true if string has missing quote, false otherwise
  */
 //------------------------------------------------------------------------------
 bool GmatStringUtil::HasMissingQuote(const std::string &str,
-                                     const std::string &quote)
+                                     const std::string &quote, bool ignoreSpaceAfterQuote)
 {
-   if ((StartsWith(str, quote) && !EndsWith(str, quote)) ||
+   #ifdef DEBUG_MISSING_QUOTE
+   MessageInterface::ShowMessage
+      ("GmatStringUtil::HasMissingQuote() entered, str=<%s>, quote=<%s>, ignoreSpaceAfterQuote=%d\n",
+       str.c_str(), quote.c_str(), ignoreSpaceAfterQuote);
+   #endif
+   
+   std::string::size_type begQuote = str.find_first_of(quote);
+   std::string::size_type endQuote = str.find_last_of(quote);
+   #ifdef DEBUG_MISSING_QUOTE
+   MessageInterface::ShowMessage("   begQuote=%u, endQuote=%u\n", begQuote, endQuote);
+   #endif
+   
+   // If there is no quotes, return false
+   if (begQuote == str.npos && endQuote == str.npos)
+      return false;
+   
+   if ((!ignoreSpaceAfterQuote) &&
+       (StartsWith(str, quote) && !EndsWith(str, quote)) ||
        (!StartsWith(str, quote) && EndsWith(str, quote)))
       return true;
-
-   return false;
+   
+   bool retval = true;
+   if (ignoreSpaceAfterQuote)
+   {
+      if ((begQuote != str.npos && endQuote != str.npos) && (begQuote != endQuote))
+      {
+         std::string afterEndQuote = str.substr(endQuote + 1);
+         afterEndQuote = RemoveAllBlanks(afterEndQuote);
+         #ifdef DEBUG_MISSING_QUOTE
+         MessageInterface::ShowMessage("   afterEndQuote=<%s>\n", afterEndQuote.c_str());
+         #endif
+         
+         if (afterEndQuote == "")
+            retval = false;
+      }
+   }
+   
+   #ifdef DEBUG_MISSING_QUOTE
+   MessageInterface::ShowMessage
+      ("GmatStringUtil::HasMissingQuote() returning %d\n", retval);
+   #endif
+   
+   return retval;
 }
 
 
@@ -3644,18 +3961,18 @@ bool GmatStringUtil::HasMissingQuote(const std::string &str,
 //------------------------------------------------------------------------------
 /*
  * Checks if string is a math equation with numbers and variables only.
- * Math operators are "/+-*^".
+ * Math operators are "/+-*^'".
  * If string is enclosed with single quotes, it just returns false.
  * If string has function or array, it returns false.
  */
 //------------------------------------------------------------------------------
-bool GmatStringUtil::IsMathEquation(const std::string &str)
+bool GmatStringUtil::IsMathEquation(const std::string &str, bool checkInvalidOpOnly)
 {
    #if DEBUG_MATH_EQ > 1
    MessageInterface::ShowMessage
       ("GmatStringUtil::IsMathEquation() entered, str=<%s>\n", str.c_str());
    #endif
-
+   
    if (IsEnclosedWith(str, "'"))
    {
       #if DEBUG_MATH_EQ
@@ -3664,15 +3981,84 @@ bool GmatStringUtil::IsMathEquation(const std::string &str)
       #endif
       return false;
    }
-
-   StringArray parts = SeparateBy(str, "+-*/^");
+   
+   // If check for invalid math operator only
+   if (checkInvalidOpOnly)
+   {
+      // Remove spaces, dots, commas, underscores, and parenthesis
+      std::string removeStr = " .,_()";
+      std::string str1 = RemoveAll(str, removeStr);
+      #if DEBUG_MATH_EQ > 1
+      MessageInterface::ShowMessage
+         ("   after '%s' removed '%s'\n", removeStr.c_str(), str1.c_str());
+      #endif
+      
+      #if 0
+      std::string str1 = RemoveAllBlanks(str, true);
+      #if DEBUG_MATH_EQ > 1
+      MessageInterface::ShowMessage("   after all blanks removed '%s'\n", str1.c_str());
+      #endif
+      
+      // Remove dots (.)
+      str1 = RemoveAll(str1, '.');
+      #if DEBUG_MATH_EQ > 1
+      MessageInterface::ShowMessage("   after all dots removed '%s'\n", str1.c_str());
+      #endif
+      
+      // Remove commas (,)
+      str1 = RemoveAll(str1, ',');
+      #if DEBUG_MATH_EQ > 1
+      MessageInterface::ShowMessage("   after all commas removed '%s'\n", str1.c_str());
+      #endif
+      
+      // Remove underscores (_)
+      str1 = RemoveAll(str1, '_');
+      #if DEBUG_MATH_EQ > 1
+      MessageInterface::ShowMessage("   after all underscores removed '%s'\n", str1.c_str());
+      #endif
+      
+      // Remove parenthesis
+      str1 = RemoveAll(str1, '(');
+      str1 = RemoveAll(str1, ')');
+      #if DEBUG_MATH_EQ > 1
+      MessageInterface::ShowMessage("   after all () removed '%s'\n", str1.c_str());
+      #endif
+      #endif
+      
+      std::string::size_type length = str1.size();
+      bool isValid = true;
+      for (UnsignedInt i = 0; i < length; i++)
+      {
+         if (isalnum(str1[i]) || IsMathOperator(str1[i]))
+            continue;
+         else
+         {
+            isValid = false;
+            break;
+         }
+      }
+      
+      #if DEBUG_MATH_EQ
+      MessageInterface::ShowMessage
+         ("GmatStringUtil::IsMathEquation(%s) returning %s\n", str.c_str(),
+          isValid ? "true" : "false");
+      #endif
+      
+      return isValid;
+   }
+   
+   
+   // Do more through checking
+   
+   StringArray parts = SeparateBy(str, "+-*/^'");
    Integer numParts = parts.size();
-
+   
    #if DEBUG_MATH_EQ > 1
    MessageInterface::ShowMessage("..... has %d parts\n", numParts);
    MessageInterface::ShowMessage("..... check if it has more than 1 part\n");
    #endif
-
+   
+   
    // check if it has more than 1 part
    if (numParts == 1)
    {
@@ -3742,6 +4128,18 @@ bool GmatStringUtil::IsMathEquation(const std::string &str)
    #endif
 
    return true;
+}
+
+
+//------------------------------------------------------------------------------
+// bool IsMathOperator(const char &ch)
+//------------------------------------------------------------------------------
+bool GmatStringUtil::IsMathOperator(const char &ch)
+{
+   if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^' || ch == '\'')
+      return true;
+   else
+      return false;
 }
 
 

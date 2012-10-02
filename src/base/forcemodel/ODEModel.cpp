@@ -618,6 +618,16 @@ void ODEModel::AddForce(PhysicalModel *pPhysicalModel)
             {
                PhysicalModel *toBeReplaced = *i;
                forceList.erase(i);
+               if (pmType == "DragForce")
+               {
+                  // Preserve the drag parameters
+                  pPhysicalModel->SetRealParameter(toBeReplaced->GetParameterID("F107"),
+                        toBeReplaced->GetRealParameter(toBeReplaced->GetParameterID("F107")));
+                  pPhysicalModel->SetRealParameter(toBeReplaced->GetParameterID("F107A"),
+                        toBeReplaced->GetRealParameter(toBeReplaced->GetParameterID("F107A")));
+                  pPhysicalModel->SetRealParameter(toBeReplaced->GetParameterID("MagneticIndex"),
+                        toBeReplaced->GetRealParameter(toBeReplaced->GetParameterID("MagneticIndex")));
+               }
                delete toBeReplaced;
                break;
             }
@@ -935,7 +945,7 @@ void ODEModel::BufferState()
     
 
 //------------------------------------------------------------------------------
-// void ODEModel::UpdateSpaceObject(Real newEpoch)
+// void UpdateSpaceObject(Real newEpoch)
 //------------------------------------------------------------------------------
 /**
  * Updates state data for the spacecraft or formation that use this force model.
@@ -1041,7 +1051,7 @@ void ODEModel::RevertSpaceObject()
           prevElapsedTime, elapsedTime);
    #endif
 
-   elapsedTime = prevElapsedTime;//previousState.GetEpoch();// * GmatTimeConstants::SECS_PER_DAY;
+   elapsedTime = prevElapsedTime;
 
    memcpy(rawState, previousState.GetState(), dimension*sizeof(Real));
    MoveToOrigin();
@@ -1467,15 +1477,18 @@ bool ODEModel::Initialize()
         current != forceList.end(); ++current)
    {
       #ifdef DEBUG_ODEMODEL_INIT
-         std::string name, type;
+      { // Manage scoping for vars named same as in the class
+         std::string name, type, bodyNm;
          name = (*current)->GetName();
          if (name == "")
             name = "unnamed";
          type = (*current)->GetTypeName();
+         bodyNm = (*current)->GetBodyName();
          MessageInterface::ShowMessage
-            ("ODEModel::Initialize() initializing object %s of type %s\n",
-             name.c_str(), type.c_str());
+            ("ODEModel::Initialize() initializing object %s of type %s for "
+                  "body %s\n", name.c_str(), type.c_str(), bodyNm.c_str());
          MessageInterface::ShowMessage(" and the state epoch = %le\n", state->GetEpoch());
+      }
       #endif
       
       (*current)->SetDimension(dimension);
@@ -2298,9 +2311,20 @@ bool ODEModel::GetDerivatives(Real * state, Real dt, Integer order,
                objBody = ((SpaceObject*)(dynamicObjects[i]))->GetOrigin();
             if (objBody != NULL)
             {
-               Rvector6 offset = objBody->GetMJ2000State(((SpaceObject*)
+//               Rvector6 offset = objBody->GetMJ2000State(((SpaceObject*)
+               Rvector6 offset = forceOrigin->GetMJ2000State(((SpaceObject*)
                      (dynamicObjects[i]))->GetEpoch() + dt /
                      GmatTimeConstants::SECS_PER_DAY);
+
+               #ifdef DEBUG_DYNAMIC_FORCES
+                  MessageInterface::ShowMessage("Dynamics: resetting %s.%s "
+                        "from value %lf to %lf + %lf = %lf\n",
+                        dynamicObjects[i]->GetName().c_str(),
+                        dynamicObjects[i]->GetParameterText(dynamicIDs[i]).c_str(),
+                        dynamicObjects[i]->GetRealParameter(dynamicIDs[i]),
+                        state[dynamicsIndex[i]], offset[dynamicIDs[i]-stateStart],
+                        state[dynamicsIndex[i]] + offset[dynamicIDs[i]-stateStart]);
+               #endif
 
                dynamicObjects[i]->SetRealParameter(dynamicIDs[i],
                      state[dynamicsIndex[i]] +
@@ -2718,6 +2742,7 @@ Real ODEModel::EstimateError(Real *diffs, Real *answer) const
                err = sqrt(err / mag);
             else
                err = sqrt(err);
+            break;
       }
 
       #ifdef DEBUG_ERROR_ESTIMATE

@@ -12,6 +12,7 @@
 // Contract NNG10CP02C, Task Order 28
 //
 // Author: Wendy C. Shoan/GSFC/GSSB
+//         Tuan Dang Nguyen/GSFC
 // Created: 2012.02.23
 //
 /**
@@ -45,20 +46,15 @@ public:
    // method to initialize the data
    virtual bool Initialize();
 
+   virtual GmatCoordinate::ParameterUsage UsesEpoch() const;
+   virtual GmatCoordinate::ParameterUsage UsesEopFile(const std::string &forBaseSystem = "FK5") const;
+   virtual GmatCoordinate::ParameterUsage UsesItrfFile() const;
+
    // all classes derived from GmatBase must supply this Clone method;
    // this must be implemented in the 'leaf' classes
-   virtual GmatBase*       Clone(void) const;
+   virtual GmatBase*       Clone() const;
 
-   // Parameter access methods - overridden from GmatBase
-   /* placeholder - may be needed later
-   virtual std::string     GetParameterText(const Integer id) const;
-   virtual Integer         GetParameterID(const std::string &str) const;
-   virtual Gmat::ParameterType
-                           GetParameterType(const Integer id) const;
-   virtual std::string     GetParameterTypeString(const Integer id) const;
-    */
-
-   void  GetRotationMatrix(const A1Mjd &atEpoch, bool forceComputation = false);
+   Rmatrix33  GetRotationMatrix(const A1Mjd &atEpoch, bool forceComputation = false);
 
 protected:
 
@@ -67,23 +63,11 @@ protected:
       ICRFAxesParamCount = InertialAxesParamCount,
    };
 
-   //static const std::string PARAMETER_TEXT[ICRFAxesParamCount -
-   //                                        InertialAxesParamCount];
-
-   //static const Gmat::ParameterType PARAMETER_TYPE[ICRFAxesParamCount -
-   //                                                InertialAxesParamCount];
-
    virtual void CalculateRotationMatrix(const A1Mjd &atEpoch,
                                         bool forceComputation = false);
 
-   bool isInitialized;
-
-   Real                     prevEpoch;
-   Real                     prevUpdateInterval;
-   Real                     prevOriginUpdateInterval;
-   Gmat::RotationDataSource prevLunaSrc;
-
-   ICRFFile* icrfFile;		// this object contains a table of Euler rotation vectors for time range from 1957 to 2100
+   /// this object contains a table of Euler rotation vectors for time range from 1957 to 2100
+   ICRFFile                 *icrfFile;
 
 };
 #endif // ICRFAxes_hpp

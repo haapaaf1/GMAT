@@ -113,7 +113,7 @@ GuiPlotReceiver::~GuiPlotReceiver()
 bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
                                          const std::string &oldName,
                                          Real positionX, Real positionY,
-                                         Real width, Real height,
+                                         Real width, Real height, bool isMaximized,
                                          Integer numPtsToRedraw)
 {
    //-------------------------------------------------------
@@ -213,6 +213,11 @@ bool GuiPlotReceiver::CreateGlPlotWindow(const std::string &plotName,
 
       if (frame)
       {
+		 // TGG: Commented out until we can fix the painting problem when maximizing right here
+		 //if (isMaximized)
+		 //{
+		 //   frame->Maximize();
+		 //}
          frame->SetSavedConfigFlag(isUsingSaved);
          frame->SetIsNewFrame(true);
          
@@ -816,7 +821,7 @@ bool GuiPlotReceiver::TakeGlAction(const std::string &plotName,
 bool GuiPlotReceiver::CreateXyPlotWindow(const std::string &plotName,
                                        const std::string &oldName,
                                        Real positionX, Real positionY,
-                                       Real width, Real height,
+                                       Real width, Real height, bool isMaximized,
                                        const std::string &plotTitle,
                                        const std::string &xAxisTitle,
                                        const std::string &yAxisTitle,
@@ -893,6 +898,11 @@ bool GuiPlotReceiver::CreateXyPlotWindow(const std::string &plotName,
                              wxString(yAxisTitle.c_str()),
                              wxPoint(x, y), wxSize(w, h),
                              wxDEFAULT_FRAME_STYLE);
+		 // TGG: Commented out until we can fix the painting problem when maximizing right here
+		 //if (isMaximized)
+		 //{
+		 //   frame->Maximize();
+		 //}
       
       if (GmatGlobal::Instance()->GetGuiMode() == GmatGlobal::MINIMIZED_GUI)
          frame->Show(false);

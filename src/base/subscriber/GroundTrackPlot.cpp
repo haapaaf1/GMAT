@@ -29,6 +29,7 @@
 
 //#define DBGLVL_PARAM_STRING 2
 //#define DBGLVL_OBJ 1
+//#define DBGLVL_INIT 2
 //#define DBGLVL_UPDATE 1
 
 //---------------------------------
@@ -208,18 +209,12 @@ bool GroundTrackPlot::Initialize()
       
       if (PlotInterface::CreateGlPlotWindow
           (instanceName, mOldName, mPlotUpperLeft[0], mPlotUpperLeft[1],
-           mPlotSize[0], mPlotSize[1], mNumPointsToRedraw))
-      {
-         #if DBGLVL_INIT
-         MessageInterface::ShowMessage
-            ("   mViewPointRefObj=%p, mViewScaleFactor=%f\n",
-             mViewPointRefObj, mViewScaleFactor);
-         #endif
-         
+           mPlotSize[0], mPlotSize[1], isMaximized, mNumPointsToRedraw))
+      {         
          //--------------------------------------------------------
          // Set Spacecraft and non-Spacecraft objects.
          // If non-Spacecraft, position has to be computed in the
-         // TrajPlotCanvas, so need to pass those object pointers.
+         // GroundTrackCanvas, so need to pass those object pointers.
          //--------------------------------------------------------
          
          ClearDynamicArrays();
@@ -237,7 +232,7 @@ bool GroundTrackPlot::Initialize()
              mObjectNameArray.end())
             UpdateObjectList(theSolarSystem->GetBody("Sun"), false);
          //===========================================================
-                  
+         
          #if DBGLVL_INIT > 1
          MessageInterface::ShowMessage
             ("   mScNameArray.size=%d, mScOrbitColorArray.size=%d\n",
@@ -285,7 +280,7 @@ bool GroundTrackPlot::Initialize()
          MessageInterface::ShowMessage
             ("   calling PlotInterface::SetGlCoordSystem()\n");
          #endif
-
+         
          if (mViewCoordSystem == NULL)
          {
             mViewCoordSystem = CoordinateSystem::CreateLocalCoordinateSystem
@@ -524,7 +519,8 @@ std::string GroundTrackPlot::GetStringParameter(const Integer id) const
       return centralBodyName;
    case TEXTURE_MAP:
       #if DBGLVL_PARAM_STRING
-		MessageInterface::ShowMessage("   returning '%s'\n", textureMapFileName.c_str());
+		MessageInterface::ShowMessage
+         ("   this = <%p>, returning '%s'\n", this, textureMapFileName.c_str());
 		#endif
       return textureMapFileName;
    case SHOW_FOOT_PRINTS:
@@ -567,17 +563,21 @@ bool GroundTrackPlot::SetStringParameter(const Integer id, const std::string &va
       // we want to create local body fixed coord system instead in Initialize()
       break;
    case CENTRAL_BODY:
-		if (centralBodyName != value)
-		{
-			centralBodyName = value;
-			// Since ground track data uses body fixed coordinates, name it here
-			mViewCoordSysName = value + "Fixed";
-			
-			// Get default texture map file for the new body
-			FileManager *fm = FileManager::Instance();
-			std::string mapFile = GmatStringUtil::ToUpper(centralBodyName) + "_TEXTURE_FILE";
-			textureMapFileName = fm->GetFullPathname(mapFile);
-		}
+      if (centralBodyName != value)
+      {
+         centralBodyName = value;
+         // Since ground track data uses body fixed coordinates, name it here
+         mViewCoordSysName = value + "Fixed";
+         
+         // Get default texture map file for the new body
+         FileManager *fm = FileManager::Instance();
+         std::string mapFile = GmatStringUtil::ToUpper(centralBodyName) + "_TEXTURE_FILE";
+         textureMapFileName = fm->GetFullPathname(mapFile);
+         #if DBGLVL_PARAM_STRING
+         MessageInterface::ShowMessage
+            ("   this = <%p>, textureMapFile changed to '%s'\n", this, textureMapFileName.c_str());
+         #endif
+      }
       return true;
    case TEXTURE_MAP:
       textureMapFileName = value;

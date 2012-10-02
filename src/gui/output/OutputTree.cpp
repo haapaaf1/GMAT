@@ -439,8 +439,11 @@ void OutputTree::ShowMenu(wxTreeItemId itemId, const wxPoint& pt)
    
    if (itemType == GmatTree::OUTPUT_REPORT)
    {
-      menu.Append(POPUP_COMPARE_NUMERIC_VALUES, wxT("Compare Numeric Values"));
-      menu.Append(POPUP_COMPARE_TEXT_LINES, wxT("Compare Text Lines"));
+	   if (GmatGlobal::Instance()->GetRunMode() == GmatGlobal::TESTING)
+	   {
+		  menu.Append(POPUP_COMPARE_NUMERIC_VALUES, wxT("Compare Numeric Values"));
+		  menu.Append(POPUP_COMPARE_TEXT_LINES, wxT("Compare Text Lines"));
+	   }
    }
    
    PopupMenu(&menu, pt);
@@ -843,7 +846,7 @@ void OutputTree::OnCompareTextLines(wxCommandEvent &event)
    int file3DiffCount = 0;
    
    StringArray output =
-      GmatFileUtil::CompareLines(1, filename1.c_str(), filename2.c_str(), "", "",
+      GmatFileUtil::CompareTextLines(1, filename1.c_str(), filename2.c_str(), "", "",
                                  file1DiffCount, file2DiffCount, file3DiffCount);
    
    ViewTextFrame *compWindow = GmatAppData::Instance()->GetCompareWindow();

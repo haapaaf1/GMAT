@@ -174,6 +174,10 @@ public:
    void OnUncomment(wxCommandEvent& event);
    void OnSelectAll(wxCommandEvent& event);
    
+   void OnMsgWinCopy(wxCommandEvent& event);
+   void OnMsgWinRightMouseDown(wxMouseEvent& event);
+   void OnMsgWinSelectAll(wxCommandEvent& event);
+
    void OnFind(wxCommandEvent& event);
    void OnFindNext(wxCommandEvent& event);
    void OnReplace(wxCommandEvent& event);
@@ -191,8 +195,9 @@ public:
    void OnMatlabServerStart(wxCommandEvent& event);
    void OnMatlabServerStop(wxCommandEvent& event);
    
-   void OnFileCompareNumeric(wxCommandEvent& event);
-   void OnFileCompareText(wxCommandEvent& event);
+   void OnFileCompareNumericColumns(wxCommandEvent& event);
+   void OnFileCompareTextLines(wxCommandEvent& event);
+   void OnFileCompareNumericLines(wxCommandEvent& event);
    void OnGenerateTextEphemFile(wxCommandEvent& event);
    
    void OnSashDrag(wxSashEvent &event);
@@ -254,6 +259,7 @@ private:
    wxStatusBar *theStatusBar;
    wxMenuBar *theMenuBar;
    wxToolBar *theToolBar;
+   wxMenu *mMsgWinPopupMenu;
    
    wxHelpController *theHelpController;
    
@@ -283,15 +289,22 @@ private:
    
    void SaveChildPositionsAndSizes();
    bool GetConfigurationData(const std::string &forItem, Integer &x, Integer &y,
-                             Integer &w, Integer &h);
+                             Integer &w, Integer &h, bool &isMinimized, bool &isMaximized);
    
    void ComputeAnimationSpeed(Integer &frameInc, Integer &updateIntervalInMilSec,
                               bool slower);
+   
+   void CompareFiles(Integer compareType);
+   void GetBaseFilesToCompare(Integer compareType, const wxString &baseDir,
+                              const wxString &basePrefix, wxArrayString &baseFileNameArray,
+                              wxArrayString &noPrefixNameArray);
    
    // IDs for the controls
    enum
    {
       ID_SASH_WINDOW = 100,
+	  ID_MSGWIN_MENU_COPY,
+	  ID_MSGWIN_MENU_SELECTALL,
       ID_MSG_SASH_WINDOW,
    };
    

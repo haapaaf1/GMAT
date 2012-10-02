@@ -1,4 +1,3 @@
-//$Id$
 //------------------------------------------------------------------------------
 //                                  CoordinateConverter
 //------------------------------------------------------------------------------
@@ -29,6 +28,7 @@
 #include "A1Mjd.hpp"
 #include "CoordinateSystem.hpp"
 #include "Rvector.hpp"
+#include "SolarSystem.hpp"
 
 class GMAT_API CoordinateConverter
 {
@@ -46,11 +46,6 @@ public:
    // initializes the CoordinateConverter
    virtual void Initialize(); 
    
-   //void        SetJ2000BodyName(const std::string &toName);
-   //std::string GetJ2000BodyName() const;
-   //void        SetJ2000Body(SpacePoint *toBody);
-   //SpacePoint* GetJ2000Body();
-   
    bool Convert(const A1Mjd &epoch, const Rvector &inState,
                 CoordinateSystem *inCoord, Rvector &outState,
                 CoordinateSystem *outCoord, 
@@ -67,26 +62,12 @@ protected:
    Rmatrix33 lastRotMatrix;
    Rmatrix33 lastRotDotMatrix;
 
-   bool         ConvertFromBaseToBase(const A1Mjd &epoch,
+   bool         ConvertFromBaseToBase(const A1Mjd &epoch, SolarSystem *solarSystem,
                                       const std::string &inBase,  const std::string &outBase,
                                       const Rvector &inBaseState, Rvector &outBaseState);
-   bool         ConvertFromBaseToBase(const A1Mjd &epoch,
+   bool         ConvertFromBaseToBase(const A1Mjd &epoch, SolarSystem *solarSystem,
                                       const std::string &inBase,  const std::string &outBase,
                                       const Real *inBaseState,    Real *outBaseState);
-
-   /*
-   Rvector internalState;
-   Rmatrix33 toMJ2000RotMatrix;
-   Rmatrix33 fromMJ2000Matrix;
-   const Real *toData;
-   const Real *fromData;
-   */
-   
-   /// Origin for the return coordinate system (aligned with the MJ2000 Earth
-   /// Equatorial coordinate system)
-   //SpacePoint                     *j2000Body;  
-   /// Name for the J2000 body
-   //std::string                    j2000BodyName;
    
 };
 #endif // CoordinateConverter_hpp

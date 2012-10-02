@@ -222,7 +222,6 @@ Thruster::Thruster(std::string nomme) :
    
    for (Integer i=DUTY_CYCLE; i < ThrusterParamCount; i++)
       parameterWriteOrder.push_back(i);
-   
 }
 
 
@@ -321,6 +320,17 @@ Thruster::Thruster(const Thruster& th) :
    tanks = th.tanks;
    
    isInitialized = false;
+
+   // set parameter write order
+   for (Integer i=HardwareParamCount; i <= AXES; i++)
+      parameterWriteOrder.push_back(i);
+
+   parameterWriteOrder.push_back(DIRECTION_X);
+   parameterWriteOrder.push_back(DIRECTION_Y);
+   parameterWriteOrder.push_back(DIRECTION_Z);
+
+   for (Integer i=DUTY_CYCLE; i < ThrusterParamCount; i++)
+      parameterWriteOrder.push_back(i);
 
    #ifdef DEBUG_THRUSTER_CONSTRUCTOR
    MessageInterface::ShowMessage("Thruster::Thruster(copy) exiting\n");
@@ -2077,6 +2087,13 @@ void Thruster::ConvertDirectionToInertial(Real *dir, Real *dirInertial, Real epo
 //         // Now rotate to MJ2000Eq axes
 //         localCoordSystem->ToMJ2000Eq(epoch, inDir, outDir, true);
          // Now rotate to base system axes
+         #ifdef DEBUG_THRUSTER_CONVERT
+            MessageInterface::ShowMessage("Converting thruster burn direction "
+                  "using local CS:\n%s\n", localCoordSystem->
+                  GetGeneratingString(Gmat::NO_COMMENTS).c_str());
+         #endif
+
+
          localCoordSystem->ToBaseSystem(epoch, inDir, outDir, true);  // @todo - do we need ToMJ2000Eq here?
          
          dirInertial[0] = outDir[0];

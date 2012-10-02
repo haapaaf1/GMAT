@@ -129,7 +129,7 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    
    #ifdef __USE_STC_EDITOR__
    editMenu->AppendSeparator();
-   editMenu->Append(MENU_EDIT_FIND, _("&Find/Replace...\tCtrl+F"));
+   editMenu->Append(MENU_EDIT_FIND, _("&Find and Replace...\tCtrl+F"));
    editMenu->Append(MENU_EDIT_FIND_NEXT, _("Find &next\tF3"));
    //editMenu->Append(MENU_EDIT_REPLACE, _("&Replace...\tCtrl+F"));
    //editMenu->Append(MENU_EDIT_REPLACE_NEXT, _("Find and &Replace\tCtrl+H"));
@@ -153,9 +153,10 @@ void GmatMenuBar::CreateMenu(GmatTree::ItemType itemType, wxMenu *windowMenu)
    if (runMode == GmatGlobal::TESTING || runMode == GmatGlobal::TESTING_NO_PLOTS)
    {
       wxMenu *toolsMenu = new wxMenu;
-      toolsMenu->Append(MENU_TOOLS_FILE_COMPARE_NUMERIC, wxT("Compare Numeric Values"), wxT(""));
-      toolsMenu->Append(MENU_TOOLS_FILE_COMPARE_TEXT, wxT("Compare Text Lines"), wxT(""));
-
+      toolsMenu->Append(MENU_TOOLS_FILE_COMPARE_NUMERIC_COLUMNS, wxT("Compare Numeric Columns"), wxT(""));
+      toolsMenu->Append(MENU_TOOLS_FILE_COMPARE_NUMERIC_LINES, wxT("Compare Nemeric Lines"), wxT(""));
+      toolsMenu->Append(MENU_TOOLS_FILE_COMPARE_TEXT_LINES, wxT("Compare Text Lines"), wxT(""));
+      
       #ifdef __SHOW_EPHEM_FILE__
       toolsMenu->Append(MENU_TOOLS_GEN_TEXT_EPHEM_FILE, wxT("Generate Text Ephemeris File"), wxT(""));
       #endif
