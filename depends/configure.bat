@@ -320,7 +320,7 @@ IF NOT EXIST %pcre_path% (
 :: ***********************************
 
 :: Set build path based on version
-IF %use_latest_wx% == true (
+IF %use_latest% == true (
 	set wx_build_path=%gmat_path%\depends\wxWidgets\latest\build\msw
 ) ELSE (
 	set wx_build_path=%gmat_path%\depends\wxWidgets\wxWidgets-2.8.12\build\msw
