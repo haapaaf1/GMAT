@@ -45,7 +45,11 @@ if (USE_SPICE)
         INCLUDE_DIRECTORIES("${CSPICE_DIR}/include")
         SET(SPICE_LIB_DIR  "${CSPICE_DIR}/lib")
         LINK_DIRECTORIES(${SPICE_LIB_DIR})
-        LINK_LIBRARIES("${SPICE_LIB_DIR}/cspice.lib")
+        if(WIN32)
+        	LINK_LIBRARIES("${CSPICE_DIR}/lib/cspice.lib")
+	else()
+		LINK_LIBRARIES("${CSPICE_DIR}/lib/cspice.a")
+	endif()
         ADD_DEFINITIONS("-D__USE_SPICE__")
         #SPICE_STACKSIZE = ulimit -s 61440
 
@@ -103,8 +107,13 @@ INCLUDE_DIRECTORIES("../base/event")
 	
 # ====================================================================
 # libraries
-LINK_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/../base/lib")
-LINK_LIBRARIES(libGmatBase)
+LINK_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/../bin")
+if(WIN32)
+	LINK_LIBRARIES(libGmatBase)
+else()
+	LINK_LIBRARIES(GmatBase)
+endif()
+
 
 
 # ====================================================================

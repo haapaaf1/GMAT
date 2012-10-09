@@ -79,22 +79,43 @@ endif()
 #	rm -f app/AboutDialog.o
 # ====================================================================
 # other libraries
-LINK_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/../base/lib")
-LINK_LIBRARIES("libGmatBase")
+LINK_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/../bin")
+if(WIN32)
+	LINK_LIBRARIES(libGmatBase)
+else()
+	LINK_LIBRARIES(GmatBase)
+endif()
 
 # Link WX Contrib Libraries (STC, NetUtils)
-SET(WXCONTRIB_LIB_DIR  "${WXWIDGET_DIR}/lib/vc_dll")
-LINK_LIBRARIES("${WXCONTRIB_LIB_DIR}/wxmsw28_netutils.lib")
-LINK_LIBRARIES("${WXCONTRIB_LIB_DIR}/wxmsw28_stc.lib")
+if(WIN32)
+	SET(WXCONTRIB_LIB_DIR  "${WXWIDGET_DIR}/lib/vc_dll")
+	LINK_LIBRARIES("${WXCONTRIB_LIB_DIR}/wxmsw28_netutils.lib")
+	LINK_LIBRARIES("${WXCONTRIB_LIB_DIR}/wxmsw28_stc.lib")
+else()
+	SET(WXCONTRIB_LIB_DIR  "${WXWIDGET_DIR}/lib")
+	LINK_LIBRARIES("${WXCONTRIB_LIB_DIR}/libwx_gtk2_stc-2.8.so")
+endif()
+
 
 # need some opengl libs
 if(WIN32)
     LINK_LIBRARIES("glu32")
     LINK_LIBRARIES("opengl32")
+else()
+	LINK_LIBRARIES("GL")
+	LINK_LIBRARIES("GLU")
+	#LINK_LIBRARIES("MesaGL")
 endif()
 
 ADD_DEFINITIONS("-D_DYNAMICLINK")
-ADD_DEFINITIONS("-DWXUSINGDLL")
+
+if(WIN32)
+	ADD_DEFINITIONS("-DWXUSINGDLL")
+else()
+	SET (WX_COMPILE_FLAGS "-I/usr/local/lib/wx/include/gtk2-ansi-release-2.8 -I/usr/local/include/wx-2.8 -D__WXGTK__")
+	SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WX_COMPILE_FLAGS}")
+endif()
+
 ADD_DEFINITIONS("-D_MBCS")
 ADD_DEFINITIONS("-D__USE_STC_EDITOR__")
 ADD_DEFINITIONS("-D__ENABLE_EMAIL__")
@@ -235,7 +256,6 @@ SET(GUI_SRCS
     hardware/ThrusterConfigPanel.cpp
     mission/DecoratedTree.cpp
     mission/MissionTree.cpp
-	mission/MissionTreeToolbar.cpp
 	mission/TreeViewOptionDialog.cpp
 	mission/UndockedMissionPanel.cpp
     output/CompareReportPanel.cpp
@@ -302,7 +322,6 @@ SET(GUI_SRCS
 	view/EditorPanel.cpp
 	view/EditorPreferences.cpp
 	view/EditorPrintout.cpp
-	view/findReplaceDialog.cpp
     view/ViewTextDialog.cpp
     view/ViewTextFrame.cpp
     ${STC_EDITOR_SRCS}
@@ -357,13 +376,22 @@ endif()
 # add the install targets
 SET(EXECUTABLE_OUTPUT_PATH "../../bin")
 
-LINK_DIRECTORIES("${WXWIDGET_DIR}/lib/vc_dll")
-
-target_link_libraries(${GUITARGET} ${wxWidgets_LIBRARIES})
+if(WIN32)
+	LINK_DIRECTORIES("${WXWIDGET_DIR}/lib/vc_dll")
+else()
+	LINK_DIRECTORIES("${WXWIDGET_DIR}/lib")
+endif()
 
 ADD_EXECUTABLE(${GUITARGET} ${GUI_SRCS})
 
-SET_TARGET_PROPERTIES(${GUITARGET} PROPERTIES TARGET_VERSION_MAJOR "${VERSION}" LINK_FLAGS "/SUBSYSTEM:windows")
+#target_link_libraries(${GUITARGET})
+
+if(WIN32)
+	SET_TARGET_PROPERTIES(${GUITARGET} PROPERTIES TARGET_VERSION_MAJOR "${VERSION}" LINK_FLAGS "/SUBSYSTEM:windows")
+else()
+	SET(WX_LINK_FLAGS "-L/usr/local/lib -pthread -lwx_gtk2_richtext-2.8 -lwx_gtk2_aui-2.8 -lwx_gtk2_xrc-2.8 -lwx_gtk2_qa-2.8 -lwx_gtk2_html-2.8 -lwx_gtk2_adv-2.8 -lwx_gtk2_core-2.8 -lwx_base_xml-2.8 -lwx_base_net-2.8 -lwx_base-2.8")
+	SET_TARGET_PROPERTIES(${GUITARGET} PROPERTIES TARGET_VERSION_MAJOR "${VERSION}" LINK_FLAGS "${WX_LINK_FLAGS}")
+endif()
 
 # ====================================================================
 # installation (make install)

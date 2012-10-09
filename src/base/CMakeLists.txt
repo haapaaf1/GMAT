@@ -15,8 +15,11 @@ PROJECT(GMAT_base)
 MESSAGE("==============================")
 MESSAGE("GMAT base setup " ${VERSION}) 
 
-
-SET(BASETARGET  "libGmatBase")
+if(WIN32)
+	SET(BASETARGET  "libGmatBase")
+else()
+	SET(BASETARGET "GmatBase")
+endif()
 
 ADD_DEFINITIONS("-D_DYNAMICLINK")
 ADD_DEFINITIONS("-DGMAT_EXPORTS")
@@ -70,7 +73,11 @@ if (USE_SPICE)
 
         INCLUDE_DIRECTORIES("${CSPICE_DIR}/include")
         LINK_DIRECTORIES("${CSPICE_DIR}/lib")
-        LINK_LIBRARIES("${CSPICE_DIR}/lib/cspice.lib")
+	if(WIN32)
+        	LINK_LIBRARIES("${CSPICE_DIR}/lib/cspice.lib")
+	else()
+		LINK_LIBRARIES("${CSPICE_DIR}/lib/cspice.a")
+	endif()
         ADD_DEFINITIONS("-D__USE_SPICE__")
 
         SET(SPICE_SRCS
@@ -580,7 +587,11 @@ else()
 endif()
 
 # specify the version of the library. 
-SET_TARGET_PROPERTIES(${TargetName} PROPERTIES VERSION ${GMAT_VERSION} LINK_FLAGS "/NODEFAULTLIB:\"libcmt.lib\"")
+if(WIN32)
+	SET_TARGET_PROPERTIES(${TargetName} PROPERTIES VERSION ${GMAT_VERSION} LINK_FLAGS "/NODEFAULTLIB:\"libcmt.lib\"")
+else()
+	SET_TARGET_PROPERTIES(${TargetName} PROPERTIES VERSION ${GMAT_VERSION} )
+endif()
 
 # ====================================================================
 # installation (make install)

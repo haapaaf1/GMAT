@@ -34,7 +34,7 @@ SET (PROFILE_BUILD  OFF)
 SET (WX_28_SYNTAX  ON)
 SET (WX_SHARED  ON)
 SET (SHARED_BASE  ON)    
-SET (USE_64_BIT_LONGS  OFF)
+SET (USE_64_BIT_LONGS  ON)
 SET (USE_STC_EDITOR  OFF)  
 SET (USE_WX_EMAIL  OFF)
 SET (SHOW_HELP_BUTTON  ON)
@@ -44,7 +44,7 @@ SET (SMART_APPLY_BUTTON  ON)
 # header and library must be in F2C_PATH/include and F2C_PATH/lib respectively
 # F2C is available at: http://www.netlib.org/f2c/
 SET (USE_F2C ON) 
-SET(F2C_PATH "D:/gmat-buildbranch/depends/f2c/")
+SET(F2C_PATH "/media/jfish-store/gmat-buildbranch/depends/f2c/")
 
 # (dev) to print out what Make is doing.
 SET (VERBOSE_MAKE OFF)  
@@ -76,9 +76,9 @@ SET(GMAT_VERSION "2012")
 # Set the SPICE directory. 
 # CSPICE is available at: http://naif.jpl.nasa.gov/naif/toolkit.html
 #SET (CSPICE_DIR "/home/joris/cspice")
-SET (CSPICE_DIR "D:/gmat-buildbranch/depends/cspice/cspice32/")
+SET (CSPICE_DIR "/media/jfish-store/gmat-buildbranch/depends/cspice/cspice32/")
 
-SET (WXWIDGET_DIR "D:/gmat-buildbranch/depends/wxWidgets/wxWidgets-2.8.12/")
+SET (WXWIDGET_DIR "/media/jfish-store/gmat-buildbranch/depends/wxWidgets/wxWidgets-2.8.12/")
 
 # DO NOT EDIT BELOW THIS LINE
 # ====================================================================
@@ -115,13 +115,16 @@ SET( CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # Common build options
 INCLUDE(CheckCXXCompilerFlag)
 
-SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W2")
-# for some reasons, the following optimizations do not work 
-# for me on Ubuntu Karmic, but fine on Windows
-#SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-pcc-struct-return")
-#SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -finline-functions -funroll-loops -fno-rtti")
-#SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=pentium")
-#SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -malign-double -fexceptions -fexpensive-optimizations")
+if(WIN32)
+	SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W2")
+	# for some reasons, the following optimizations do not work 
+	# for me on Ubuntu Karmic, but fine on Windows
+	#SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-pcc-struct-return")
+	#SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -finline-functions -funroll-loops -fno-rtti")
+	#SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=pentium")
+	#SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -malign-double -fexceptions -fexpensive-optimizations")
+endif()
+
 SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
 
 # check ffriend-injection flag is allowed
@@ -148,10 +151,14 @@ SET(CMAKE_CXX_FLAGS_MINSIZEREL "-O3")
 ADD_DEFINITIONS("-DNO_GCC_PRAGMA")
 
 
-#if(SHARED_BASE)
-    set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined --out-implib")
-    #LINK_LIBRARIES("dl")
-#endif()
+if(SHARED_BASE)
+	if(WIN32)
+		set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined --out-implib")
+	else()
+		set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
+		LINK_LIBRARIES("dl")	
+	endif()
+endif()
 
 # CYGWIN specifics
 if(CYGWIN)
