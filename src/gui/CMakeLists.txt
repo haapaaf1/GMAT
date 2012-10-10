@@ -92,8 +92,8 @@ if(WIN32)
 	LINK_LIBRARIES("${WXCONTRIB_LIB_DIR}/wxmsw28_netutils.lib")
 	LINK_LIBRARIES("${WXCONTRIB_LIB_DIR}/wxmsw28_stc.lib")
 else()
-	SET(WXCONTRIB_LIB_DIR  "${WXWIDGET_DIR}/lib")
-	LINK_LIBRARIES("${WXCONTRIB_LIB_DIR}/libwx_gtk2_stc-2.8.so")
+	#SET(WXCONTRIB_LIB_DIR  "${WXWIDGET_DIR}/lib")
+	#LINK_LIBRARIES("${WXCONTRIB_LIB_DIR}/libwx_gtk2_stc-2.8.so")
 endif()
 
 
@@ -114,11 +114,14 @@ if(WIN32)
 else()
 	SET (WX_COMPILE_FLAGS "-I/usr/local/lib/wx/include/gtk2-ansi-release-2.8 -I/usr/local/include/wx-2.8 -D__WXGTK__")
 	SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WX_COMPILE_FLAGS}")
+	
+	#SET(WX_LINK_FLAGS "-Wl -L/usr/local/lib -pthread -lwx_gtk2_richtext-2.8 -lwx_gtk2_aui-2.8 -lwx_gtk2_xrc-2.8 -lwx_gtk2_qa-2.8 -lwx_gtk2_html-2.8 -lwx_gtk2_adv-2.8 /usr/local/lib/libwx_gtk2_core-2.8.so -lwx_base_xml-2.8 -lwx_base_net-2.8 -lwx_base-2.8")
+	#set(CMAKE_EXE_LINKER_FLAGS "${WX_LINK_FLAGS}")
 endif()
 
 ADD_DEFINITIONS("-D_MBCS")
 ADD_DEFINITIONS("-D__USE_STC_EDITOR__")
-ADD_DEFINITIONS("-D__ENABLE_EMAIL__")
+#ADD_DEFINITIONS("-D__ENABLE_EMAIL__")
 ADD_DEFINITIONS("-D__USE_SPICE__")
 
 
@@ -256,6 +259,7 @@ SET(GUI_SRCS
     hardware/ThrusterConfigPanel.cpp
     mission/DecoratedTree.cpp
     mission/MissionTree.cpp
+	 mission/MissionTreeToolBar.cpp
 	mission/TreeViewOptionDialog.cpp
 	mission/UndockedMissionPanel.cpp
     output/CompareReportPanel.cpp
@@ -322,6 +326,7 @@ SET(GUI_SRCS
 	view/EditorPanel.cpp
 	view/EditorPreferences.cpp
 	view/EditorPrintout.cpp
+    view/FindReplaceDialog.cpp
     view/ViewTextDialog.cpp
     view/ViewTextFrame.cpp
     ${STC_EDITOR_SRCS}
@@ -379,18 +384,35 @@ SET(EXECUTABLE_OUTPUT_PATH "../../bin")
 if(WIN32)
 	LINK_DIRECTORIES("${WXWIDGET_DIR}/lib/vc_dll")
 else()
-	LINK_DIRECTORIES("${WXWIDGET_DIR}/lib")
+	#LINK_DIRECTORIES("${WXWIDGET_DIR}/lib")
+	#SET(WX_LINK_FLAGS "-Wl,-L/usr/local/lib -pthread -lwx_gtk2_richtext-2.8 -lwx_gtk2_aui-2.8 -lwx_gtk2_xrc-2.8 -lwx_gtk2_qa-2.8 -lwx_gtk2_html-2.8 -lwx_gtk2_adv-2.8 -lwx_gtk2_core-2.8 -lwx_base_xml-2.8 -lwx_base_net-2.8 -lwx_base-2.8 -libwx_gtk2_gl-2.8")
+	#set(CMAKE_SHARED_LINKER_FLAGS "${WX_LINK_FLAGS}")
+	
+	#LINK_DIRECTORIES("/usr/local/lib")
+	#LINK_LIBRARIES("libwx_gtk2_core-2.8.so")
 endif()
 
 ADD_EXECUTABLE(${GUITARGET} ${GUI_SRCS})
 
-#target_link_libraries(${GUITARGET})
+#SET(WX_LIBS "/usr/local/lib/libwx_gtk2_richtext-2.8.so /usr/local/lib/libwx_gtk2_aui-2.8.so /usr/local/lib/libwx_gtk2_xrc-2.8.so /usr/local/lib/libwx_gtk2_qa-2.8.so /usr/local/lib/libwx_gtk2_html-2.8.so /usr/local/lib/libwx_gtk2_adv-2.8.so /usr/local/lib/libwx_gtk2_core-2.8.so /usr/local/lib/libwx_base_xml-2.8.so /usr/local/lib/libwx_base_net-2.8.so /usr/local/lib/libwx_base-2.8.so /usr/local/lib/lib/libwx_gtk2_gl-2.8.so")
+
+target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_core-2.8.so")
+target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_richtext-2.8.so")
+target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_aui-2.8.so")
+target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_xrc-2.8.so")
+target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_qa-2.8.so")
+target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_html-2.8.so")
+target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_adv-2.8.so")
+target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_stc-2.8.so")
+target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_base_xml-2.8.so")
+target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_base_net-2.8.so")
+target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_base-2.8.so")
+target_link_libraries(${GUITARGET} "/media/jfish-store/gmat-buildbranch/depends/wxWidgets/wxWidgets-2.8.12/lib/libwx_gtk2_gl-2.8.so")
 
 if(WIN32)
 	SET_TARGET_PROPERTIES(${GUITARGET} PROPERTIES TARGET_VERSION_MAJOR "${VERSION}" LINK_FLAGS "/SUBSYSTEM:windows")
 else()
-	SET(WX_LINK_FLAGS "-L/usr/local/lib -pthread -lwx_gtk2_richtext-2.8 -lwx_gtk2_aui-2.8 -lwx_gtk2_xrc-2.8 -lwx_gtk2_qa-2.8 -lwx_gtk2_html-2.8 -lwx_gtk2_adv-2.8 -lwx_gtk2_core-2.8 -lwx_base_xml-2.8 -lwx_base_net-2.8 -lwx_base-2.8")
-	SET_TARGET_PROPERTIES(${GUITARGET} PROPERTIES TARGET_VERSION_MAJOR "${VERSION}" LINK_FLAGS "${WX_LINK_FLAGS}")
+	SET_TARGET_PROPERTIES(${GUITARGET} PROPERTIES TARGET_VERSION_MAJOR "${VERSION}")
 endif()
 
 # ====================================================================
