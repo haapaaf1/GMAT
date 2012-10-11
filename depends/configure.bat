@@ -15,6 +15,7 @@ set svn="C:\Program Files\Subversion\bin\svn.exe"
 set sevenz="C:\Program Files\7-Zip\7z.exe"
 set visualstudio_version=10.0
 set vs_path="C:\Program Files\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
+set sdk_path="C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.Cmd"
 set use_latest=false
 
 :: ***********************************
@@ -168,12 +169,16 @@ set p0=%vs_path%
 set p1=%vs_p1%
 IF NOT EXIST %p0% (
 	IF NOT EXIST %p1% (
-		ECHO ...............................................
-		ECHO Dependency software is not installed. Please
-		ECHO consult the documentation for the required
-		ECHO software prerequisites for this script.
-		ECHO ...............................................
-		ECHO.
+		IF NOT EXIST %sdk_path% (
+			ECHO ...............................................
+			ECHO Dependency software is not installed. Please
+			ECHO consult the documentation for the required
+			ECHO software prerequisites for this script.
+			ECHO ...............................................
+			ECHO.
+		) ELSE (
+			set vs_path=%p1%
+		)
 	) ELSE (
 		set vs_path=%p1%
 	)
@@ -335,12 +340,16 @@ cd %wx_build_path%
 IF NOT EXIST %depend_x86_path% (
 
 	:: Launch MS Build environmental variables for build process
-	IF %processor_architecture% == x86 (
-		call %vs_path% x86
+	IF EXIST %sdk_path% (
+		call %vs_path% /Release /x86 /win7
 	) ELSE (
-		call %vs_path% x86_amd64
+		IF %processor_architecture% == x86 (
+			call %vs_path% x86
+		) ELSE (
+			call %vs_path% x86_amd64
+		)
 	)
-	
+
 	:: - Compile 32bit wxWidget source (Clean, static, dynamic)
 	nmake -f makefile.vc clean SHARED=0 USE_OPENGL=1 USE_ODBC=1 BUILD=release
 	nmake -f makefile.vc all SHARED=0 USE_OPENGL=1 USE_ODBC=1 BUILD=release
@@ -361,16 +370,7 @@ IF NOT EXIST %depend_x86_path% (
 	nmake -f makefile.vc clean SHARED=0 BUILD=release
 	nmake -f makefile.vc all SHARED=0 BUILD=release
 	nmake -f makefile.vc clean SHARED=1 BUILD=release
-	nmake -f makefile.vc all SHARED=1 BUILD=release
-	
-	set output_x86_folder=%gmat_path%\application\bin\msw\x86\
-	set lib_x86_folder=%gmat_path%\depends\wxWidgets\wxWidgets-2.8.12\lib\vc_dll\
-	
-	:: Clean output path
-	DEL "%output_x86_folder%\*.*" /Q
-	
-	:: Copy wxWidget dll's to gmat application/bin/arch directory
-	copy "%lib_x86_folder%\*.dll" "%output_x86_folder%"
+	nmake -f makefile.vc all SHARED=1 BUILD=release	
 	
 )
 
@@ -379,10 +379,14 @@ IF NOT EXIST %depend_amd64_path% (
 	cd %wx_build_path%
 
 	:: Launch MS Build environmental variables for build process
-	IF %processor_architecture% == x86 (
-		call %vs_path% x86_amd64
+	IF EXIST %sdk_path% (
+		call %vs_path% /Release /x64 /win7
 	) ELSE (
-		call %vs_path% amd64
+		IF %processor_architecture% == x86 (
+			call %vs_path% x86_amd64
+		) ELSE (
+			call %vs_path% amd64
+		)
 	)
 
 	:: - Compile 64bit wxWidget source (Clean, static, dynamic)
@@ -406,15 +410,6 @@ IF NOT EXIST %depend_amd64_path% (
 	nmake -f makefile.vc all SHARED=0 BUILD=release TARGET_CPU=AMD64
 	nmake -f makefile.vc clean SHARED=1 BUILD=release TARGET_CPU=AMD64
 	nmake -f makefile.vc all SHARED=1 BUILD=release TARGET_CPU=AMD64
-	
-	set output_amd64_folder=%gmat_path%\application\bin\msw\amd64\
-	set lib_amd64_folder=%gmat_path%\depends\wxWidgets\wxWidgets-2.8.12\lib\vc_amd64_dll\
-	
-	:: Clean output path
-	DEL "%output_amd64_folder%\*.*" /Q
-	
-	:: Copy wxWidget dll's to gmat application/bin/arch directory
-	copy "%lib_amd64_folder%\*.dll" "%output_amd64_folder%"
 	
 )
 

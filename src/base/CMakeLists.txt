@@ -6,11 +6,10 @@
 # This file must be installed in the src/base directory
 #
 # Author: Joris T. Olympio
+# Modified For Production By: Josh Fisher
 #  
 # DO NOT MODIFY THIS FILE UNLESS YOU KNOW WHAT YOU ARE DOING!
 #
-PROJECT(GMAT_base)
-
 
 MESSAGE("==============================")
 MESSAGE("GMAT base setup " ${VERSION}) 
@@ -21,132 +20,63 @@ else()
 	SET(BASETARGET "GmatBase")
 endif()
 
+SET(TargetName ${BASETARGET})
+
+# Add Preproccessor Definitions
 ADD_DEFINITIONS("-D_DYNAMICLINK")
 ADD_DEFINITIONS("-DGMAT_EXPORTS")
 ADD_DEFINITIONS("-DEXP_STL")
 
 # ====================================================================
 # specific compilation flags
+if (UNIX)
+	MESSAGE("-- Using a shared base library")
+	IF(APPLE) # mac
+		SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -dylib -dynamiclib -two_levelnamespace -undefined dynamic_lookup")
 
-if (SHARED_BASE)
-    if (UNIX)
-        MESSAGE("-- Using a shared base library")
-
-        IF(APPLE) # mac
-
-            SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -dylib -dynamiclib -two_levelnamespace -undefined dynamic_lookup")
-
-            # snow leopard
-            #SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -arch i386")
-
-        endif()
-
-    endif (UNIX)
-
-endif (SHARED_BASE)
-
-
-SET(TargetName ${BASETARGET})
+		# snow leopard
+		#SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -arch i386")
+	endif()
+endif (UNIX)
 
 
 # ====================================================================
 # SPICE specifics
-
-if (USE_SPICE)
-    MESSAGE("-- Building with SPICE")
-
-    # check if provided directory exists
-    if( (IS_DIRECTORY ${CSPICE_DIR}) AND (EXISTS ${CSPICE_DIR}) )
-        #MESSAGE("SPICE FOUND")
-        SET(USE_SPICE TRUE)
-    else()
-        #MESSAGE(FATAL_ERROR "SPICE NOT FOUND")
-        MESSAGE("** SPICE NOT FOUND in directory " ${CSPICE_DIR})
-        MESSAGE("** Disabling USE_SPICE")
-        SET(USE_SPICE FALSE)
-    endif()
-
-
-    if (USE_SPICE)
-        MESSAGE(STATUS "SPICE FOUND")
-        MESSAGE("-- CSPICE_DIR=" ${CSPICE_DIR})
-
-        INCLUDE_DIRECTORIES("${CSPICE_DIR}/include")
-        LINK_DIRECTORIES("${CSPICE_DIR}/lib")
-	if(WIN32)
-        	LINK_LIBRARIES("${CSPICE_DIR}/lib/cspice.lib")
-	else()
-		LINK_LIBRARIES("${CSPICE_DIR}/lib/cspice.a")
-	endif()
-        ADD_DEFINITIONS("-D__USE_SPICE__")
-
-        SET(SPICE_SRCS
-         	 "attitude/SpiceAttitude.cpp"
-             "util/SpiceAttitudeKernelReader.cpp"
-    	     "util/SpiceInterface.cpp"
-             "util/SpiceOrbitKernelReader.cpp"
-             "util/SpiceKernelReader.cpp"
-             "util/SpiceKernelWriter.cpp"
-    	     "util/SpiceOrbitKernelWriter.cpp")
-
-        # Unix type systems need a change in the stack size
-        # Unix type systems include MAC, LINUX
-        MESSAGE("-- Executing... ulimit -s 61440")
-        execute_process(COMMAND ulimit -s 61440)
-
-    endif()
-
+if(64_BIT)
+	SET(CSPICE_DIR "${CSPICE_DIR}/cspice64")
 else()
-    MESSAGE("Building without SPICE")
+	SET(CSPICE_DIR "${CSPICE_DIR}/cspice32")
 endif()
+	
+INCLUDE_DIRECTORIES("${CSPICE_DIR}/include")
+LINK_DIRECTORIES("${CSPICE_DIR}/lib")
 
-# ====================================================================
-# Fortran setup when not using F2C
+if(WIN32)
+	LINK_LIBRARIES("${CSPICE_DIR}/lib/cspice.lib")
+else()
+	LINK_LIBRARIES("${CSPICE_DIR}/lib/cspice.a")
+endif()
+	
+ADD_DEFINITIONS("-D__USE_SPICE__")
 
-if (NOT USE_F2C)
-    # FFLAGS depend on the compiler
-    get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
-    message ("-- CMAKE_Fortran_COMPILER full path: " ${CMAKE_Fortran_COMPILER})
-    message ("-- Fortran compiler: " ${Fortran_COMPILER_NAME})
+SET(SPICE_SRCS
+	 "attitude/SpiceAttitude.cpp"
+	 "util/SpiceAttitudeKernelReader.cpp"
+	 "util/SpiceInterface.cpp"
+	 "util/SpiceOrbitKernelReader.cpp"
+	 "util/SpiceKernelReader.cpp"
+	 "util/SpiceKernelWriter.cpp"
+	 "util/SpiceOrbitKernelWriter.cpp")
 
-    if (Fortran_COMPILER_NAME STREQUAL "gfortran")
-        # gfortran
-        SET (CMAKE_Fortran_FLAGS_RELEASE "-funroll-all-loops -fno-f2c -O3")
-        SET (CMAKE_Fortran_FLAGS_DEBUG   "-fno-f2c -O0 -g")
-        LINK_LIBRARIES("gfortran")
-    elseif (Fortran_COMPILER_NAME STREQUAL "g77")
-        # g77
-        SET (CMAKE_Fortran_FLAGS_RELEASE "-funroll-all-loops -fno-f2c -O3 -m32")
-        SET (CMAKE_Fortran_FLAGS_DEBUG   "-fno-f2c -O0 -g -m32")        
-        LINK_LIBRARIES("g2c")
-    elseif (Fortran_COMPILER_NAME STREQUAL "ifort")
-        # ifort
-        SET (CMAKE_Fortran_FLAGS_RELEASE "-f77rtl -O3")
-        SET (CMAKE_Fortran_FLAGS_DEBUG   "-f77rtl -O0 -g")
-        # TODO      LINK_LIBRARIES("xxxx")
-    else (Fortran_COMPILER_NAME STREQUAL "gfortran")
-        # otherwize
-        message ("-- No optimized Fortran compiler flags are known.")
-        SET (CMAKE_Fortran_FLAGS_RELEASE "-O2")
-        SET (CMAKE_Fortran_FLAGS_DEBUG   "-O0 -g")
-    endif (Fortran_COMPILER_NAME STREQUAL "gfortran")
-endif ()
+# Unix type systems need a change in the stack size
+# Unix type systems include MAC, LINUX
+MESSAGE("-- Executing... ulimit -s 61440")
+execute_process(COMMAND ulimit -s 61440)
 
 # ====================================================================
 # F2C
-# Specific instructions for the fortran code
-if  (USE_F2C)
-    MESSAGE("-- Use F2C version of MSISE.")
-
-    SET(MSISE_SRCS "solarsys/msise90_sub.c")
-
-else ()
-    SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${F77_FLAGS}")
-
-    SET(MSISE_SRCS "solarsys/msise90_sub.for")
-#    LINK_LIBRARIES("m")
-
-endif ()
+MESSAGE("-- Use F2C version of MSISE.")
+SET(MSISE_SRCS "solarsys/msise90_sub.c")
 
 
 # ====================================================================
@@ -575,28 +505,13 @@ SET(BASE_SRCS
 
 # ====================================================================
 # add the install targets
-SET(LIBRARY_OUTPUT_PATH "./lib")
-if  (SHARED_BASE)
-    SET(LIBRARY_OUTPUT_PATH "../../bin")
-endif()
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../application/bin")
 
-if (SHARED_BASE)
-    ADD_LIBRARY(${TargetName} SHARED ${BASE_SRCS})
-else()
-    ADD_LIBRARY(${TargetName} ${BASE_SRCS})
-endif()
+ADD_LIBRARY(${TargetName} SHARED ${BASE_SRCS})
 
 # specify the version of the library. 
 if(WIN32)
 	SET_TARGET_PROPERTIES(${TargetName} PROPERTIES VERSION ${GMAT_VERSION} LINK_FLAGS "/NODEFAULTLIB:\"libcmt.lib\"")
 else()
 	SET_TARGET_PROPERTIES(${TargetName} PROPERTIES VERSION ${GMAT_VERSION} )
-endif()
-
-# ====================================================================
-# installation (make install)
-SET(CMAKE_INSTALL_PREFIX "./")  # default is usr/local
-
-if  (SHARED_BASE)
-	INSTALL(TARGETS ${TargetName} DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/../../../../application/bin/")
 endif()

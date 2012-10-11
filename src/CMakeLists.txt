@@ -2,88 +2,74 @@
 # 
 # GMAT: General Mission Analysis Tool.
 # 
-# CMAKE script file for GMAT base library
+# CMAKE script file for GMAT Project
 # This file must be installed in the build directory of GMAT.
 # That is, we should have the directory structure
-#   ./build
+#   ./src
 #   ./src/base 
 #   ./src/console
 #   ./src/gui
 #
-# Author: Joris T. Olympio
+# Original Author: Joris T. Olympio
+# Modified For Production By: Josh Fisher
+#
+# DO NOT MODIFY THIS FILE UNLESS YOU KNOW WHAT YOU ARE DOING!
 #  
 
-# if you want to force a compiler, do it here
-#if(UNIX)
-#   SET (CMAKE_C_COMPILER "gcc")
-#   SET (CMAKE_CXX_COMPILER "g++")
-#endif()
-
+# Set Cmake project
 PROJECT(GMAT)
 
+# Require cmake minimum version
 cmake_minimum_required(VERSION 2.6)
 
-# uncomment line below only if you want to use a
-#  specific fortran compiler: g77, gfortran,...
-#SET (CMAKE_Fortran_COMPILER "g77")
+# Set Input Options
+SET(GMAT_VERSION "2012" CACHE STRING "The version of the build")
+SET(F2C_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../depends/f2c" CACHE STRING "F2C Root Directory")
+SET(CSPICE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../depends/cspice" CACHE STRING "CSpice Root Directory")
+SET(WXWIDGET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../depends/wxWidgets/wxWidgets-2.8.12" CACHE STRING "wxWidget Root Directory")
+OPTION(VERBOSE_MAKE "VerboseMake" OFF)
+OPTION(DEBUG_BUILD "DebugBuild" OFF)
+OPTION(PROFILE_BUILD "ProfileBuild" OFF)
+OPTION(64_BIT "64Bit" OFF)
 
-SET (USE_SPICE  ON)
-SET (USE_DEVIL  OFF) 
-SET (DEBUG_BUILD  OFF) 
-SET (PROFILE_BUILD  OFF)
-SET (WX_28_SYNTAX  ON)
-SET (WX_SHARED  ON)
-SET (SHARED_BASE  ON)    
-SET (USE_64_BIT_LONGS  ON)
-SET (USE_STC_EDITOR  OFF)  
-SET (USE_WX_EMAIL  OFF)
-SET (SHOW_HELP_BUTTON  ON)
-SET (SMART_APPLY_BUTTON  ON)
+# Check if provided f2c directories exists
+if( (IS_DIRECTORY ${F2C_PATH}) AND (EXISTS ${F2C_PATH}) )
+	MESSAGE(STATUS "F2C FOUND")
+	MESSAGE("-- F2C_PATH=" ${F2C_PATH})
+else()
+	MESSAGE(STATUS "** F2C NOT FOUND in directory " ${F2C_PATH})
+	SET(DEPENDS_FAIL ON)
+endif()
 
-# F2C directory
-# header and library must be in F2C_PATH/include and F2C_PATH/lib respectively
-# F2C is available at: http://www.netlib.org/f2c/
-SET (USE_F2C ON) 
-SET(F2C_PATH "/media/jfish-store/gmat-buildbranch/depends/f2c/")
+# Check if provided cspice directories exists
+if( (IS_DIRECTORY ${CSPICE_DIR}) AND (EXISTS ${CSPICE_DIR}) )
+	MESSAGE(STATUS "SPICE FOUND")
+	MESSAGE("-- CSPICE_DIR=" ${CSPICE_DIR})
+else()
+	MESSAGE(STATUS "** SPICE NOT FOUND in directory " ${CSPICE_DIR})
+	SET(DEPENDS_FAIL ON)
+endif()
 
-# (dev) to print out what Make is doing.
-SET (VERBOSE_MAKE OFF)  
+# Check if provided WxWidgets directories exists
+if( (IS_DIRECTORY ${WXWIDGET_DIR}) AND (EXISTS ${WXWIDGET_DIR}) )
+	MESSAGE(STATUS "WxWidgets FOUND")
+	MESSAGE("-- WXWIDGET_DIR=" ${WXWIDGET_DIR})
+else()
+	MESSAGE(STATUS "** WxWidgets NOT FOUND in directory " ${WXWIDGET_DIR})
+	SET(DEPENDS_FAIL ON)
+endif()
 
-# specify the version of the build
-SET(GMAT_VERSION "2012")
+# Set 64bit if 64bit machine
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  SET(64_BIT ON)
+elseif(64_BIT)
+	SET(X86_64 ON)
+endif()
 
-
-# The script will automatically locate  
-# - wxWidgets library, if installed
-# - DevIL library, if installed
-# FindDevIL.cmake and FindwxWidgets.cmake are usually present with last versions
-# of CMake.
-# If the script is unable to locate the libraries, or if you want to
-# specify it, you should manually set the variables DevIL_DIR or CSPICE_DIR 
-# for DevIL and Spice paths respectively.
-# In case a library cannot be found, the script will disable the 
-# appropriate USE_**** options and continue with the compilation, but for
-# wxWidgets when the script will actually terminate.
-#
-# The script is not able to automatically locate the CSPICE library 
-# (it is still experimental), as it does not follow and standardized 
-# installation/configuration procedure. You will have to specify CSPICE_DIR.
-# In case of error, USE_SPICE will be turned OFF.
-
-# Set the DevIL directory. Set is CMake is unable to find its location.
-#SET(DevIL_DIR "/usr/local/include/IL")
-
-# Set the SPICE directory. 
-# CSPICE is available at: http://naif.jpl.nasa.gov/naif/toolkit.html
-#SET (CSPICE_DIR "/home/joris/cspice")
-SET (CSPICE_DIR "/media/jfish-store/gmat-buildbranch/depends/cspice/cspice32/")
-
-SET (WXWIDGET_DIR "/media/jfish-store/gmat-buildbranch/depends/wxWidgets/wxWidgets-2.8.12/")
-
-# DO NOT EDIT BELOW THIS LINE
-# ====================================================================
-
-#
+# Fail Configuration if any dependencies are missing
+if(DEPENDS_FAIL)
+	MESSAGE(FATAL_ERROR "Missing Required Dependencies. Stoping Build.")
+endif()
 
 
 # build configurate
@@ -117,12 +103,6 @@ INCLUDE(CheckCXXCompilerFlag)
 
 if(WIN32)
 	SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W2")
-	# for some reasons, the following optimizations do not work 
-	# for me on Ubuntu Karmic, but fine on Windows
-	#SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-pcc-struct-return")
-	#SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -finline-functions -funroll-loops -fno-rtti")
-	#SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=pentium")
-	#SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -malign-double -fexceptions -fexpensive-optimizations")
 endif()
 
 SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
@@ -147,52 +127,30 @@ SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 SET(CMAKE_CXX_FLAGS_MINSIZEREL "-O3")
 
 # some definitions
-#ADD_DEFINITIONS("-DSTRICT")
 ADD_DEFINITIONS("-DNO_GCC_PRAGMA")
 
-
-if(SHARED_BASE)
-	if(WIN32)
-		set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined --out-implib")
-	else()
-		set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
-		LINK_LIBRARIES("dl")	
-	endif()
+# Linker Flags
+if(WIN32)
+	set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined --out-implib")
+else()
+	set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
+	LINK_LIBRARIES("dl")	
 endif()
 
-# CYGWIN specifics
-if(CYGWIN)
-    CHECK_CXX_COMPILER_FLAG("-mno-cygwin" GCC_NOCYGWIN)
-
-    if( GCC_NOCYGWIN)
-        SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-cygwin")
-    endif()
-endif()
-
-
-#
+# Profile Build Compile Flags
 if (PROFILE_BUILD)
     SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
 endif()
 
-#
-if (USE_64_BIT_LONGS)
+# Set 64 bit Definitions and directories
+if (64_BIT)
     MESSAGE("64-bit compilation")
     ADD_DEFINITIONS("-DUSE_64_BIT_LONGS")
 endif()
 
-#
-if (NOT USE_DEVIL OR NOT UNIX)
+# Set DevIL Proprocessor defs for linux
+if (WIN32)
     ADD_DEFINITIONS("-DSKIP_DEVIL")
-endif()
-
-#
-if (NOT CONSOLE_APP)
-    if (WX_28_SYNTAX)
-        ADD_DEFINITIONS("-D__USE_WX280__")
-        ADD_DEFINITIONS("-D__USE_WX280_GL__")
-        ADD_DEFINITIONS("-DwxUSE_GLCANVAS")
-    endif()
 endif()
 
 # to print out what Make is doing
@@ -208,7 +166,27 @@ if(APPLE)
     LINK_DIRECTORIES("stdc++.6")
 endif()
 
-ADD_DEFINITIONS("-DLINUX_MAC")
+if(NOT WIN32)
+	ADD_DEFINITIONS("-DLINUX_MAC")
+endif()
+
+
+# ====================================================================
+# Output directories based on configuration type.
+# (Make all output go to the /gmat/application/bin/ directory.
+
+# First for the generic no-config case (e.g. with mingw)
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../application/bin" )
+set( CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../application/bin" )
+set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../application/bin" )
+
+# Second, for multi-config builds (e.g. msvc)
+foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
+    string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
+    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} "${CMAKE_CURRENT_SOURCE_DIR}/../application/bin" )
+    set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} "${CMAKE_CURRENT_SOURCE_DIR}/../application/bin" )
+    set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} "${CMAKE_CURRENT_SOURCE_DIR}/../application/bin" )
+endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 
 # ====================================================================
 # dynamic base lib
@@ -221,8 +199,3 @@ SUBDIRS(../src/gui)
 # ====================================================================
 # Console binary
 SUBDIRS(../src/console)
-
-
-# ====================================================================
-# plugins...
-

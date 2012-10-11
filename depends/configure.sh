@@ -11,22 +11,25 @@ clear
 gmat_path="/media/jfish-store/gmat-buildbranch"
 use_latest=false
 
+# Check for root
+if [ "$(whoami)" != "root" ]; then
+	echo "Sorry, you don't have sufficient privileges to run this script. "
+	echo "Please execute this script with sudo"
+	exit 1
+fi
+
 # ***********************************
 # Input System
 # ***********************************
-function set_input {
-	if [ $1=="-p" ]
-	then
-		#gmat_path=$2
-		echo $2
-	fi
+if [ "$1" = "-p" ]
+then
+	gmat_path=$2
+fi
 
-	if [ $3=="-l" ] 
-	then
-		#use_latest=$4
-		echo $4
-	fi
-}
+if [ "$3" = "-l" ] 
+then
+	use_latest=true
+fi
 
 # ***********************************
 # Download Library Dependencies
@@ -51,7 +54,7 @@ function download_depends {
 	echo $tsplot_path
 
 	# Create directories and download f2c if it does not already exist.
-	if [ ! -f $f2c_path ]
+	if [ ! -d $f2c_path ]
 	then
 		# Create Directories
 		mkdir $f2c_path
@@ -64,7 +67,7 @@ function download_depends {
 	fi
 
 	# Create directories and download cspice if it does not already exist.
-	if [ ! -f $cspice_path ]
+	if [ ! -d $cspice_path ]
 	then
 		# Create Directories
 		mkdir $cspice_path
@@ -87,7 +90,7 @@ function download_depends {
 	fi	
 
 	# Create directories and download wxwidgets if it does not already exist.
-	if [ ! -f $wxWidgets_path ]
+	if [ ! -d $wxWidgets_path ]
 	then
 		# Create Directories
 		mkdir $wxWidgets_path
@@ -120,7 +123,7 @@ function download_depends {
 	fi
 
 	# Create directories and download sofa if it does not already exist.
-	if [ ! -f $sofa_path ]
+	if [ ! -d $sofa_path ]
 	then
 		# Change to depends directory
 		cd $gmat_path/depends/
@@ -132,7 +135,7 @@ function download_depends {
 	fi
 
 	# Create directories and download tsplot if it does not already exist.
-	if [ ! -f $tsplot_path ]
+	if [ ! -d $tsplot_path ]
 	then
 		# Create Directories
 		mkdir $tsplot_path
@@ -145,7 +148,7 @@ function download_depends {
 	fi
 
 	# Create directories and download pcre if it does not already exist.
-	if [ ! -f $pcre_path ]
+	if [ ! -d $pcre_path ]
 	then
 		# Create Directories
 		mkdir $pcre_path
@@ -168,6 +171,26 @@ function download_depends {
 	fi
 }
 
+function set_symlinks {
+	sudo ln -s /usr/lib/i386-linux-gnu/libGL.so /usr/lib/libGL.so
+	sudo ln -s /usr/lib/i386-linux-gnu/libGLU.so /usr/lib/libGL.so
+	sudo ln -s /usr/lib/i386-linux-gnu/MesaGL.so /usr/lib/MesaGL.so
+	
+	if [ -f  /usr/lib/i386-linux-gnu/libGL.so ]
+	then
+		sudo ln -s /usr/lib/i386-linux-gnu/libGL.so /usr/lib/libGL.so
+		sudo ln -s /usr/lib/i386-linux-gnu/libGLU.so /usr/lib/libGL.so
+		sudo ln -s /usr/lib/i386-linux-gnu/MesaGL.so /usr/lib/MesaGL.so
+	fi
+	
+	if [ -f  /usr/lib/x86_64-linux-gnu/libGL.so ]
+	then
+		sudo ln -s /usr/lib/x86_64-linux-gnu/libGL.so /usr/lib/libGL.so
+		sudo ln -s /usr/lib/x86_64-linux-gnu/libGLU.so /usr/lib/libGL.so
+		sudo ln -s /usr/lib/x86_64-linux-gnu/MesaGL.so /usr/lib/MesaGL.so
+	fi
+}
+
 function build_wxWidgets {
 	# Set build path based on version
 	if [ $use_latest == true ]
@@ -178,42 +201,34 @@ function build_wxWidgets {
 	fi
 
 	# Check if dependencies have already been built
-	depend_x86_path=$gmat_path/depends/wxWidgets/wxWidgets-2.8.12/lib/libwx_gtk2_core-2.8.so
-	depend_amd64_path=$gmat_path/depends/wxWidgets/wxWidgets-2.8.12/lib/libwx_gtk2_core-2.8.so
+	depend_path=$gmat_path/depends/wxWidgets/wxWidgets-2.8.12/lib/libwx_gtk2_core-2.8.so
 
 	cd $wx_build_path
 
-	if [ ! -f $depend_x86_path ]
+	if [ ! -d $depend_path ]
 	then
-		lib_x86_folder=$gmat_path/depends/wxWidgets/wxWidgets-2.8.12/lib/
-		output_x86_folder=$gmat_path/application/bin/linux/x86/
-		
 		#Clean
 		make distclean		
 		
-		# Configure 32bit wxWidget build
+		# Configure wxWidget build
 		./configure --with-opengl
 
-		# Compile 32bit wxWidget build
+		# Compile wxWidget build
 		make 
+		sudo make install
 	
 		# Change to contrib directory
 		cd contrib
 	
-		# Compile 32 bit wxWidget contrib
+		# Compile wxWidget contrib
 		make
-
-		# Clean output path
-		rm -r $output_x86_folder/*
-	
-		# Copy wxWidget dll's to gmat application/bin/arch directory
-		cp $lib_x86_folder/*.so $output_x86_folder
+		sudo make install
 	fi
 }
 
 # Run Script Functions
-set_input
 download_depends
+set_symlinks
 build_wxWidgets
 
 # ***********************************

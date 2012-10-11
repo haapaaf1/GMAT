@@ -6,11 +6,10 @@
 # This file must be installed in the src/gui directory
 #
 # Author: Joris T. Olympio
+# Modified For Production By: Josh Fisher
 #  
 # DO NOT MODIFY THIS FILE UNLESS YOU KNOW WHAT YOU ARE DOING!
-#
-PROJECT(GMAT_gui)
-
+# 
 
 MESSAGE("==============================")
 MESSAGE("GMAT GUI building setup " ${VERSION})
@@ -19,23 +18,14 @@ MESSAGE("GMAT GUI building setup " ${VERSION})
 # ====================================================================
 SET(GUITARGET "GmatGui")
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    #TARGETS = $(GUITARGET) macstacksize macrez macosx
-    #CLEANTARGET = archclean cleanmacosx
-else()
-    #TARGETS = $(GUITARGET)
-    #CLEANTARGET = archclean
-endif()
-
 
 # ====================================================================
 # DEVIL package
 
-if (USE_DEVIL AND UNIX)
+if (NOT WIN32)
     MESSAGE("-- Building with DeVIL")
 
     if (NOT DevIL_DIR)
-        #SET(DevIL_INCLUDE_DIR "/usr/local/include/IL")
         find_package(DevIL)
 
         if(NOT IL_FOUND)
@@ -47,7 +37,6 @@ if (USE_DEVIL AND UNIX)
         if(EXISTS "${DevIL_DIR}" AND IS_DIRECTORY "${DevIL_DIR}")
             SET(IL_INCLUDE_DIR ${DevIL_DIR})
         else()
-            #MESSAGE(FATAL_ERROR "DEVIL NOT FOUND")
             MESSAGE("** DEVIL NOT FOUND in directory " ${DevIL_DIR})
             MESSAGE("** Disabling USE_DEVIL")
             SET(USE_DEVIL FALSE)
@@ -71,31 +60,28 @@ endif()
 
 # ====================================================================
 # SPICE
-if (USE_SPICE)
-	INCLUDE_DIRECTORIES("${CSPICE_DIR}/include")
-    SET(SPICE_SRCS "spacecraft/SpicePanel.cpp")
+if(64_BIT)
+	SET(CSPICE_DIR "${CSPICE_DIR}/cspice64")
+else()
+	SET(CSPICE_DIR "${CSPICE_DIR}/cspice32")
 endif()
 
-#	rm -f app/AboutDialog.o
+INCLUDE_DIRECTORIES("${CSPICE_DIR}/include")
+SET(SPICE_SRCS "spacecraft/SpicePanel.cpp")
+
 # ====================================================================
 # other libraries
-LINK_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/../bin")
+LINK_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/../../application/bin")
 if(WIN32)
 	LINK_LIBRARIES(libGmatBase)
 else()
 	LINK_LIBRARIES(GmatBase)
 endif()
 
-# Link WX Contrib Libraries (STC, NetUtils)
-if(WIN32)
-	SET(WXCONTRIB_LIB_DIR  "${WXWIDGET_DIR}/lib/vc_dll")
-	LINK_LIBRARIES("${WXCONTRIB_LIB_DIR}/wxmsw28_netutils.lib")
-	LINK_LIBRARIES("${WXCONTRIB_LIB_DIR}/wxmsw28_stc.lib")
-else()
-	#SET(WXCONTRIB_LIB_DIR  "${WXWIDGET_DIR}/lib")
-	#LINK_LIBRARIES("${WXCONTRIB_LIB_DIR}/libwx_gtk2_stc-2.8.so")
-endif()
-
+# Add Preprosser Definitions for wx widgets
+ADD_DEFINITIONS("-D__USE_WX280__")
+ADD_DEFINITIONS("-D__USE_WX280_GL__")
+ADD_DEFINITIONS("-DwxUSE_GLCANVAS")
 
 # need some opengl libs
 if(WIN32)
@@ -104,7 +90,6 @@ if(WIN32)
 else()
 	LINK_LIBRARIES("GL")
 	LINK_LIBRARIES("GLU")
-	#LINK_LIBRARIES("MesaGL")
 endif()
 
 ADD_DEFINITIONS("-D_DYNAMICLINK")
@@ -114,14 +99,13 @@ if(WIN32)
 else()
 	SET (WX_COMPILE_FLAGS "-I/usr/local/lib/wx/include/gtk2-ansi-release-2.8 -I/usr/local/include/wx-2.8 -D__WXGTK__")
 	SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WX_COMPILE_FLAGS}")
-	
-	#SET(WX_LINK_FLAGS "-Wl -L/usr/local/lib -pthread -lwx_gtk2_richtext-2.8 -lwx_gtk2_aui-2.8 -lwx_gtk2_xrc-2.8 -lwx_gtk2_qa-2.8 -lwx_gtk2_html-2.8 -lwx_gtk2_adv-2.8 /usr/local/lib/libwx_gtk2_core-2.8.so -lwx_base_xml-2.8 -lwx_base_net-2.8 -lwx_base-2.8")
-	#set(CMAKE_EXE_LINKER_FLAGS "${WX_LINK_FLAGS}")
 endif()
 
 ADD_DEFINITIONS("-D_MBCS")
 ADD_DEFINITIONS("-D__USE_STC_EDITOR__")
-#ADD_DEFINITIONS("-D__ENABLE_EMAIL__")
+if(WIN32)
+	ADD_DEFINITIONS("-D__ENABLE_EMAIL__")
+endif()
 ADD_DEFINITIONS("-D__USE_SPICE__")
 
 
@@ -379,46 +363,40 @@ endif()
 # compilation
 
 # add the install targets
-SET(EXECUTABLE_OUTPUT_PATH "../../bin")
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../application/bin")
 
 if(WIN32)
+	if(X86_64)
+		SET(WXCONTRIB_LIB_DIR "${WXWIDGET_DIR}/lib/vc_dll")
+	elseif(64_BIT)
+		SET(WXCONTRIB_LIB_DIR "${WXWIDGET_DIR}/lib/vc_amd64_dll")
+	else()
+		SET(WXCONTRIB_LIB_DIR "${WXWIDGET_DIR}/lib/vc_dll")
+	endif()
+
 	LINK_DIRECTORIES("${WXWIDGET_DIR}/lib/vc_dll")
+	LINK_LIBRARIES("${WXCONTRIB_LIB_DIR}/wxmsw28_netutils.lib")
+	LINK_LIBRARIES("${WXCONTRIB_LIB_DIR}/wxmsw28_stc.lib")
 else()
-	#LINK_DIRECTORIES("${WXWIDGET_DIR}/lib")
-	#SET(WX_LINK_FLAGS "-Wl,-L/usr/local/lib -pthread -lwx_gtk2_richtext-2.8 -lwx_gtk2_aui-2.8 -lwx_gtk2_xrc-2.8 -lwx_gtk2_qa-2.8 -lwx_gtk2_html-2.8 -lwx_gtk2_adv-2.8 -lwx_gtk2_core-2.8 -lwx_base_xml-2.8 -lwx_base_net-2.8 -lwx_base-2.8 -libwx_gtk2_gl-2.8")
-	#set(CMAKE_SHARED_LINKER_FLAGS "${WX_LINK_FLAGS}")
-	
-	#LINK_DIRECTORIES("/usr/local/lib")
-	#LINK_LIBRARIES("libwx_gtk2_core-2.8.so")
+	target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_core-2.8.so")
+	target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_richtext-2.8.so")
+	target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_aui-2.8.so")
+	target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_xrc-2.8.so")
+	target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_qa-2.8.so")
+	target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_html-2.8.so")
+	target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_adv-2.8.so")
+	target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_stc-2.8.so")
+	target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_base_xml-2.8.so")
+	target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_base_net-2.8.so")
+	target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_base-2.8.so")
+	target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_gl-2.8.so")
+	#target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_netutils-2.8.so")	//Does not build on linux/mac
 endif()
 
 ADD_EXECUTABLE(${GUITARGET} ${GUI_SRCS})
-
-#SET(WX_LIBS "/usr/local/lib/libwx_gtk2_richtext-2.8.so /usr/local/lib/libwx_gtk2_aui-2.8.so /usr/local/lib/libwx_gtk2_xrc-2.8.so /usr/local/lib/libwx_gtk2_qa-2.8.so /usr/local/lib/libwx_gtk2_html-2.8.so /usr/local/lib/libwx_gtk2_adv-2.8.so /usr/local/lib/libwx_gtk2_core-2.8.so /usr/local/lib/libwx_base_xml-2.8.so /usr/local/lib/libwx_base_net-2.8.so /usr/local/lib/libwx_base-2.8.so /usr/local/lib/lib/libwx_gtk2_gl-2.8.so")
-
-target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_core-2.8.so")
-target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_richtext-2.8.so")
-target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_aui-2.8.so")
-target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_xrc-2.8.so")
-target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_qa-2.8.so")
-target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_html-2.8.so")
-target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_adv-2.8.so")
-target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_stc-2.8.so")
-target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_base_xml-2.8.so")
-target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_base_net-2.8.so")
-target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_base-2.8.so")
-target_link_libraries(${GUITARGET} "/media/jfish-store/gmat-buildbranch/depends/wxWidgets/wxWidgets-2.8.12/lib/libwx_gtk2_gl-2.8.so")
 
 if(WIN32)
 	SET_TARGET_PROPERTIES(${GUITARGET} PROPERTIES TARGET_VERSION_MAJOR "${VERSION}" LINK_FLAGS "/SUBSYSTEM:windows")
 else()
 	SET_TARGET_PROPERTIES(${GUITARGET} PROPERTIES TARGET_VERSION_MAJOR "${VERSION}")
-endif()
-
-# ====================================================================
-# installation (make install)
-SET(CMAKE_INSTALL_PREFIX "./")  # default is usr/local
-
-if  (SHARED_BASE)
-	INSTALL(TARGETS ${TargetName} DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/../../../../application/bin")
 endif()
