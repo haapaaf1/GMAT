@@ -22,6 +22,7 @@ GMAT Sat.VZ         = 10;
 %-----------------Create and Setup the Optimizer------------------
 %-----------------------------------------------------------------
 Create FminconOptimizer SQPfmincon
+GMAT SQPfmincon.ReportFile    = 'ZMATLAB_Func_BasicOptimizerTestSQPfmincon.data'
 GMAT SQPfmincon.DiffMaxChange = 0.01;      % Real number
 GMAT SQPfmincon.DiffMinChange = 0.000001;  % Real number
 GMAT SQPfmincon.MaxFunEvals   = 1000;    % Real number

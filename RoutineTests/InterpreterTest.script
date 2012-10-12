@@ -98,6 +98,13 @@ GMAT OpenGLPlot1.Add = {sat1};
 Create ReportFile rf;
 GMAT rf.Filename = InterpreterTest.report;
 
+%--- String with space after quote should work (GMT-1533)
+Create String myStr1 myStr2
+myStr1 = 'This is my string 1' ;
+
+%--- function keyword in object mode show throw an error(GMT-1566)
+function Create ReportFile rf2;
+
 %---------------------------------------------------------------------
 % Mission Sequence
 %---------------------------------------------------------------------
@@ -109,10 +116,17 @@ Report rf var1 sat1.A1ModJulian a1EpochStr1 a1Epoch1 satX1;
 Propagate prop(sat1, {sat1.ElapsedDays = 0.100});
 
 %--- Set Parameter to Property
-GMAT sat2.A1Epoch = sat1.A1ModJulian;
+GMAT 'Test Command Name' sat2.A1Epoch = sat1.A1ModJulian;
 GMAT var2 = var1 * 2;
 GMAT a1EpochStr2 = sat1.Epoch
 GMAT a1Epoch2 = sat1.A1ModJulian;
 GMAT satX2 = sat1.X;
 
 Report rf var2 sat1.A1ModJulian a1EpochStr2 a1Epoch2 satX2
+
+%--- String with space after quote should work (GMT-1533)
+myStr1 = 'This is another my string 1' ;
+myStr2 = myStr1 ;
+
+%--- Test function keyword in command mode
+function Report rf2 sat1.X;

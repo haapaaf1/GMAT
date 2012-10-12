@@ -1,0 +1,30 @@
+% A parsing issue involving the inverse operator surrounded by parentheses
+
+Create ReportFile rf
+rf.Filename = 'MATH_ParenthesisTest.report'
+rf.WriteHeaders = Off
+
+Create Variable x y
+Create Array A[2,2] B[2,2];
+
+BeginMissionSequence
+
+A(1,1) = + 1.0;
+A(2,2) = + 1.0;
+x = + 5
+
+y = x^(-1)
+Report rf y
+
+y = (x^(-1))
+Report rf y
+
+y = ( (x^(-1)) )
+Report rf y
+
+B = A'^(-1)
+Report rf A B;
+
+B = (A')^(-1)
+Report rf A B;
+

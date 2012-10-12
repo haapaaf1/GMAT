@@ -1,0 +1,72 @@
+Create Spacecraft sat
+Create Array a[12] b[2,2] c[1,1]
+Create Variable x y z
+Create String s s2
+
+BeginMissionSequence
+
+%%===================== Should fail parsing
+'x' = 5
+"x" = 5
+x = "y"
+^x = 5
+$x = 5
+x% = 3
+x. = 5
+$x = *x
+#x = &5
+x = a<2>
+x = ~x
+3 = x
+x = %x
+x = [x]
+x = x.
+x[2] = 5
+x{2} = 5
+a<2> = x
+x[2]
+a(2)
+[] = DoNothing
+
+%%===================== Should pass parsing
+sat.X = 5000
+
+%%===================== Should fail validation
+%% invalid lhs or rhs
+y = a[12]
+y = a[12,12]
+y = a{2}
+y[2] = 3
+
+%% different size
+a = b
+b = a
+x = '5'
+
+%% not 1x1 array
+z = a
+a = z
+z = b
+b = z
+
+%% should be ok
+x = c
+c = x
+
+%% different type
+x = s
+a = s
+s = a
+s = b
+s = c
+
+%%===================== Should pass validation
+%% setting string to number, variable, array element are OK
+s2 = 3
+s2 = x
+s2 = a(1)
+s2 = b(2,2)
+
+%% command name should be OK
+GMAT 'test cmd name' x = 3
+'test cmd name' x = 3
