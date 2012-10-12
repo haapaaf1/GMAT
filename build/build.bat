@@ -2,7 +2,7 @@
 :: Project:		Gmat
 :: Title:		build.bat
 :: Purpose:		Windows Script to configure and easily build gmat for end users
-:: Usage: 		-arch [x86 | x64] -target [debug | release] -version [10.0 | 11.0)
+:: Usage: 		-arch [x86 | x64] -target [debug | release] -version [10.0 | 11.0) -cmake [/path/to/cmake/]
 
 :: Turn off output and clear the screen
 @ECHO OFF
@@ -22,6 +22,7 @@ set wx_output_x86_folder=..\application\bin\
 set wx_lib_x86_folder=..\depends\wxWidgets\wxWidgets-2.8.12\lib\vc_dll\
 set wx_output_amd64_folder=..\application\bin\
 set wx_lib_amd64_folder=..\depends\wxWidgets\wxWidgets-2.8.12\lib\vc_amd64_dll\
+set cmake="C:\Program Files (x86)\CMake 2.8\bin\"
 
 :: ***********************************
 :: Input Args
@@ -30,6 +31,7 @@ set wx_lib_amd64_folder=..\depends\wxWidgets\wxWidgets-2.8.12\lib\vc_amd64_dll\
 if "%1"=="-arch" goto arch
 if "%1"=="-target" goto target
 if "%1"=="-version" goto version
+if "%1"=="-cmake" goto version
 if "%1"=="" goto main
 goto error
 
@@ -41,6 +43,11 @@ goto lreturn
 :target
 shift
 set target=%1
+goto lreturn
+
+:cmake
+shift
+set cmake=%1
 goto lreturn
 
 :lreturn
@@ -57,6 +64,17 @@ echo %0 Arguments are Invalid. See usage documentation.
 goto end
 
 :main
+
+::Validate cmake path
+IF NOT EXIST %cmake% (
+	ECHO ...............................................
+	ECHO Can not find cmake. Please install cmake and
+	ECHO try again.
+	ECHO ...............................................
+	ECHO.
+	GOTO end
+)
+
 
 :: Copy wxWidget libs to /application/bin depending on user -arch type
 IF %arch% == x86 (
@@ -85,9 +103,17 @@ IF %processor_architecture% == x86 (
 :: Call vs batch scripts to setup dev environment
 IF NOT EXIST %sdk_path% (
 	IF %processor_architecture% == x86 (
-		call %vs_path% x86
+		IF %arch% == x64 (
+			call %vs_path% x86_amd64
+		) ELSE (
+			call %vs_path% x86
+		)
 	) ELSE (
-		call %vs_path% x86_amd64
+		IF %arch% == x86 (
+			call %vs_path% x86
+		) ELSE (
+			call %vs_path% amd64
+		)
 	)
 ) ELSE (
 	IF %arch% == x86 % (
@@ -110,8 +136,7 @@ IF %arch% == x86 % (
 :: Generate nmake makefiles
 cmake -G "Visual Studio 10" ../../src/
 
-::Clean the build
-msbuild.exe GMAT.sln /p:Configuration=%target% /t:Clean
+:: Execute the build
 msbuild.exe GMAT.sln /p:Configuration=%target% /t:Rebuild
 
 :: Generate nmake makefiles
@@ -123,4 +148,11 @@ msbuild.exe GMAT.sln /p:Configuration=%target% /t:Rebuild
 :: Change back to build directory
 cd ../
 
+echo.
+echo .........................
+echo GMAT Build Complete!
+echo .........................
+
+
 :end
+

@@ -9,9 +9,9 @@
 cls
 
 :: Set default variables
-set gmat_path=D:\GmatDevelopment
-set wget="C:\Program Files\GnuWin32\bin\wget.exe"
-set svn="C:\Program Files\Subversion\bin\svn.exe"
+set gmat_path=C:\dev\aisolutions\gmat-buildbranch\
+set wget="C:\Program Files (x86)\GnuWin32\bin\wget.exe"
+set svn="C:\Program Files\TortoiseSVN\bin\svn.exe"
 set sevenz="C:\Program Files\7-Zip\7z.exe"
 set visualstudio_version=10.0
 set vs_path="C:\Program Files\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
@@ -343,11 +343,7 @@ IF NOT EXIST %depend_x86_path% (
 	IF EXIST %sdk_path% (
 		call %vs_path% /Release /x86 /win7
 	) ELSE (
-		IF %processor_architecture% == x86 (
-			call %vs_path% x86
-		) ELSE (
-			call %vs_path% x86_amd64
-		)
+		call %vs_path% x86
 	)
 
 	:: - Compile 32bit wxWidget source (Clean, static, dynamic)
