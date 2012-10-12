@@ -365,6 +365,8 @@ endif()
 # add the install targets
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../application/bin")
 
+ADD_EXECUTABLE(${GUITARGET} ${GUI_SRCS})
+
 if(WIN32)
 	if(X86_64)
 		SET(WXCONTRIB_LIB_DIR "${WXWIDGET_DIR}/lib/vc_dll")
@@ -392,8 +394,6 @@ else()
 	target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_gl-2.8.so")
 	#target_link_libraries(${GUITARGET} "/usr/local/lib/libwx_gtk2_netutils-2.8.so")	//Does not build on linux/mac
 endif()
-
-ADD_EXECUTABLE(${GUITARGET} ${GUI_SRCS})
 
 if(WIN32)
 	SET_TARGET_PROPERTIES(${GUITARGET} PROPERTIES TARGET_VERSION_MAJOR "${VERSION}" LINK_FLAGS "/SUBSYSTEM:windows")

@@ -1,3 +1,4 @@
+#!/bin/bash
 # Author: 	Jfisher
 # Project:	Gmat
 # Title:	configure.sh
@@ -12,7 +13,8 @@ gmat_path="/media/jfish-store/gmat-buildbranch"
 use_latest=false
 
 # Check for root
-if [ "$(whoami)" != "root" ]; then
+if [ "$(whoami)" != "root" ] 
+then
 	echo "Sorry, you don't have sufficient privileges to run this script. "
 	echo "Please execute this script with sudo"
 	exit 1
@@ -34,7 +36,7 @@ fi
 # ***********************************
 # Download Library Dependencies
 # ***********************************
-function download_depends {
+function download_depends() {
 
 	# Set Variables
 	bin_path=$gmat_path/depends/bin
@@ -171,11 +173,7 @@ function download_depends {
 	fi
 }
 
-function set_symlinks {
-	sudo ln -s /usr/lib/i386-linux-gnu/libGL.so /usr/lib/libGL.so
-	sudo ln -s /usr/lib/i386-linux-gnu/libGLU.so /usr/lib/libGL.so
-	sudo ln -s /usr/lib/i386-linux-gnu/MesaGL.so /usr/lib/MesaGL.so
-	
+function set_symlinks() {
 	if [ -f  /usr/lib/i386-linux-gnu/libGL.so ]
 	then
 		sudo ln -s /usr/lib/i386-linux-gnu/libGL.so /usr/lib/libGL.so
@@ -191,7 +189,7 @@ function set_symlinks {
 	fi
 }
 
-function build_wxWidgets {
+function build_wxWidgets() {
 	# Set build path based on version
 	if [ $use_latest == true ]
 	then
