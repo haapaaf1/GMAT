@@ -79,7 +79,7 @@ IF NOT EXIST %cmake% (
 :: Copy wxWidget libs to /application/bin depending on user -arch type
 IF %arch% == x86 (
 	:: Clean output path
-	DEL "%output_x86_folder%\*.*" /Q
+	DEL "%wx_output_x86_folder%\*.*" /Q
 
 	:: Copy wxWidget dll's to gmat application/bin/arch directory
 	copy "%wx_lib_x86_folder%\*.dll" "%wx_output_x86_folder%"
@@ -117,9 +117,9 @@ IF NOT EXIST %sdk_path% (
 	)
 ) ELSE (
 	IF %arch% == x86 % (
-		call %sdk_path% /Release /x86 /win7
+		call %sdk_path% /Release /x86 /xp
 	) ELSE (
-		call %sdk_path% /Release /x64 /win7
+		call %sdk_path% /Release /x64 /xp
 	)
 )
 

@@ -341,7 +341,7 @@ IF NOT EXIST %depend_x86_path% (
 
 	:: Launch MS Build environmental variables for build process
 	IF EXIST %sdk_path% (
-		call %vs_path% /Release /x86 /win7
+		call %sdk_path% /Release /x86 /xp
 	) ELSE (
 		call %vs_path% x86
 	)
@@ -376,7 +376,7 @@ IF NOT EXIST %depend_amd64_path% (
 
 	:: Launch MS Build environmental variables for build process
 	IF EXIST %sdk_path% (
-		call %vs_path% /Release /x64 /win7
+		call %sdk_path% /Release /x64 /xp
 	) ELSE (
 		IF %processor_architecture% == x86 (
 			call %vs_path% x86_amd64
