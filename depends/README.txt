@@ -38,21 +38,20 @@ In order to run either script you should first open up a terminal window and nav
 
 Linux:
 
-	sudo configure.sh –p [ /path/to/gmat/folder/ ] –latest
+	sudo ./configure.sh -p [ /path/to/gmat/folder/ ] [-latest]
 
 Sudo is necessary because of the symlink modifications to the opengl libraries and the install location of wxWidget dependency. If you do not wish to use sudo than unfortunatlly you will need to manually configure and build the wxWidget Dependency.
 
 
 Windows:
 
-	configure.bat –p [ /path/to/gmat/folder/ ] 
-		      –wget [ /path/to/wget/install/ ] 
-		      –svn [/path/to/svn/install/ ] 
-		      –sevenz [ /path/to/7zip/install/ ] 
-		      –vsversion [vsversion ie. 9 | 10 | 11 ] 
-		      –vspath [ /path/to/visual/studio/or/windows/sdk/ ] 
-		      –latest [ true | false ]
-	
+	configure.bat -p [ /path/to/gmat/folder/ ] 
+		      -wget [ /path/to/wget/install/ ] 
+		      -svn [/path/to/svn/install/ ] 
+		      -sevenz [ /path/to/7zip/install/ ] 
+		      -vsversion [vsversion ie. 9 | 10 | 11 ] 
+		      -vspath [ /path/to/visual/studio/or/windows/sdk/ ] 
+		      -latest [ true | false ]
 
 If you do not wish to enter the arguments on the command line simply modify the "Default Variables" section of the configure script and run the script without them.
 
