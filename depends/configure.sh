@@ -107,6 +107,9 @@ function download_depends() {
 		# ODBC and GLCanvas
 		cp $bin_path/wx/setup.h $wxWidgets_path/wxWidgets-2.8.12/include/wx/msw/setup.h
 		cp $bin_path/wx/setup.h $wxWidgets_path/wxWidgets-2.8.12/include/wx/msw/setup0.h
+		
+		# Copy modified configure scripts (This fixes the OpenGL location issue)
+		cp $bin_path/wx/configure $wxWidgets_path/wxWidgets-2.8.12/configure
 	
 		if [ $use_latest == true ]
 		then
@@ -120,6 +123,9 @@ function download_depends() {
 			# ODBC and GLCanvas
 			cp $bin_path/wx/setup.h $wxWidgets_path/wxWidgets-latest/include/wx/msw/setup0.h
 			cp $bin_path/wx/setup.h $wxWidgets_path/wxWidgets-latest/include/wx/msw/setup0.h
+			
+			# Copy modified configure scripts (This fixes the OpenGL location issue)
+			cp $bin_path/wx/configure $wxWidgets_path/wxWidgets-2.8.12/configure
 		
 		fi
 	fi
@@ -209,18 +215,18 @@ function build_wxWidgets() {
 		make distclean		
 		
 		# Configure wxWidget build
-		./configure --with-opengl
+		./configure --with-opengl --prefix="/opt"
 
 		# Compile wxWidget build
 		make 
-		sudo make install
+		make install
 	
 		# Change to contrib directory
 		cd contrib
 	
 		# Compile wxWidget contrib
 		make
-		sudo make install
+		make install
 	fi
 }
 

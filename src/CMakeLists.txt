@@ -59,13 +59,6 @@ else()
 	SET(DEPENDS_FAIL ON)
 endif()
 
-# Set 64bit if 64bit machine
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  SET(64_BIT ON)
-elseif(64_BIT)
-	SET(X86_64 ON)
-endif()
-
 # Fail Configuration if any dependencies are missing
 if(DEPENDS_FAIL)
 	MESSAGE(FATAL_ERROR "Missing Required Dependencies. Stoping Build.")
@@ -140,6 +133,11 @@ endif()
 # Profile Build Compile Flags
 if (PROFILE_BUILD)
     SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+endif()
+
+# Warning Supression Definitions
+if(WIN32)
+	ADD_DEFINITIONS("/wd4005 /wd4251 /wd4231 /wd4996 /nologo")
 endif()
 
 # Set 64 bit Definitions and directories

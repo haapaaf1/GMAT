@@ -22,7 +22,7 @@ set wx_output_x86_folder=..\application\bin\
 set wx_lib_x86_folder=..\depends\wxWidgets\wxWidgets-2.8.12\lib\vc_dll\
 set wx_output_amd64_folder=..\application\bin\
 set wx_lib_amd64_folder=..\depends\wxWidgets\wxWidgets-2.8.12\lib\vc_amd64_dll\
-set cmake="C:\Program Files (x86)\CMake 2.8\bin\"
+set cmake="C:\Program Files\CMake 2.8\bin\"
 
 :: ***********************************
 :: Input Args
@@ -79,13 +79,19 @@ IF NOT EXIST %cmake% (
 :: Copy wxWidget libs to /application/bin depending on user -arch type
 IF %arch% == x86 (
 	:: Clean output path
-	DEL "%wx_output_x86_folder%\*.*" /Q
+	DEL "%wx_output_amd64_folder%\*.exe" /Q
+	DEL "%wx_output_amd64_folder%\*.dll" /Q
+	DEL "%wx_output_amd64_folder%\*.exp" /Q
+	DEL "%wx_output_amd64_folder%\*.lib" /Q
 
 	:: Copy wxWidget dll's to gmat application/bin/arch directory
 	copy "%wx_lib_x86_folder%\*.dll" "%wx_output_x86_folder%"
 ) ELSE (
 	:: Clean output path
-	DEL "%wx_output_amd64_folder%\*.*" /Q
+	DEL "%wx_output_amd64_folder%\*.exe" /Q
+	DEL "%wx_output_amd64_folder%\*.dll" /Q
+	DEL "%wx_output_amd64_folder%\*.exp" /Q
+	DEL "%wx_output_amd64_folder%\*.lib" /Q
 
 	:: Copy wxWidget dll's to gmat application/bin/arch directory
 	copy "%wx_lib_amd64_folder%\*.dll" "%wx_output_amd64_folder%"
@@ -130,11 +136,11 @@ cd ../build/msw
 IF %arch% == x86 % (
 	cmake -G "Visual Studio 10" ../../src/
 ) ELSE (
-	cmake -G "Visual Studio 10 Win64" ../../src/
+	cmake -G "Visual Studio 10 Win64" -D 64_BIT=true ../../src/
 )
 
 :: Generate nmake makefiles
-cmake -G "Visual Studio 10" ../../src/
+::cmake -G "Visual Studio 10" ../../src/
 
 :: Execute the build
 msbuild.exe GMAT.sln /p:Configuration=%target% /t:Rebuild
