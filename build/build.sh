@@ -33,7 +33,12 @@ fi
 cd ../build/linux
 
 # Generate unix makefiles
-cmake -G "Unix Makefiles" ../../src/
+if [ "$arch" = "x86" ]
+then
+	cmake -G "Unix Makefiles" ../../src/
+else
+	cmake -G "Unix Makefiles" -D 64_BIT=true ../../src/
+fi
 
 # Make Gmat
 make

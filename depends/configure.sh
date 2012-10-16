@@ -12,13 +12,6 @@ clear
 gmat_path="/media/jfish-store/gmat-buildbranch"
 use_latest=false
 
-# Check for root
-if [ "$(whoami)" != "root" ] 
-then
-	echo "Sorry, you don't have sufficient privileges to run this script. "
-	echo "Please execute this script with sudo"
-	exit 1
-fi
 
 # ***********************************
 # Input System
@@ -179,21 +172,7 @@ function download_depends() {
 	fi
 }
 
-function set_symlinks() {
-	if [ -f  /usr/lib/i386-linux-gnu/libGL.so ]
-	then
-		sudo ln -s /usr/lib/i386-linux-gnu/libGL.so /usr/lib/libGL.so
-		sudo ln -s /usr/lib/i386-linux-gnu/libGLU.so /usr/lib/libGL.so
-		sudo ln -s /usr/lib/i386-linux-gnu/MesaGL.so /usr/lib/MesaGL.so
-	fi
-	
-	if [ -f  /usr/lib/x86_64-linux-gnu/libGL.so ]
-	then
-		sudo ln -s /usr/lib/x86_64-linux-gnu/libGL.so /usr/lib/libGL.so
-		sudo ln -s /usr/lib/x86_64-linux-gnu/libGLU.so /usr/lib/libGL.so
-		sudo ln -s /usr/lib/x86_64-linux-gnu/MesaGL.so /usr/lib/MesaGL.so
-	fi
-}
+
 
 function build_wxWidgets() {
 	# Set build path based on version
@@ -215,24 +194,21 @@ function build_wxWidgets() {
 		make distclean		
 		
 		# Configure wxWidget build
-		./configure --with-opengl --prefix="/opt"
+		./configure --with-opengl
 
 		# Compile wxWidget build
 		make 
-		make install
 	
 		# Change to contrib directory
 		cd contrib
 	
 		# Compile wxWidget contrib
 		make
-		make install
 	fi
 }
 
 # Run Script Functions
 download_depends
-set_symlinks
 build_wxWidgets
 
 # ***********************************
