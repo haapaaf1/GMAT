@@ -19,7 +19,7 @@ In order to run either script you should first open up a terminal window and nav
 
 Linux:
 
-	Build.sh -arch [x86 | x64] -target [debug | release]
+	./build.sh -arch [x86 | x64] -target [debug | release]
 
 
 Windows:
