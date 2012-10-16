@@ -129,8 +129,17 @@ IF NOT EXIST %sdk_path% (
 	)
 )
 
+:: Change to build directory
+cd ../build
+
+:: Remove previous vs generated files
+rmdir /s /q src
+
 :: Change to msw directory
-cd ../build/msw
+cd msw
+
+:: Remove all msw vs generated files
+DEL *.* /s /f /q
 
 :: Generate visual studio solutions based on user -arch
 IF %arch% == x86 % (
