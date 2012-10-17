@@ -87,7 +87,7 @@ ADD_DEFINITIONS("-DwxUSE_GLCANVAS")
 if(WIN32)
     LINK_LIBRARIES("glu32")
     LINK_LIBRARIES("opengl32")
-else(APPLE)
+elseif(APPLE)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Carbon -framework OpenGL -framework AGL")
     
     INCLUDE_DIRECTORIES ( /System/Library/Frameworks/OpenGL.framework )

@@ -127,11 +127,11 @@ endif()
 ADD_DEFINITIONS("-DNO_GCC_PRAGMA")
 
 # Linker Flags
-if(APPLE)
-    set(CMAKE_SHARED_LINKER_FLAGS "-Wl")
-else()
-	set(CMAKE_SHARED_LINKER_FLAGS "-Wl, --no-undefined")
-	LINK_LIBRARIES("dl")	
+if(UNIX)
+	set(CMAKE_SHARED_LINKER_FLAGS "-Wl")
+	if(NOT APPLE)
+		LINK_LIBRARIES("dl")	
+	endif()
 endif()
 
 # Profile Build Compile Flags
