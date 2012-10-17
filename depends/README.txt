@@ -27,6 +27,9 @@ Linux:
 	freeglut3 
 	freeglut3-dev 
 
+Mac (Lion & Mountain Lion):
+
+	XCode 4.3
 
 Windows:
 
@@ -34,13 +37,13 @@ Windows:
 	Visual Studio or Windows SDK
 
 
-In order to run either script you should first open up a terminal window and navigate to the /gmat/depends/ folder. The configuration.sh and configuration.bat usage is as follows.
+In order to run either script you should first open up a terminal window and navigate to the /gmat/depends/ folder. The configure.sh and configure.bat usage is as follows.
 
 Linux:
 
 	./configure.sh -p [ /path/to/gmat/folder/ ] [-latest]
 
-Sudo is necessary because of the symlink modifications to the opengl libraries and the install location of wxWidget dependency. If you do not wish to use sudo than unfortunatlly you will need to manually configure and build the wxWidget Dependency.
+Sudo is necessary because of the symlink modifications to the opengl libraries and the install location of wxWidget dependency. If you do not wish to use sudo than unfortunatly you will need to manually configure and build the wxWidget Dependency.
 
 
 Windows:
@@ -61,11 +64,11 @@ Please Note: You must be connected to the internet in for for these scripts to p
 
 MANUAL CONFIGURATION
 
-For manual configuration please consult the build system documentation listed under Addtional Support.
+For manual configuration please consult the build system documentation listed under Additional Support.
 
 
 ADDITIONAL SUPPORT
 
-For additional help configuring the GMAT Dependencies, please visit the Build System documenation on the GMAT Wiki.
+For additional help configuring the GMAT Dependencies, please visit the Build System documentation on the GMAT Wiki.
 
 	GMAT Wiki Pages:  http://gmat.ed-pages.com/wiki/tiki-index.php

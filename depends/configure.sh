@@ -11,6 +11,7 @@ clear
 # Set default variables
 gmat_path="/media/jfish-store/gmat-buildbranch"
 use_latest=false
+mac=false
 
 
 # ***********************************
@@ -21,9 +22,9 @@ then
 	gmat_path=$2
 fi
 
-if [ "$3" = "-l" ] 
+if [ "$3" = "-mac" ] 
 then
-	use_latest=true
+	mac=true
 fi
 
 # ***********************************
@@ -69,15 +70,23 @@ function download_depends() {
 	
 		# Change to cspice directory
 		cd $cspice_path
+
+		#Determine download folder based on OS
+        	if [ $mac == true ]
+        	then
+            		cspice_type=MacIntel_OSX_AppleC
+        	else 
+            		cspice_type=PC_Linux_GCC
+        	fi
 	
 		# Download and extract Spice (32 and 64), finally remove archive
-		wget ftp://naif.jpl.nasa.gov/pub/naif/toolkit//C/PC_Linux_GCC_32bit/packages/cspice.tar.Z
+		wget ftp://naif.jpl.nasa.gov/pub/naif/toolkit//C/"$cspice_type"_32bit/packages/cspice.tar.Z
 		gzip -d cspice.tar.Z
 		tar xfv cspice.tar
 		mv cspice cspice32
 		rm cspice.tar
 	
-		wget ftp://naif.jpl.nasa.gov/pub/naif/toolkit//C/PC_Linux_GCC_64bit/packages/cspice.tar.Z
+		wget ftp://naif.jpl.nasa.gov/pub/naif/toolkit//C/"$cspice_type"_64bit/packages/cspice.tar.Z
 		gzip -d cspice.tar.Z
 		tar xfv cspice.tar
 		mv cspice cspice64
@@ -95,11 +104,6 @@ function download_depends() {
 	
 		# Checkout wxWidget source.
 		svn co http://svn.wxwidgets.org/svn/wx/wxWidgets/tags/WX_2_8_12/ wxWidgets-2.8.12
-	
-		# Copy modified wxWidget setup.h file to downloaded source path (Preconfigured to use
-		# ODBC and GLCanvas
-		cp $bin_path/wx/setup.h $wxWidgets_path/wxWidgets-2.8.12/include/wx/msw/setup.h
-		cp $bin_path/wx/setup.h $wxWidgets_path/wxWidgets-2.8.12/include/wx/msw/setup0.h
 		
 		# Copy modified configure scripts (This fixes the OpenGL location issue)
 		cp $bin_path/wx/configure $wxWidgets_path/wxWidgets-2.8.12/configure
@@ -112,11 +116,6 @@ function download_depends() {
 			# Checkout latest wxWidget source.
 			svn co http://svn.wxwidgets.org/svn/wx/wxWidgets/trunk/ wxWidgets-latest
 		
-			# Copy modified wxWidget setup.h file to downloaded source path (Preconfigured to use
-			# ODBC and GLCanvas
-			cp $bin_path/wx/setup.h $wxWidgets_path/wxWidgets-latest/include/wx/msw/setup0.h
-			cp $bin_path/wx/setup.h $wxWidgets_path/wxWidgets-latest/include/wx/msw/setup0.h
-			
 			# Copy modified configure scripts (This fixes the OpenGL location issue)
 			cp $bin_path/wx/configure $wxWidgets_path/wxWidgets-2.8.12/configure
 		
@@ -172,8 +171,6 @@ function download_depends() {
 	fi
 }
 
-
-
 function build_wxWidgets() {
 	# Set build path based on version
 	if [ $use_latest == true ]
@@ -183,18 +180,27 @@ function build_wxWidgets() {
 		wx_build_path=$gmat_path/depends/wxWidgets/wxWidgets-2.8.12
 	fi
 
-	# Check if dependencies have already been built
-	depend_path=$gmat_path/depends/wxWidgets/wxWidgets-2.8.12/lib/libwx_gtk2_core-2.8.so
+	if [ $mac == true ]
+    	then
+        	# Check if dependencies have already been built
+        	depend_path=$gmat_path/depends/wxWidgets/wxWidgets-2.8.12/lib/libwx_mac_core-2.8.0.dylib
+    	else
+        	# Check if dependencies have already been built
+        	depend_path=$gmat_path/depends/wxWidgets/wxWidgets-2.8.12/lib/libwx_gtk2_core-2.8.so
+    	fi
 
 	cd $wx_build_path
 
 	if [ ! -d $depend_path ]
 	then
-		#Clean
-		make distclean		
-		
-		# Configure wxWidget build
-		./configure --with-opengl
+		if [ $mac == true ]
+        	then
+            		arch_flags="-arch i386"
+            		./configure CFLAGS="$arch_flags" CXXFLAGS="$arch_flags" CPPFLAGS="$arch_flags" LDFLAGS="$arch_flags" OBJCFLAGS="$arch_flags" OBJCXXFLAGS="$arch_flags" --with-opengl --with-macosx-version-min=10.7 --with-macosx-sdk=/Developer/SDKs/MacOSX10.6.sdk
+        	else
+            		# Configure wxWidget build
+            		./configure --with-opengl
+        	fi
 
 		# Compile wxWidget build
 		make 

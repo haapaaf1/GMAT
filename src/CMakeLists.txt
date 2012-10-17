@@ -125,6 +125,8 @@ ADD_DEFINITIONS("-DNO_GCC_PRAGMA")
 # Linker Flags
 if(WIN32)
 	set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined --out-implib")
+elseif(APPLE)
+    set(CMAKE_SHARED_LINKER_FLAGS "-Wl")
 else()
 	set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
 	LINK_LIBRARIES("dl")	
@@ -159,9 +161,9 @@ endif()
 # ====================================================================
 # Mac specifics (not tested)
 if(APPLE)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} current_version 0.5 -compatibility_version 0.5 -fvisibility=default")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework OpenGL -framework AGL  -headerpad_max_install_names")
-    LINK_DIRECTORIES("stdc++.6")
+    #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} current_version 0.5 -/#compatibility_version 0.5 -fvisibility=default")
+    #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework OpenGL -framework AGL -headerpad_max_install_names")
+    #LINK_DIRECTORIES("stdc++.6")
 endif()
 
 if(NOT WIN32)
@@ -191,9 +193,9 @@ endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 SUBDIRS(../src/base)
 
 # ====================================================================
-# GUI binary
-SUBDIRS(../src/gui)
-
-# ====================================================================
 # Console binary
 SUBDIRS(../src/console)
+
+# ====================================================================
+# GUI binary
+SUBDIRS(../src/gui)
