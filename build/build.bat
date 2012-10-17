@@ -31,7 +31,7 @@ set cmake="C:\Program Files\CMake 2.8\bin\"
 if "%1"=="-arch" goto arch
 if "%1"=="-target" goto target
 if "%1"=="-version" goto version
-if "%1"=="-cmake" goto version
+if "%1"=="-cmake" goto cmake
 if "%1"=="" goto main
 goto error
 
