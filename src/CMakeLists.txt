@@ -98,7 +98,9 @@ if(WIN32)
 	SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W2")
 endif()
 
-SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
+if(UNIX)
+	SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
+endif()
 
 # check ffriend-injection flag is allowed
 CHECK_CXX_COMPILER_FLAG("-ffriend-injection" GCC_FFRIEND_INJECTION)
@@ -114,21 +116,21 @@ endif()
 
 
 # flags to append to CMAKE_CXX_FLAGS according to CMAKE_BUILD_TYPE 
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3")
-SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g")
-SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-SET(CMAKE_CXX_FLAGS_MINSIZEREL "-O3")
+if(UNIX)
+	SET(CMAKE_CXX_FLAGS_RELEASE "-O3")
+	SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g")
+	SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+	SET(CMAKE_CXX_FLAGS_MINSIZEREL "-O3")
+endif()
 
 # some definitions
 ADD_DEFINITIONS("-DNO_GCC_PRAGMA")
 
 # Linker Flags
-if(WIN32)
-	set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined --out-implib")
-elseif(APPLE)
+if(APPLE)
     set(CMAKE_SHARED_LINKER_FLAGS "-Wl")
 else()
-	set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
+	set(CMAKE_SHARED_LINKER_FLAGS "-Wl, --no-undefined")
 	LINK_LIBRARIES("dl")	
 endif()
 

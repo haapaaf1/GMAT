@@ -27,9 +27,14 @@ Linux:
 	freeglut3 
 	freeglut3-dev 
 
+
+
 Mac (Lion & Mountain Lion):
 
+	
+
 	XCode 4.3
+	Command Line Tools for XCode (Distro Dependent)
 
 Windows:
 
@@ -41,10 +46,11 @@ In order to run either script you should first open up a terminal window and nav
 
 Linux:
 
-	./configure.sh -p [ /path/to/gmat/folder/ ] [-latest]
+	./configure.sh -p [ /path/to/gmat/folder/ ]
 
-Sudo is necessary because of the symlink modifications to the opengl libraries and the install location of wxWidget dependency. If you do not wish to use sudo than unfortunatly you will need to manually configure and build the wxWidget Dependency.
+Mac: 
 
+	./configure.sh -p [ /path/to/gmat/folder/ ] -mac
 
 Windows:
 
