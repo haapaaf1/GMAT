@@ -17,9 +17,13 @@ All OS's:
 
 In order to run either script you should first open up a terminal window and navigate to the /gmat/build/ folder. The build.sh and build.bat usage is as follows.
 
-Linux/Mac:
+Linux:
 
 	./build.sh -arch [x86 | x64]
+
+Mac:
+
+	./build.sh -arch [x86 | x64] -mac
 
 
 Windows:

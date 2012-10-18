@@ -3,7 +3,7 @@
 # Project:	Gmat
 # Title:	configure.sh
 # Purpose:	Windows Script to configure and easily build gmat for end users
-# Usage: 	-arch [x86 | x64]
+# Usage: 	-arch [x86 | x64] -mac
 
 # Clear the screen
 clear
@@ -16,6 +16,7 @@ echo
 
 # Set default variables
 arch="x86"
+mac=false
 
 # ***********************************
 # Input Args
@@ -25,12 +26,22 @@ then
 	arch=$2
 fi
 
+if [ "$3" = "-mac" ] 
+then
+	mac=true
+fi
+
 # ***********************************
 # Make File Generation and Build
 # ***********************************
 
-# Change to msw directory
-cd ../build/linux
+# Change to build/os directory
+if [ $mac == true ]
+then
+		cd ../build/linux
+else 
+		cd ../build/mac
+fi
 
 # Generate unix makefiles
 if [ "$arch" = "x86" ]
