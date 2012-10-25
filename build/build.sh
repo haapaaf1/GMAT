@@ -38,9 +38,9 @@ fi
 # Change to build/os directory
 if [ $mac == true ]
 then
-		cd ../build/linux
+		cd ../build/macosx
 else 
-		cd ../build/mac
+		cd ../build/linux
 fi
 
 # Generate unix makefiles
