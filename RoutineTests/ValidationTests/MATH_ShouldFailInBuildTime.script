@@ -1,0 +1,30 @@
+Create Spacecraft sat1
+Create ReportFile rf1
+rf1.Filename = MATH_ShouldFailInBuildTime.report
+
+Create Variable var var1 var2;
+Create Array arr22[2,2];
+Create String str1 str2 msg;
+var1 = '111.111'; % FIRSTPASS ERROR 1
+sat1.VY =   -  4. 4247; % FIRSTPASS ERROR 2
+sat1.VZ =  . 54247; % FIRSTPASS ERROR 3
+sat1.VXX = 1234.5678; % FINALPASS ERROR 
+
+BeginMissionSequence
+
+var1. = 1 * 2; FIRSTPASS ERROR 4
+var1. = 11 22 * 3; FIRSTPASS ERROR 5
+str2 = 234.234f; % FIRSTPASS ERROR 6
+var1 = +  +  11 22 + 33 44; % FIRSTPASS ERROR 7
+var1 = ( var 2  )+   (  var2   3   )    +var +   var 1  ; % FIRSTPASS ERROR 8
+var1 = var   2     +    var 3 % FIRSTPASS ERROR 9
+var1 = var1 2 + var2 3; % FIRSTPASS ERROR 10
+var1 = - atan2 (11. 907, 0 .2345)  + 1.47756418563724 % FIRSTPASS ERROR 11
+var1 = atan2(1e - 007, 1 e-007 ); % FIRSTPASS ERROR 12
+var1 = sat1. X + sat1 .Y + sat1 . Z; % FIRSTPASS ERROR 13
+
+var1 = 100 + arr22(1,,1) + 10 ; % FINALPASS ERROR 1
+var1 = '123.123'; % FINALPASS ERROR 2
+var1 = arr22; % FINALPASS ERROR 3
+
+Report rf1 var1;

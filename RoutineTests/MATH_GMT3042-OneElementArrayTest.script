@@ -1,0 +1,87 @@
+Create ReportFile rf
+rf.Filename = MATH_GMT3042-OneElementArrayTest.report;
+rf.WriteHeaders = false;
+
+Create Array A[1,1] B[2,2] C[2,2]
+Create Variable x y
+
+A(1,1) = 10
+B(2,2) = 20
+
+A = 11     
+x = 22
+y = 1;
+
+BeginMissionSequence
+
+Report rf B
+Report rf A
+Report rf x
+Report rf y
+
+x = A(1,1)    
+Report rf x
+x = A         
+Report rf x
+x = -A        
+Report rf x
+A = x     
+Report rf A;
+A = -x        
+Report rf A;
+
+
+C = A * B
+Report rf C
+C = B * A
+Report rf C
+x = 5 / A
+Report rf x
+A = 5 / x 
+Report rf A
+A = 5 / A
+Report rf A
+x = sin(A)
+Report rf x
+A = sin(x)
+Report rf A
+A = sin(A)
+Report rf A
+
+x = sin(A/4)
+Report rf x
+x = cos(A/4)
+Report rf x
+x = atan2(y/2, y/2);
+Report rf x
+
+x = atan2(A/4, A/4)
+Report rf x
+
+
+%% for MATLAB
+A(1,1) = 10
+B(2,2) = 20
+A = 11     
+x = 22
+y = 1
+
+x = A(1,1)    
+x = A         
+x = -A        
+A = x     
+A = -x        
+
+C = A * B
+C = B * A
+x = 5 / A
+A = 5 / x 
+A = 5 / A
+x = sin(A)
+A = sin(x)
+A = sin(A)
+
+x = sin(A/4)
+x = cos(A/4)
+x = atan2(y/2, y/2)
+x = atan2(A/4, A/4)
