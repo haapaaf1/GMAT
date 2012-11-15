@@ -2,9 +2,10 @@ Create Spacecraft sat1
 Create ReportFile rf1
 rf1.Filename = MATH_ShouldRun.report
 
-Create Variable var1 var2;
+Create Variable var1 var2 e;
 Create Array arr22[2,2];
 Create String str1 str2 msg;
+e = 111.111;
 
 msg = ----------------------; %% This should pass
 var1 = 10;
@@ -20,7 +21,7 @@ str1 = 234.234
 sat1.VX = -  6.424747647114477; % OK
 Report rf1 str1 sat1.VX sat1.VY sat1.VZ
 
-var1 = 2.34/1000*34.78*(sat1.VX) -  1.09056168*10^(-5); % OK
+var1 = 2.34/1000*34.78*((sat1.VX)) -  1.09056168*10^((-5)); % OK
 var1 = 5116.1085 + (-4237.076770); % OK
 var1 = - var2; % OK
 var1 =  - atan2 (11.907, 0.2345)  + 1.47756418563724;
@@ -32,6 +33,12 @@ var1 = + + 11.11 + + 22.22;
 Report rf1 var1;
 
 var1 = sat1.X + sat1.Y;
+Report rf1 var1;
+
+var1 = e;
+Report rf1 var1
+
+var1 = 1 * -5e+2
 Report rf1 var1;
 
 var1 = 10;

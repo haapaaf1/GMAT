@@ -67,14 +67,14 @@ Create CoordinateSystem MoonMJ2000Eq;
 GMAT MoonMJ2000Eq.Origin = Luna;
 GMAT MoonMJ2000Eq.J2000Body = Earth;
 GMAT MoonMJ2000Eq.Axes = MJ2000Eq;
-GMAT MoonMJ2000Eq.Epoch = 21545;
+%%GMAT MoonMJ2000Eq.Epoch = 21545; %% 2012.11.15 This is no longer allowed, only allowed in MOE* and TOE*
 GMAT MoonMJ2000Eq.UpdateInterval = 60;
 
 Create CoordinateSystem EarthMJ2000Eq;
 GMAT EarthMJ2000Eq.Origin = Earth;
 GMAT EarthMJ2000Eq.J2000Body = Earth;
 GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.Epoch = 21545;
+%%GMAT EarthMJ2000Eq.Epoch = 21545; %% 2012.11.15 This is no longer allowed, only allowed in MOE* and TOE*
 GMAT EarthMJ2000Eq.UpdateInterval = 60;
 
 
@@ -82,7 +82,7 @@ Create CoordinateSystem EarthMJ2000Ec;
 GMAT EarthMJ2000Ec.Origin = Earth;
 GMAT EarthMJ2000Ec.J2000Body = Earth;
 GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
-GMAT EarthMJ2000Ec.Epoch = 21545;
+%%GMAT EarthMJ2000Ec.Epoch = 21545; %% 2012.11.15 This is no longer allowed, only allowed in MOE* and TOE*
 GMAT EarthMJ2000Ec.UpdateInterval = 60;
 
 
@@ -90,7 +90,7 @@ Create CoordinateSystem EarthFixed;
 GMAT EarthFixed.Origin = Earth;
 GMAT EarthFixed.J2000Body = Earth;
 GMAT EarthFixed.Axes = BodyFixed;
-GMAT EarthFixed.Epoch = 21545;
+%%GMAT EarthFixed.Epoch = 21545; %% 2012.11.15 This is no longer allowed, only allowed in MOE* and TOE*
 GMAT EarthFixed.UpdateInterval = 60;
 
 Create ReportFile Moon_Report
