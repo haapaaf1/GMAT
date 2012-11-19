@@ -126,7 +126,8 @@ GMAT XYPlot1.YVariables = {MyX, MyYZ(1,1), MyYZ(2,2), MySMA(2,2)};
 
 BeginMissionSequence;
 
-GMAT MyX = DefaultSC.Earth.X;
+%%GMAT MyX = DefaultSC.Earth.X;
+GMAT MyX = DefaultSC.EarthMJ2000Eq.X;
 GMAT MyYZ(1,1) = DefaultSC.Y;
 GMAT MyYZ(2,2) = DefaultSC.Z;
 GMAT MySMA(2,2) = DefaultSC.Earth.SMA;
@@ -135,7 +136,8 @@ GMAT MyEpoch(1,1) = DefaultSC.A1ModJulian;
 %%While DefaultSC.ElapsedDays < 1.0
 While DefaultSC.ElapsedDays < 0.1
    Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 60};
-   GMAT MyX = DefaultSC.Earth.X;
+   %%GMAT MyX = DefaultSC.Earth.X;
+   GMAT MyX = DefaultSC.EarthMJ2000Eq.X;
    GMAT MyYZ(1,1) = DefaultSC.Y;
    GMAT MyYZ(2,2) = DefaultSC.Z;
    GMAT MySMA(2,2) = DefaultSC.Earth.SMA;

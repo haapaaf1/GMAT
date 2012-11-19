@@ -261,8 +261,10 @@ msg = '---------- AZI'
 Report StopCond_Report msg;
 %  Can't test limits (-180 and 180)  because orbit doesn't hit the limits
 DefaultSC = InitSat;
-Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.AZI = 88, StopTolerance = 1e-5});
-diff = abs(DefaultSC.Earth.AZI - 88);
+%%Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.AZI = 88, StopTolerance = 1e-5});
+%%diff = abs(DefaultSC.Earth.AZI - 88);
+Propagate DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.AZI = 88, StopTolerance = 1e-5});
+diff = abs(DefaultSC.EarthMJ2000Eq.AZI - 88);
 passFlag = 1;
 If diff > 1e-5
    passFlag = 0;
@@ -572,8 +574,10 @@ Report StopCond_Report  passFlag;
 msg = '---------- RA'
 Report StopCond_Report msg;
 DefaultSC = InitSat;
-Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RA = -180, StopTolerance = 1e-5});
-achievedValue = DefaultSC.Earth.RA;
+%%Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RA = -180, StopTolerance = 1e-5});
+Propagate DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.RA = -180, StopTolerance = 1e-5});
+%%achievedValue = DefaultSC.Earth.RA;
+achievedValue = DefaultSC.EarthMJ2000Eq.RA;
 % put in range 0 to 360;
 While achievedValue < 0
   achievedValue = achievedValue + 360;
@@ -586,8 +590,10 @@ EndIf
 Report StopCond_Report  passFlag;
 
 DefaultSC = InitSat;
-Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RA = 0, StopTolerance = 1e-5});
-diff = abs(DefaultSC.Earth.RA - 0);
+%%Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RA = 0, StopTolerance = 1e-5});
+Propagate DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.RA = 0, StopTolerance = 1e-5});
+%%diff = abs(DefaultSC.Earth.RA - 0);
+diff = abs(DefaultSC.EarthMJ2000Eq.RA - 0);
 passFlag = 1;
 If diff > 1e-5
    passFlag = 0;
@@ -595,8 +601,10 @@ EndIf
 Report StopCond_Report  passFlag;
 
 DefaultSC = InitSat;
-Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RA = 180, StopTolerance = 1e-5});
-achievedValue = DefaultSC.Earth.RA;
+%%Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RA = 180, StopTolerance = 1e-5});
+Propagate DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.RA = 180, StopTolerance = 1e-5});
+%%achievedValue = DefaultSC.Earth.RA;
+achievedValue = DefaultSC.EarthMJ2000Eq.RA;
 % put in range 0 to 360;
 While achievedValue < 0
   achievedValue = achievedValue + 360;
@@ -643,8 +651,10 @@ Report StopCond_Report  passFlag;
 msg = '---------- RAV'
 Report StopCond_Report msg;
 DefaultSC = InitSat;
-Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = -180, StopTolerance = 1e-5});
-achievedValue = DefaultSC.Earth.RAV;
+%%Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = -180, StopTolerance = 1e-5});
+Propagate DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.RAV = -180, StopTolerance = 1e-5});
+%%achievedValue = DefaultSC.Earth.RAV;
+achievedValue = DefaultSC.EarthMJ2000Eq.RAV;
 % put in range 0 to 360;
 While achievedValue < 0
   achievedValue = achievedValue + 360;
@@ -657,8 +667,10 @@ EndIf
 Report StopCond_Report  passFlag;
 
 DefaultSC = InitSat;
-Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = 0, StopTolerance = 1e-5});
-diff = abs(DefaultSC.Earth.RAV - 0);
+%%Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = 0, StopTolerance = 1e-5});
+Propagate DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.RAV = 0, StopTolerance = 1e-5});
+%%diff = abs(DefaultSC.Earth.RAV - 0);
+diff = abs(DefaultSC.EarthMJ2000Eq.RAV - 0);
 passFlag = 1;
 If diff > 1e-5
    passFlag = 0;
@@ -666,8 +678,10 @@ EndIf
 Report StopCond_Report  passFlag;
 
 DefaultSC = InitSat;
-Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = 180, StopTolerance = 1e-5});
-achievedValue = DefaultSC.Earth.RAV;
+%%Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = 180, StopTolerance = 1e-5});
+Propagate DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.RAV = 180, StopTolerance = 1e-5});
+%%achievedValue = DefaultSC.Earth.RAV;
+achievedValue = DefaultSC.EarthMJ2000Eq.RAV;
 % put in range 0 to 360;
 While achievedValue < 0
   achievedValue = achievedValue + 360;
@@ -815,8 +829,10 @@ Report StopCond_Report  passFlag;
 msg = '---------- VMAG'
 Report StopCond_Report msg;
 DefaultSC = InitSat;
-Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.VMAG = 6.21, StopTolerance = 1e-5});
-diff = abs(DefaultSC.Earth.VMAG - 6.21);
+%%Propagate DefaultProp(DefaultSC, {DefaultSC.Earth.VMAG = 6.21, StopTolerance = 1e-5});
+%%diff = abs(DefaultSC.Earth.VMAG - 6.21);
+Propagate DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.VMAG = 6.21, StopTolerance = 1e-5});
+diff = abs(DefaultSC.EarthMJ2000Eq.VMAG - 6.21);
 passFlag = 1;
 If diff > 1e-5
    passFlag = 0;
@@ -980,8 +996,10 @@ msg = '---------- AZI'
 Report StopCond_Report msg;
 %  Can't test limits (-180 and 180)  because orbit doesn't hit the limits
 DefaultSC = InitSat;
-Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.AZI = 88, StopTolerance = 1e-5});
-diff = abs(DefaultSC.Earth.AZI - 88);
+%%Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.AZI = 88, StopTolerance = 1e-5});
+%%diff = abs(DefaultSC.Earth.AZI - 88);
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.AZI = 88, StopTolerance = 1e-5});
+diff = abs(DefaultSC.EarthMJ2000Eq.AZI - 88);
 passFlag = 1;
 If diff > 1e-5
    passFlag = 0;
@@ -1273,8 +1291,10 @@ Report StopCond_Report  passFlag;
 msg = '---------- RA'
 Report StopCond_Report msg;
 DefaultSC = InitSat;
-Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RA = -180, StopTolerance = 1e-5});
-achievedValue = DefaultSC.Earth.RA;
+%%Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RA = -180, StopTolerance = 1e-5});
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.RA = -180, StopTolerance = 1e-5});
+%%achievedValue = DefaultSC.Earth.RA;
+achievedValue = DefaultSC.EarthMJ2000Eq.RA;
 % put in range 0 to 360;
 While achievedValue < 0
   achievedValue = achievedValue + 360;
@@ -1287,8 +1307,10 @@ EndIf
 Report StopCond_Report  passFlag;
 
 DefaultSC = InitSat;
-Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RA = 0, StopTolerance = 1e-5});
-diff = abs(DefaultSC.Earth.RA - 0);
+%%Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RA = 0, StopTolerance = 1e-5});
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.RA = 0, StopTolerance = 1e-5});
+%%diff = abs(DefaultSC.Earth.RA - 0);
+diff = abs(DefaultSC.EarthMJ2000Eq.RA - 0);
 passFlag = 1;
 If diff > 1e-5
    passFlag = 0;
@@ -1296,8 +1318,10 @@ EndIf
 Report StopCond_Report  passFlag;
 
 DefaultSC = InitSat;
-Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RA = 180, StopTolerance = 1e-5});
-achievedValue = DefaultSC.Earth.RA;
+%%Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RA = 180, StopTolerance = 1e-5});
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.RA = 180, StopTolerance = 1e-5});
+%%achievedValue = DefaultSC.Earth.RA;
+achievedValue = DefaultSC.EarthMJ2000Eq.RA;
 % put in range 0 to 360;
 While achievedValue < 0
   achievedValue = achievedValue + 360;
@@ -1346,8 +1370,10 @@ Report StopCond_Report  passFlag;
 msg = '---------- RAV'
 Report StopCond_Report msg;
 DefaultSC = InitSat;
-Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = -180, StopTolerance = 1e-5});
-achievedValue = DefaultSC.Earth.RAV;
+%%Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = -180, StopTolerance = 1e-5});
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.RAV = -180, StopTolerance = 1e-5});
+%%achievedValue = DefaultSC.Earth.RAV;
+achievedValue = DefaultSC.EarthMJ2000Eq.RAV;
 % put in range 0 to 360;
 While achievedValue < 0
   achievedValue = achievedValue + 360;
@@ -1360,8 +1386,10 @@ EndIf
 Report StopCond_Report  passFlag;
 
 DefaultSC = InitSat;
-Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = 0, StopTolerance = 1e-5});
-diff = abs(DefaultSC.Earth.RAV - 0);
+%%Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = 0, StopTolerance = 1e-5});
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.RAV = 0, StopTolerance = 1e-5});
+%%diff = abs(DefaultSC.Earth.RAV - 0);
+diff = abs(DefaultSC.EarthMJ2000Eq.RAV - 0);
 passFlag = 1;
 If diff > 1e-5
    passFlag = 0;
@@ -1369,8 +1397,10 @@ EndIf
 Report StopCond_Report  passFlag;
 
 DefaultSC = InitSat;
-Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = 180, StopTolerance = 1e-5});
-achievedValue = DefaultSC.Earth.RAV;
+%%Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.RAV = 180, StopTolerance = 1e-5});
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.RAV = 180, StopTolerance = 1e-5});
+%%achievedValue = DefaultSC.Earth.RAV;
+achievedValue = DefaultSC.EarthMJ2000Eq.RAV;
 % put in range 0 to 360;
 While achievedValue < 0
   achievedValue = achievedValue + 360;
@@ -1505,8 +1535,10 @@ Report StopCond_Report  passFlag;
 msg = '---------- VMAG'
 Report StopCond_Report msg;
 DefaultSC = InitSat;
-Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.VMAG = 6.21, StopTolerance = 1e-5});
-diff = abs(DefaultSC.Earth.VMAG - 6.21);
+%%Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.Earth.VMAG = 6.21, StopTolerance = 1e-5});
+%%diff = abs(DefaultSC.Earth.VMAG - 6.21);
+Propagate BackProp DefaultProp(DefaultSC, {DefaultSC.EarthMJ2000Eq.VMAG = 6.21, StopTolerance = 1e-5});
+diff = abs(DefaultSC.EarthMJ2000Eq.VMAG - 6.21);
 passFlag = 1;
 If diff > 1e-5
    passFlag = 0;
