@@ -52,3 +52,6 @@ If var1 == 10 & var2 == 20
    msg = 'var1 == 10 & var2 == 10';
    Report rf1 msg;
 EndIf
+
+var2 = tan(-7.920599999999999 );
+Report rf1 var2;

@@ -1,0 +1,171 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2012-11-30 05:19:56
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+DefaultSC.DateFormat = UTCGregorian;
+DefaultSC.Epoch = '01 Jan 2000 11:59:00.000';
+DefaultSC.CoordinateSystem = EarthMJ2000Eq;
+DefaultSC.DisplayStateType = Cartesian;
+DefaultSC.X = 7100;
+DefaultSC.Y = 0;
+DefaultSC.Z = 1300;
+DefaultSC.VX = 0;
+DefaultSC.VY = 7.35;
+DefaultSC.VZ = 1;
+DefaultSC.DryMass = 850;
+DefaultSC.Cd = 2.2;
+DefaultSC.Cr = 1.8;
+DefaultSC.DragArea = 15;
+DefaultSC.SRPArea = 1;
+DefaultSC.NAIFId = -123456789;
+DefaultSC.NAIFIdReferenceFrame = -123456789;
+DefaultSC.Id = 'SatId';
+DefaultSC.Attitude = CoordinateSystemFixed;
+DefaultSC.ModelFile = '../data/vehicle/models/aura.3ds';
+DefaultSC.ModelOffsetX = 0;
+DefaultSC.ModelOffsetY = 0;
+DefaultSC.ModelOffsetZ = 0;
+DefaultSC.ModelRotationX = 0;
+DefaultSC.ModelRotationY = 0;
+DefaultSC.ModelRotationZ = 0;
+DefaultSC.ModelScale = 3;
+DefaultSC.AttitudeDisplayStateType = 'Quaternion';
+DefaultSC.AttitudeRateDisplayStateType = 'AngularVelocity';
+DefaultSC.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+DefaultSC.Q1 = 0;
+DefaultSC.Q2 = 0;
+DefaultSC.Q3 = 0;
+DefaultSC.Q4 = 1;
+DefaultSC.EulerAngleSequence = '321';
+DefaultSC.AngularVelocityX = 0;
+DefaultSC.AngularVelocityY = 0;
+DefaultSC.AngularVelocityZ = 0;
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+DefaultProp_ForceModel.CentralBody = Earth;
+DefaultProp_ForceModel.PrimaryBodies = {Earth};
+DefaultProp_ForceModel.Drag = None;
+DefaultProp_ForceModel.SRP = Off;
+DefaultProp_ForceModel.RelativisticCorrection = Off;
+DefaultProp_ForceModel.ErrorControl = RSSStep;
+DefaultProp_ForceModel.GravityField.Earth.Degree = 4;
+DefaultProp_ForceModel.GravityField.Earth.Order = 4;
+DefaultProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+DefaultProp_ForceModel.GravityField.Earth.EarthTideModel = 'None';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+DefaultProp.FM = DefaultProp_ForceModel;
+DefaultProp.Type = RungeKutta89;
+DefaultProp.InitialStepSize = 60;
+DefaultProp.Accuracy = 9.999999999999999e-012;
+DefaultProp.MinStep = 0.001;
+DefaultProp.MaxStep = 2700;
+DefaultProp.MaxStepAttempts = 50;
+DefaultProp.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn DefaultIB;
+DefaultIB.CoordinateSystem = Local;
+DefaultIB.Origin = Earth;
+DefaultIB.Axes = VNB;
+DefaultIB.Element1 = 0;
+DefaultIB.Element2 = 0;
+DefaultIB.Element3 = 0;
+DefaultIB.DecrementMass = false;
+DefaultIB.Isp = 300;
+DefaultIB.GravitationalAccel = 9.810000000000001;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create EphemerisFile UserDefinedInitialFinal;
+UserDefinedInitialFinal.UpperLeft = [ 0.02293120638085743 0.02513966480446928 ];
+UserDefinedInitialFinal.Size = [ 0.942173479561316 0.9371508379888268 ];
+UserDefinedInitialFinal.RelativeZOrder = 42;
+UserDefinedInitialFinal.Maximized = false;
+UserDefinedInitialFinal.Spacecraft = DefaultSC;
+UserDefinedInitialFinal.Filename = 'EPHEM_GMT3342-TestInitialAndFinalEpoch.eph';
+UserDefinedInitialFinal.FileFormat = CCSDS-OEM;
+UserDefinedInitialFinal.EpochFormat = UTCGregorian;
+UserDefinedInitialFinal.InitialEpoch = 01 Jan 2000 14:00:00.000;
+UserDefinedInitialFinal.FinalEpoch = 01 Jan 2000 20:00:00.000;
+UserDefinedInitialFinal.StepSize = 300;
+UserDefinedInitialFinal.InterpolationOrder = 7;
+UserDefinedInitialFinal.CoordinateSystem = EarthMJ2000Eq;
+UserDefinedInitialFinal.WriteEphemeris = true;
+
+
+Create EphemerisFile UserDefinedFinal;
+UserDefinedFinal.UpperLeft = [ 0.02293120638085743 0.02513966480446928 ];
+UserDefinedFinal.Size = [ 0.942173479561316 0.9371508379888268 ];
+UserDefinedFinal.RelativeZOrder = 42;
+UserDefinedFinal.Maximized = false;
+UserDefinedFinal.Spacecraft = DefaultSC;
+UserDefinedFinal.Filename = 'EPHEM_GMT3342-TestFinalEpoch.eph';
+UserDefinedFinal.FileFormat = CCSDS-OEM;
+UserDefinedFinal.EpochFormat = UTCGregorian;
+UserDefinedFinal.InitialEpoch = InitialSpacecraftEpoch;
+UserDefinedFinal.FinalEpoch = 01 Jan 2000 20:00:00.000;
+UserDefinedFinal.StepSize = 300;
+UserDefinedFinal.InterpolationOrder = 7;
+UserDefinedFinal.CoordinateSystem = EarthMJ2000Eq;
+UserDefinedFinal.WriteEphemeris = true;
+
+
+Create EphemerisFile UserDefinedInitial;
+UserDefinedInitial.UpperLeft = [ 0.02293120638085743 0.02513966480446928 ];
+UserDefinedInitial.Size = [ 0.942173479561316 0.9371508379888268 ];
+UserDefinedInitial.RelativeZOrder = 42;
+UserDefinedInitial.Maximized = false;
+UserDefinedInitial.Spacecraft = DefaultSC;
+UserDefinedInitial.Filename = 'EPHEM_GMT3342-TestInitialEpoch.eph';
+UserDefinedInitial.FileFormat = CCSDS-OEM;
+UserDefinedInitial.EpochFormat = UTCGregorian;
+UserDefinedInitial.InitialEpoch = 01 Jan 2000 14:00:00.000;
+UserDefinedInitial.FinalEpoch = FinalSpacecraftEpoch;
+UserDefinedInitial.StepSize = 300;
+UserDefinedInitial.InterpolationOrder = 7;
+UserDefinedInitial.CoordinateSystem = EarthMJ2000Eq;
+UserDefinedInitial.WriteEphemeris = true;
+
+
+Create ReportFile ReportFile1;
+ReportFile1.SolverIterations = Current;
+ReportFile1.UpperLeft = [ 0.004985044865403789 0.009776536312849162 ];
+ReportFile1.Size = [ 0.9122632103688934 0.7960893854748603 ];
+ReportFile1.RelativeZOrder = 46;
+ReportFile1.Maximized = false;
+ReportFile1.Filename = 'EPHEM_GMT3342-TestInitialAndFinalEpoch.report';
+ReportFile1.Precision = 16;
+ReportFile1.Add = {DefaultSC.TAIGregorian, DefaultSC.EarthMJ2000Eq.X, DefaultSC.EarthMJ2000Eq.Y, DefaultSC.EarthMJ2000Eq.Z};
+ReportFile1.WriteHeaders = true;
+ReportFile1.LeftJustify = On;
+ReportFile1.ZeroFill = Off;
+ReportFile1.ColumnWidth = 20;
+ReportFile1.WriteReport = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedDays = 1.5};

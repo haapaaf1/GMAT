@@ -232,6 +232,8 @@ BeginMissionSequence;
 
 Toggle RadApoPlot Off;
 
+%% For testing Epoch.UTCGregorian in command mode
+GMAT MMSRef.Epoch.UTCGregorian = '22 Jul 2014 11:29:10.811';
 
 %------------------------------
 %  Propagate to Earth periapsis
