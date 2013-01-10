@@ -1,0 +1,151 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2012-12-26 11:40:13
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft sat1 sat2;
+sat1.X = 7123;
+
+
+%----------------------------------------
+%---------- Functions
+%----------------------------------------
+
+Create MatlabFunction passthrough sin;
+passthrough.FunctionPath = 'C:/Projects/GmatDev/application/userfunctions/matlab/';
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create ReportFile rf;
+rf.Filename = 'ZMATLAB_GMT3324-TestInputOutput.report';
+
+%----------------------------------------
+%---------- Arrays, Variables, Strings
+%----------------------------------------
+
+Create Array arr22[2,2] arr33[3,3] arrIn[2,3] arrOut[2,3]
+Create Variable var1 var2 var3;
+Create String str1 str2 msg;
+var1 = 1;
+var2 = 2;
+var3 = 3;
+GMAT str1 = 'string 1';
+GMAT str2 = 'string 2';
+
+arr22(1,1) = 2211;
+arr22(1,2) = 2212;
+arr22(2,1) = 2221;
+arr22(2,2) = 2222;
+
+arr33(1,1) = 3311;
+arr33(1,2) = 3312;
+arr33(1,3) = 3313;
+arr33(2,1) = 3321;
+arr33(2,2) = 3322;
+arr33(2,3) = 3323;
+arr33(3,1) = 3331;
+arr33(3,2) = 3332;
+arr33(3,3) = 3333;
+
+arrIn(1,1) = 11;
+arrIn(1,2) = 12;
+arrIn(1,3) = 13;
+arrIn(2,1) = 21;
+arrIn(2,2) = 22;
+arrIn(2,3) = 23;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+
+Report rf var1 var2 var3
+Report rf str1 str2
+Report rf arrIn arrOut arr22 arr33;
+
+msg = '========== [var1] = passthrough(var2)'
+Report rf msg;
+[var1] = passthrough(var2);
+Report rf var2 var1;
+
+msg = '========== [arr22] = passthrough(arr22)'
+Report rf msg;
+[arr22] = passthrough(arr22);
+Report rf arr22
+
+msg = '========== [arr22(1,1)] = passthrough(arr33(2,2))'
+Report rf msg;
+arr33(2,2) = 200;
+arr22(1,1) = 222;
+[arr22(1,1)] = passthrough(arr33(2,2));
+Report rf arr33(2,2) arr22(1,1)
+
+msg = '========== [var1] = passthrough(arr33(2,2))'
+Report rf msg;
+var1 = 33;
+[var1] = passthrough(arr33(2,2));
+Report rf arr33(2,2) var1;
+
+msg = '========== [arr22] = passthrough(arr33)'
+Report rf msg;
+[arr22] = passthrough(arr33);
+Report rf arr33 arr22;
+
+msg = '========== [arrOut] = passthrough(arrIn)'
+Report rf msg;
+[arrOut] = passthrough(arrIn);
+Report rf arrIn arrOut;
+
+msg = '========== [sat2.X] = passthrough(sat1.X)'
+Report rf msg;
+[sat2.X] = passthrough(sat1.X);
+Report rf sat1.X sat2.X
+
+msg = '========== [str2] = passthrough(str1)'
+Report rf msg;
+[str2] = passthrough(str1);
+Report rf str1 str2
+
+msg = '========== [arr33(3,3)] = sin(arr22(2,2))'
+Report rf msg;
+[arr33(3,3)] = sin(arr22(2,2));
+Report rf arr22(2,2) arr33(3,3) arr33
+
+msg = '========== [arrOut(1,1)] = passthrough(arrIn(1,1))';
+Report rf msg;
+arrIn(1,1) = 99;
+[arrOut(1,1)] = passthrough(arrIn(1,1));
+Report rf arrIn(1,1) arrOut(1,1)
+
+msg = '========== [arr33(3,3)] = passthrough(arr22(2,2))';
+Report rf msg;
+arr22(2,2) = 99;
+[arr33(3,3)] = passthrough(arr22(2,2));
+Report rf arr33(3,3) arr22(2,2)
+
+msg = '========== [arrOut] = passthrough(arrIn)'
+Report rf msg;
+% with same array size
+[arrOut] = passthrough(arrIn);
+Report rf arrIn arrOut
+
+Report rf arrIn arrOut arr22 arr33;
+
+msg = '========== [arr22] = passthrough(arr33)'
+Report rf msg;
+% with different array size
+[arr22] = passthrough(arr33);
+Report rf arr33 arr22
+
+msg = '========== [arr33] = passthrough(arr22)';
+Report rf msg;
+[arr33] = passthrough(arr22);
+Report rf arr22 arr33
+
