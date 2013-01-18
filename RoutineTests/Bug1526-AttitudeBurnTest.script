@@ -141,8 +141,6 @@ GMAT VNBBurn.Thrusters = {VNBThruster};
 Create CoordinateSystem VNBCS;
 GMAT VNBCS.Origin = AttitudeSat;
 GMAT VNBCS.Axes = ObjectReferenced;
-GMAT VNBCS.UpdateInterval = 60;
-GMAT VNBCS.OverrideOriginInterval = false;
 GMAT VNBCS.XAxis = V;
 GMAT VNBCS.YAxis = N;
 GMAT VNBCS.Primary = Earth;

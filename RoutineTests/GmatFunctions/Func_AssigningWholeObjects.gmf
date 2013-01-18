@@ -132,8 +132,6 @@ Create FminconOptimizer SQPdup;
 Create CoordinateSystem CSorig;
 GMAT CSorig.Origin = Mars;
 GMAT CSorig.Axes = MJ2000Eq;
-GMAT CSorig.UpdateInterval = 30;
-GMAT CSorig.OverrideOriginInterval = true;
 
 %%%GmatBase Exception Thrown: Cannot initialize NULL axes of CoordinateSystem "CSdup"
 %%%Create CoordinateSystem CSdup;

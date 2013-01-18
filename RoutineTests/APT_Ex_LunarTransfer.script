@@ -61,8 +61,6 @@ Create CoordinateSystem EarthSunRot;
 GMAT EarthSunRot.Origin = Earth;
 GMAT EarthSunRot.J2000Body = Earth;
 GMAT EarthSunRot.Axes = ObjectReferenced;
-%%GMAT EarthSunRot.Epoch = 21545.000000397937; %% 2012.11.15 This no longer allowed, only allowed in MOE* and TOE*
-GMAT EarthSunRot.UpdateInterval = 60;
 GMAT EarthSunRot.XAxis = R;
 GMAT EarthSunRot.ZAxis = N;
 GMAT EarthSunRot.Primary = Sun;

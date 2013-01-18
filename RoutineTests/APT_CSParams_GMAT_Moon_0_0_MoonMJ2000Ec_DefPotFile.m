@@ -60,35 +60,13 @@ Create Variable OutputStepSize
 %---------- Coordinate Systems
 %----------------------------------------
 
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthMJ2000Ec;
-GMAT EarthMJ2000Ec.Origin = Earth;
-GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
-GMAT EarthMJ2000Ec.UpdateInterval = 60;
-GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthFixed;
-GMAT EarthFixed.Origin = Earth;
-GMAT EarthFixed.Axes = BodyFixed;
-GMAT EarthFixed.UpdateInterval = 60;
-GMAT EarthFixed.OverrideOriginInterval = false;
-
 Create CoordinateSystem MoonMJ2000Ec;
 GMAT MoonMJ2000Ec.Origin = Luna;
 GMAT MoonMJ2000Ec.Axes = MJ2000Ec;
-GMAT MoonMJ2000Ec.UpdateInterval = 60;
-GMAT MoonMJ2000Ec.OverrideOriginInterval = false;
 
 Create CoordinateSystem MoonMJ2000Eq;
 GMAT MoonMJ2000Eq.Origin = Luna;
 GMAT MoonMJ2000Eq.Axes = MJ2000Eq;
-GMAT MoonMJ2000Eq.UpdateInterval = 60;
-GMAT MoonMJ2000Eq.OverrideOriginInterval = false;
 
 
 %----------------------------------------

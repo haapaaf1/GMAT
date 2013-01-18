@@ -56,7 +56,6 @@ burnBaby.Element3                 = 0;
 
 EarthRLP.Origin                   = Earth;
 EarthRLP.Axes                     = ObjectReferenced;
-EarthRLP.UpdateInterval           = 60;
 EarthRLP.XAxis                    = R;
 EarthRLP.ZAxis                    = N;
 EarthRLP.Primary                  = Sun;
@@ -64,8 +63,6 @@ EarthRLP.Secondary                = EMBary;
 
 L2RLP.Origin                      = SEML2;
 L2RLP.Axes                        = ObjectReferenced;
-L2RLP.UpdateInterval              = 60;
-L2RLP.OverrideOriginInterval      = false;
 L2RLP.XAxis                       = R;
 L2RLP.ZAxis                       = N;
 L2RLP.Primary                     = Sun;

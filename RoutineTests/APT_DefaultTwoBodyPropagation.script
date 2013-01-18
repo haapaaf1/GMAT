@@ -1,10 +1,4 @@
 %$Id$
-%----------------------------------------
-%---------- Solar System User-Modified Values
-%----------------------------------------
-
-
-GMAT SolarSystem.EphemerisSource = 'TwoBodyPropagation';
 
 %----------------------------------------
 %---------- Spacecraft

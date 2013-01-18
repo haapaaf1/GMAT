@@ -103,49 +103,21 @@ GMAT LOI.Element3 = 0;
 %---------- Coordinate Systems
 %----------------------------------------
 
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthMJ2000Ec;
-GMAT EarthMJ2000Ec.Origin = Earth;
-GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
-GMAT EarthMJ2000Ec.UpdateInterval = 60;
-GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthFixed;
-GMAT EarthFixed.Origin = Earth;
-GMAT EarthFixed.Axes = BodyFixed;
-GMAT EarthFixed.UpdateInterval = 60;
-GMAT EarthFixed.OverrideOriginInterval = false;
-
 Create CoordinateSystem EarthSunRot;
 GMAT EarthSunRot.Origin = Earth;
 GMAT EarthSunRot.Axes = ObjectReferenced;
-GMAT EarthSunRot.UpdateInterval = 60;
-GMAT EarthSunRot.OverrideOriginInterval = false;
 GMAT EarthSunRot.XAxis = R;
 GMAT EarthSunRot.ZAxis = N;
 GMAT EarthSunRot.Primary = Sun;
 GMAT EarthSunRot.Secondary = Earth;
 
-%--------------------------------------------------------------------------
-%-------------------------- Coordinate Systems ----------------------------
-%--------------------------------------------------------------------------
-
 Create CoordinateSystem MoonMJ2000Eq;
 GMAT MoonMJ2000Eq.Origin = Luna;
 GMAT MoonMJ2000Eq.Axes = MJ2000Eq;
-GMAT MoonMJ2000Eq.UpdateInterval = 60;
-GMAT MoonMJ2000Eq.OverrideOriginInterval = false;
 
 Create CoordinateSystem EarthMoonRot;
 GMAT EarthMoonRot.Origin = Luna;
 GMAT EarthMoonRot.Axes = ObjectReferenced;
-GMAT EarthMoonRot.UpdateInterval = 60;
-GMAT EarthMoonRot.OverrideOriginInterval = false;
 GMAT EarthMoonRot.XAxis = R;
 GMAT EarthMoonRot.ZAxis = N;
 GMAT EarthMoonRot.Primary = Earth;

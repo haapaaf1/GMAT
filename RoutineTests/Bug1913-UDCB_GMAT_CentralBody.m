@@ -67,11 +67,6 @@ GMAT newMoon.RotationRate = -56.3623195;
 GMAT newMoon.TextureMapFileName = './GenericCelestialBody.jpg';
 
 %------------------------------Create Coordinate Systems-------------------
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
 
 Create CoordinateSystem newPlanetMJ2000Eq;
 GMAT newPlanetMJ2000Eq.Origin = newPlanet;

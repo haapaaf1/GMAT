@@ -139,14 +139,10 @@ GMAT DefaultIB.Element3 = 0;
 Create CoordinateSystem LunaFixed;
 GMAT LunaFixed.Origin = Luna;
 GMAT LunaFixed.Axes = BodyFixed;
-GMAT LunaFixed.UpdateInterval = 60;
-GMAT LunaFixed.OverrideOriginInterval = false;
  
 Create CoordinateSystem EarthMoonRot;
 GMAT EarthMoonRot.Origin = Earth;
 GMAT EarthMoonRot.Axes = ObjectReferenced;
-GMAT EarthMoonRot.UpdateInterval = 60;
-GMAT EarthMoonRot.OverrideOriginInterval = false;
 GMAT EarthMoonRot.XAxis = R;
 GMAT EarthMoonRot.ZAxis = N;
 GMAT EarthMoonRot.Primary = Earth;
@@ -155,8 +151,6 @@ GMAT EarthMoonRot.Secondary = Luna;
 Create CoordinateSystem SunMJ2000Ec;
 GMAT SunMJ2000Ec.Origin = Sun;
 GMAT SunMJ2000Ec.Axes = MJ2000Ec;
-GMAT SunMJ2000Ec.UpdateInterval = 60;
-GMAT SunMJ2000Ec.OverrideOriginInterval = false; 
  
 %----------------------------------------
 %---------- Plots and Reports

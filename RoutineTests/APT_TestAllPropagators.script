@@ -11,16 +11,6 @@ Create Variable TOFinSeconds;
 %--------------------------------------------------
 TOFinSeconds = 3600.0;
 
-%---------------------------------------------------
-%---------------------Define coordinate frames------
-%--------------------------------------------------
-
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
-
 %----------------------------------------
 %---------- Spacecrafts
 %----------------------------------------

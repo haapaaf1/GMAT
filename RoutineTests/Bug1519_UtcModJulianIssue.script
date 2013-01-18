@@ -85,7 +85,6 @@ L2RLP.Primary                     = Sun;
 L2RLP.Secondary                   = EMBary;
 L2RLP.XAxis                       = R;
 L2RLP.ZAxis                       = N;
-L2RLP.UpdateInterval              = 60;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%Define the maneuver used to hurl our spacecraft about

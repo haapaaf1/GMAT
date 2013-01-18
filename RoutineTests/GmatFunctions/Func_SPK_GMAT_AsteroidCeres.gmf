@@ -46,11 +46,6 @@ GMAT Ceres.TextureMapFileName = './GenericCelestialBody.jpg';
 
 
 %------------------------------Create Coordinate Systems-------------------
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
 
 Create CoordinateSystem MarsMJ2000Eq;
 GMAT MarsMJ2000Eq.Origin = Mars;

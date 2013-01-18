@@ -26,8 +26,6 @@ GMAT theGroundStation.Id = 'StationId';
 Create CoordinateSystem gsTopo;
 GMAT gsTopo.Origin = theGroundStation;
 GMAT gsTopo.Axes = MJ2000Eq;
-GMAT gsTopo.UpdateInterval = 60;
-GMAT gsTopo.OverrideOriginInterval = false;
 
 Create Variable var, lhsVar, var1, var2, var3, var4, varOut, bugNum
 Create Variable lat long height X Y Z;

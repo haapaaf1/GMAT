@@ -98,36 +98,6 @@ GMAT XYPlot4.Add = {Loop};
 GMAT XYPlot4.Grid = Off;
 GMAT XYPlot4.SolverIterations = None;
 
-
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
-%%GMAT EarthMJ2000Eq.Epoch = 21545; %% 2012.11.15 This is no longer allowed, only allowed in MOE* and TOE*
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
-
-
-Create CoordinateSystem EarthMJ2000Ec;
-GMAT EarthMJ2000Ec.Origin = Earth;
-GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
-GMAT EarthMJ2000Ec.UpdateInterval = 60;
-GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
-%%GMAT EarthMJ2000Ec.Epoch = 21545; %% 2012.11.15 This is no longer allowed, only allowed in MOE* and TOE*
-GMAT EarthMJ2000Ec.UpdateInterval = 60;
-GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
-
-
-Create CoordinateSystem EarthFixed;
-GMAT EarthFixed.Origin = Earth;
-GMAT EarthFixed.Axes = BodyFixed;
-GMAT EarthFixed.UpdateInterval = 60;
-GMAT EarthFixed.OverrideOriginInterval = false;
-%%GMAT EarthFixed.Epoch = 21545; %% 2012.11.15 This is no longer allowed, only allowed in MOE* and TOE*
-GMAT EarthFixed.UpdateInterval = 60;
-GMAT EarthFixed.OverrideOriginInterval = false;
-
 BeginMissionSequence;
 
 For Loop = 1:10;

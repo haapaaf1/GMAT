@@ -85,29 +85,9 @@ Create Array CurrentdV[3,1]
 %---------- Coordinate Systems
 %----------------------------------------
 
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthMJ2000Ec;
-GMAT EarthMJ2000Ec.Origin = Earth;
-GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
-GMAT EarthMJ2000Ec.UpdateInterval = 60;
-GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthFixed;
-GMAT EarthFixed.Origin = Earth;
-GMAT EarthFixed.Axes = BodyFixed;
-GMAT EarthFixed.UpdateInterval = 60;
-GMAT EarthFixed.OverrideOriginInterval = false;
-
 Create CoordinateSystem EarthSunL1CS;
 GMAT EarthSunL1CS.Origin = ESL1;
 GMAT EarthSunL1CS.Axes = ObjectReferenced;
-GMAT EarthSunL1CS.UpdateInterval = 60;
-GMAT EarthSunL1CS.OverrideOriginInterval = false;
 GMAT EarthSunL1CS.XAxis = R;
 GMAT EarthSunL1CS.ZAxis = N;
 GMAT EarthSunL1CS.Primary = Sun;
@@ -116,8 +96,6 @@ GMAT EarthSunL1CS.Secondary = Earth;
 Create CoordinateSystem EarthSunRotCS;
 GMAT EarthSunRotCS.Origin = Earth;
 GMAT EarthSunRotCS.Axes = ObjectReferenced;
-GMAT EarthSunRotCS.UpdateInterval = 60;
-GMAT EarthSunRotCS.OverrideOriginInterval = false;
 GMAT EarthSunRotCS.XAxis = R;
 GMAT EarthSunRotCS.ZAxis = N;
 GMAT EarthSunRotCS.Primary = Sun;

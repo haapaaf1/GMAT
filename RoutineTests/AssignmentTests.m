@@ -199,29 +199,6 @@ GMAT string2 = TTModJulian
 
 
 %----------------------------------------
-%---------- Coordinate Systems
-%----------------------------------------
-
-Create CoordinateSystem EarthMJ2000Eq;
-GMAT EarthMJ2000Eq.Origin = Earth;
-GMAT EarthMJ2000Eq.Axes = MJ2000Eq;
-GMAT EarthMJ2000Eq.UpdateInterval = 60;
-GMAT EarthMJ2000Eq.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthMJ2000Ec;
-GMAT EarthMJ2000Ec.Origin = Earth;
-GMAT EarthMJ2000Ec.Axes = MJ2000Ec;
-GMAT EarthMJ2000Ec.UpdateInterval = 60;
-GMAT EarthMJ2000Ec.OverrideOriginInterval = false;
-
-Create CoordinateSystem EarthFixed;
-GMAT EarthFixed.Origin = Earth;
-GMAT EarthFixed.Axes = BodyFixed;
-GMAT EarthFixed.UpdateInterval = 60;
-GMAT EarthFixed.OverrideOriginInterval = false;
-
-
-%----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------
 

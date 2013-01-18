@@ -5,8 +5,6 @@ function Bug1974_Func_AttitudeIO(reportLoc1)
 Create CoordinateSystem csSun;
 GMAT csSun.Origin = Sun;
 GMAT csSun.Axes = MJ2000Eq;
-GMAT csSun.UpdateInterval = 60;
-GMAT csSun.OverrideOriginInterval = false;
 
 %----------------------------------------
 %---------- Coordinate System
@@ -14,8 +12,6 @@ GMAT csSun.OverrideOriginInterval = false;
 Create CoordinateSystem csMercury;
 GMAT csMercury.Origin = Mercury;
 GMAT csMercury.Axes = MJ2000Eq;
-GMAT csMercury.UpdateInterval = 60;
-GMAT csMercury.OverrideOriginInterval = false;
 
 %----------------------------------------
 %---------- Coordinate System
@@ -23,8 +19,6 @@ GMAT csMercury.OverrideOriginInterval = false;
 Create CoordinateSystem csVenus;
 GMAT csVenus.Origin = Venus;
 GMAT csVenus.Axes = MJ2000Eq;
-GMAT csVenus.UpdateInterval = 60;
-GMAT csVenus.OverrideOriginInterval = false;
 
 %----------------------------------------
 %---------- Coordinate System
@@ -32,8 +26,6 @@ GMAT csVenus.OverrideOriginInterval = false;
 Create CoordinateSystem csEarth;
 GMAT csEarth.Origin = Earth;
 GMAT csEarth.Axes = MJ2000Eq;
-GMAT csEarth.UpdateInterval = 60;
-GMAT csEarth.OverrideOriginInterval = false;
 
 %----------------------------------------
 %---------- Coordinate System
@@ -41,8 +33,6 @@ GMAT csEarth.OverrideOriginInterval = false;
 Create CoordinateSystem csMars;
 GMAT csMars.Origin = Mars;
 GMAT csMars.Axes = MJ2000Eq;
-GMAT csMars.UpdateInterval = 60;
-GMAT csMars.OverrideOriginInterval = false;
 
 %----------------------------------------
 %---------- Coordinate System
@@ -50,8 +40,6 @@ GMAT csMars.OverrideOriginInterval = false;
 Create CoordinateSystem csJupiter;
 GMAT csJupiter.Origin = Jupiter;
 GMAT csJupiter.Axes = MJ2000Eq;
-GMAT csJupiter.UpdateInterval = 60;
-GMAT csJupiter.OverrideOriginInterval = false;
 
 %----------------------------------------
 %---------- Coordinate System
@@ -59,8 +47,6 @@ GMAT csJupiter.OverrideOriginInterval = false;
 Create CoordinateSystem csSaturn;
 GMAT csSaturn.Origin = Saturn;
 GMAT csSaturn.Axes = MJ2000Eq;
-GMAT csSaturn.UpdateInterval = 60;
-GMAT csSaturn.OverrideOriginInterval = false;
 
 %----------------------------------------
 %---------- Coordinate System
@@ -68,8 +54,6 @@ GMAT csSaturn.OverrideOriginInterval = false;
 Create CoordinateSystem csUranus;
 GMAT csUranus.Origin = Uranus;
 GMAT csUranus.Axes = MJ2000Eq;
-GMAT csUranus.UpdateInterval = 60;
-GMAT csUranus.OverrideOriginInterval = false;
 
 %----------------------------------------
 %---------- Coordinate System
@@ -77,8 +61,6 @@ GMAT csUranus.OverrideOriginInterval = false;
 Create CoordinateSystem csNeptune;
 GMAT csNeptune.Origin = Neptune;
 GMAT csNeptune.Axes = MJ2000Eq;
-GMAT csNeptune.UpdateInterval = 60;
-GMAT csNeptune.OverrideOriginInterval = false;
 
 %----------------------------------------
 %---------- Coordinate System
@@ -86,8 +68,6 @@ GMAT csNeptune.OverrideOriginInterval = false;
 Create CoordinateSystem csPluto;
 GMAT csPluto.Origin = Pluto;
 GMAT csPluto.Axes = MJ2000Eq;
-GMAT csPluto.UpdateInterval = 60;
-GMAT csPluto.OverrideOriginInterval = false;
 
 %----------------------------------------
 %---------- Coordinate System
@@ -95,8 +75,6 @@ GMAT csPluto.OverrideOriginInterval = false;
 Create CoordinateSystem csLuna;
 GMAT csLuna.Origin = Luna;
 GMAT csLuna.Axes = MJ2000Eq;
-GMAT csLuna.UpdateInterval = 60;
-GMAT csLuna.OverrideOriginInterval = false;
 
 %----------------------------------------
 %---------- Spacecraft
