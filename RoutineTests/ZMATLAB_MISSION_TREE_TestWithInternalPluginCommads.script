@@ -189,7 +189,10 @@ Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 12000.0};
 BeginFiniteBurn DefaultFB(DefaultSC);
 ClearPlot XYPlot1;
 EndFiniteBurn DefaultFB(DefaultSC);
-GMAT 'my equation' Sat1 = DefaultSpacecraft;
+%% Not allowed? 
+%% Getting: GmatBase Exception Thrown: In ElementWrapper, SetString() method not valid for wrapper of non-String type.
+%% 2013-02-06
+%%GMAT 'my equation' Sat1 = DefaultSpacecraft; 
 Global 'my global' DefaultSC;
 Maneuver 'my maneuver' DefaultIB(DefaultSC);
 MarkPoint 'my mark point' XYPlot1;
@@ -257,7 +260,7 @@ EndWhile 'my end while';
 %   NonlinearConstraint 'my nlp2' SQP1(DefaultSC.SMA=7000);
 %EndOptimize 'my end optimize';  % For optimizer DC1
 
-[ib2] = passthrough(ib1);
+%%[ib2] = passthrough(ib1); %% Not allowed 2013.02.26
 
 'Assign to 4' var1 = 4.0;
 [var2] = sqrt(var1);

@@ -93,11 +93,6 @@ var1 = 33;
 [var1] = passthrough(arr33(2,2));
 Report rf arr33(2,2) var1;
 
-msg = '========== [arr22] = passthrough(arr33)'
-Report rf msg;
-[arr22] = passthrough(arr33);
-Report rf arr33 arr22;
-
 msg = '========== [arrOut] = passthrough(arrIn)'
 Report rf msg;
 [arrOut] = passthrough(arrIn);
@@ -137,15 +132,3 @@ Report rf msg;
 Report rf arrIn arrOut
 
 Report rf arrIn arrOut arr22 arr33;
-
-msg = '========== [arr22] = passthrough(arr33)'
-Report rf msg;
-% with different array size
-[arr22] = passthrough(arr33);
-Report rf arr33 arr22
-
-msg = '========== [arr33] = passthrough(arr22)';
-Report rf msg;
-[arr33] = passthrough(arr22);
-Report rf arr22 arr33
-

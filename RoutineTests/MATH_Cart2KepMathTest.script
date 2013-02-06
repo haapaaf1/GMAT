@@ -53,23 +53,23 @@ Create Variable SMAError ECCError INCError RAANError AOPError TAError;
 Create Array rv[3,1] vv[3,1] hv[3,1] ev[3,1] nv[3,1];
 
 Create XYPlot SMAvsTimeINT;
-GMAT SMAvsTimeINT.XVariable= { Sat.TAIModJulian  };
-GMAT SMAvsTimeINT.ShowGrid = true;
+GMAT SMAvsTimeINT.XVariable  = Sat.TAIModJulian;
+GMAT SMAvsTimeINT.ShowGrid   = true;
 GMAT SMAvsTimeINT.YVariables = { Sat.SMA  };
 
 Create XYPlot SMAvsTimeScript;
-GMAT SMAvsTimeScript.XVariable= { Sat.TAIModJulian  };
-GMAT SMAvsTimeScript.ShowGrid = true
+GMAT SMAvsTimeScript.XVariable  = Sat.TAIModJulian;
+GMAT SMAvsTimeScript.ShowGrid   = true
 GMAT SMAvsTimeScript.YVariables = {SMA }
 
 Create XYPlot RAANvsTimeINT;
-GMAT RAANvsTimeINT.XVariable= { Sat.TAIModJulian  };
-GMAT RAANvsTimeINT.ShowGrid = true;
+GMAT RAANvsTimeINT.XVariable  = Sat.TAIModJulian;
+GMAT RAANvsTimeINT.ShowGrid   = true;
 GMAT RAANvsTimeINT.YVariables = { Sat.RAAN  };
 
 Create XYPlot RAANvsTimeScript;
-GMAT RAANvsTimeScript.XVariable= { Sat.TAIModJulian  };
-GMAT RAANvsTimeScript.ShowGrid = true;
+GMAT RAANvsTimeScript.XVariable  = Sat.TAIModJulian;
+GMAT RAANvsTimeScript.ShowGrid   = true;
 GMAT RAANvsTimeScript.YVariables = {RAAN }
 
 

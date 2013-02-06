@@ -1,0 +1,82 @@
+  
+Create Spacecraft theSat;
+theSat.DateFormat = UTCGregorian;
+theSat.Epoch.UTCGregorian = 03 Mar 2010 12:34:56.789;
+theSat.DisplayStateType = Cartesian;
+theSat.Attitude = CoordinateSystemFixed
+theSat.AttitudeCoordinateSystem = attitudeCoordSys;
+
+Create Propagator theProp
+  
+SolarSystem.EphemerisUpdateInterval      = 0.0;
+SolarSystem.Earth.NutationUpdateInterval = 0.0; 
+  
+Create CoordinateSystem attitudeCoordSys;
+GMAT attitudeCoordSys.Origin = Earth;
+GMAT attitudeCoordSys.Axes = TODEq;
+
+Create ReportFile theReport
+theReport.Precision = 16;
+theReport.WriteHeaders = Off;
+theReport.ColumnWidth = 20;
+theReport.Filename = MATH_GMT3461-SqrtTest.report
+
+Create Array R[3,3] Rdot[3,3] omega[3,1] posVec[3,1] posVecAtt[3,1]
+Create Variable I posError term1 term2 term3
+
+%%----- begin script for GMT-3497 test
+Create Variable x1 x2
+Create Array Xha[10,5]
+Create Array Rjf[5,5]
+Create Array gqa[1,1]
+Create Array i5P[7,5]
+Create Variable EB4
+Create Spacecraft JMT
+%%----- end   script for GMT-3497 test
+
+
+BeginMissionSequence
+
+%Report theReport theSat.DCM11 theSat.DCM12 theSat.DCM13 theSat.DCM21 theSat.DCM22 theSat.DCM23 theSat.DCM31 theSat.DCM32 theSat.DCM33 theSat.AngularVelocityX theSat.AngularVelocityY theSat.AngularVelocityZ
+
+
+For I = 1:50
+   Propagate theProp(theSat){theSat.ElapsedSecs = 300};
+   %Report theReport theSat.DCM11 theSat.DCM12 theSat.DCM13 theSat.DCM21 theSat.DCM22 theSat.DCM23 theSat.DCM31 theSat.DCM32 theSat.DCM33 theSat.AngularVelocityX theSat.AngularVelocityY theSat.AngularVelocityZ
+   BeginScript
+      R(1,1) = theSat.DCM11;
+      R(1,2) = theSat.DCM12;
+      R(1,3) = theSat.DCM13;
+      R(2,1) = theSat.DCM21;
+      R(2,2) = theSat.DCM22;
+      R(2,3) = theSat.DCM23;
+      R(3,1) = theSat.DCM31;
+      R(3,2) = theSat.DCM32;
+      R(3,3) = theSat.DCM33;
+      omega(1,1)  = theSat.AngularVelocityX;
+      omega(2,1)  = theSat.AngularVelocityY;
+      omega(3,1)  = theSat.AngularVelocityZ;
+      posVec(1,1) = theSat.X;
+      posVec(2,1) = theSat.Y;
+      posVec(3,1) = theSat.Z;
+      posVecAtt   = R*posVec;
+      term1 = (posVecAtt(1,1) - theSat.attitudeCoordSys.X)^2
+      term2 = (posVecAtt(2,1) - theSat.attitudeCoordSys.Y)^2
+      term3 = (posVecAtt(3,1) - theSat.attitudeCoordSys.Z)^2
+      posError  = sqrt( (posVecAtt(1,1) - theSat.attitudeCoordSys.X)^2 + (posVecAtt(2,1) - theSat.attitudeCoordSys.Y)^2 + (posVecAtt(3,1) - theSat.attitudeCoordSys.Z)^2 )
+      posError  = sqrt( term1 + term2 + term3 );
+   EndScript
+   Report theReport posError posVecAtt(1,1) posVecAtt(2,1) posVecAtt(3,1) theSat.attitudeCoordSys.X theSat.attitudeCoordSys.Y theSat.attitudeCoordSys.Z
+EndFor
+
+
+%%----- begin script for GMT-3497 test
+Xha(1,1) = (atan2(-Rjf(1,1),((i5P(1,1))^(gqa))^(JMT.X)))
+Xha(1,1) = (EB4) + ((atan2(-Rjf(1,1),((i5P(1,1))^(gqa))^(JMT.X))))
+Xha(1,1) = (EB4) + ((atan2(-Rjf(1,1),((i5P(1,1))^(gqa))^(JMT.X))))
+
+
+x1 = -4.500672835314e+02'
+x2 = -4.500672835314e+02^(-1)
+Report theReport x1 x2
+%%----- end   script for GMT-3497 test

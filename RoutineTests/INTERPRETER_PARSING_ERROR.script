@@ -1,0 +1,26 @@
+% GMAT Test Script used to validate interpreting definition block.
+% Author: Linda Jun (NASA/GSFC)
+
+%%%********************************************************************
+%%% Note: SLP and Analytic are no longer valid since 2009.02.19
+%%%       SLP was removed, Analytic was changed to TwoBodyPropagation
+%%%********************************************************************
+
+%--- Set Ephemeris to use TwoBodyPropagation
+GMAT SolarSystem.EphemerisSource = TwoBodyPropagation; %% Not allowed 2013.02.06
+
+%--- Set Parameter to Property
+%%% not allowed in definition mode
+GMAT sat1.A1Epoch1 = sat1.A1ModJulian;
+
+%--- function keyword in object mode show throw an error(GMT-1566)
+function Create ReportFile rf2;
+
+%---------------------------------------------------------------------
+% Mission Sequence
+%---------------------------------------------------------------------
+
+BeginMissionSequence;
+
+%--- Test function keyword in command mode
+function Report rf2 sat1.X;

@@ -1,10 +1,16 @@
+Create ReportFile rf;
+rf.Filename = MATH_MathValidation.report;
+
 Create Variable lhsVar;
 Create Array arr22[2,2] arr33[3,3] lhsArray[3,3];
 Create Array arr23[2,3] arr32[3,2]
+Create Variable x
+x = 20;
+
 
 BeginMissionSequence;
 
-%%--- validation done at compile time
+%%--- validation done at compile time in MathParser
 lhsVar = (()) ' 1
 lhsVar = () ' 1
 lhsVar = 1 ' @
@@ -15,6 +21,37 @@ lhsVar = arr33^(-1) $
 lhsVar = inv(arr33) @
 arr22 = inv(inv(((arr22*arr22*arr22)' )))-inv((arr22*arr23*arr32))-(arr22); %<-- Should pass
 arr22 = inv(inv(((arr_22*arr_22*arr_22)' )))-inv((arr_22*arr_23*arr_32))-(arr_22); %<-- Should fail
+
+%%--- Test GMT-2961 FIX
+x = +
+Report rf x
+x = -
+Report rf x
+x = *
+Report rf x
+x = /
+Report rf x
+x = ^
+Report rf x
+x = ^(-1)
+Report rf x
+x = +-
+Report rf x
+x = -+
+Report rf x
+x = */
+Report rf x
+x = /*
+Report rf x
+x = '+
+Report rf x
+x = ^-
+Report rf x
+x = ^(-1)^
+
+%%--- validation done in Assignment::Validate()
+x = '  
+Report rf x
 
 %%--- validation done at run time
 %lhsArray = arr33 ^ 1

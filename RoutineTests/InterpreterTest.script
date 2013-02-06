@@ -7,7 +7,7 @@
 %%%********************************************************************
 
 %--- Set Ephemeris to use TwoBodyPropagation
-GMAT SolarSystem.EphemerisSource = TwoBodyPropagation;
+%%GMAT SolarSystem.EphemerisSource = TwoBodyPropagation; %% Not allowed 2013.02.06
 
 %--- Set Ephemeris to use DE405
 GMAT SolarSystem.EphemerisSource = DE405;
@@ -103,7 +103,7 @@ Create String myStr1 myStr2
 myStr1 = 'This is my string 1' ;
 
 %--- function keyword in object mode show throw an error(GMT-1566)
-function Create ReportFile rf2;
+%%function Create ReportFile rf2;
 
 %---------------------------------------------------------------------
 % Mission Sequence
@@ -129,4 +129,4 @@ myStr1 = 'This is another my string 1' ;
 myStr2 = myStr1 ;
 
 %--- Test function keyword in command mode
-function Report rf2 sat1.X;
+%%function Report rf2 sat1.X;

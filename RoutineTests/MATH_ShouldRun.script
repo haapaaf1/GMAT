@@ -2,7 +2,7 @@ Create Spacecraft sat1
 Create ReportFile rf1
 rf1.Filename = MATH_ShouldRun.report
 
-Create Variable var1 var2 e;
+Create Variable var1 var2 e
 Create Array arr22[2,2];
 Create String str1 str2 msg;
 e = 111.111;
@@ -13,6 +13,103 @@ var2 = 20;
 str1 = 234.234;
 
 sat1.VX = -  3.424747647114477; % OK
+
+Create Variable varWith1e7 varWith1e8
+Create Variable varWith5e10;
+varWith5e10 = 0.5e1;
+
+Create Array ens3wDPT6N7JzLSCj1Lb3[1,1]
+Create Spacecraft gpA2Tlsn8gV6XwhWLw1ZukXG7oP5Oml7qWZKq9303
+gpA2Tlsn8gV6XwhWLw1ZukXG7oP5Oml7qWZKq9303.X = 7.006273e+02
+Create Array c077OfeNKJxSWIX8yH1yXieMlTKKO6Oa6v2c10fJuQQroDMd[9,9]
+c077OfeNKJxSWIX8yH1yXieMlTKKO6Oa6v2c10fJuQQroDMd(1,1) = 269.667415548277
+
+Create Array iUhzW[1,9]
+Create Array e47G7[8,8]
+
+e47G7(1,1) = 835.856286082742
+e47G7(1,2) = 664.740842302836
+e47G7(1,3) = 584.533580541002
+e47G7(1,4) = 200.746808670415
+e47G7(1,5) = 765.386147616519
+e47G7(1,6) = 400.448467053777
+e47G7(1,7) = 336.900559991384
+e47G7(1,8) = 905.600395679865
+e47G7(2,1) = 176.964431117858
+e47G7(2,2) = 684.319878236013
+e47G7(2,3) = 430.828002525898
+e47G7(2,4) = 383.736935929642
+e47G7(2,5) = 946.077103744021
+e47G7(2,6) = 707.308749121535
+e47G7(2,7) = 79.4762784036224
+e47G7(2,8) = 255.524409375017
+e47G7(3,1) = 647.799541394352
+e47G7(3,2) = 402.696559791393
+e47G7(3,3) = 9.57211559062021
+e47G7(3,4) = 452.918364638891
+e47G7(3,5) = 725.185597304084
+e47G7(3,6) = 743.195903892452
+e47G7(3,7) = 495.630143403475
+e47G7(3,8) = 368.34416588018
+e47G7(4,1) = 75.7558215610373
+e47G7(4,2) = 424.287131242114
+e47G7(4,3) = 462.995151064675
+e47G7(4,4) = 981.443584421089
+e47G7(4,5) = 577.754083828227
+e47G7(4,6) = 183.905878357208
+e47G7(4,7) = 485.871435764975
+e47G7(4,8) = 581.98693713066
+e47G7(5,1) = 620.600625372676
+e47G7(5,2) = 720.502000835652
+e47G7(5,3) = 116.057035685374
+e47G7(5,4) = 103.076579682646
+e47G7(5,5) = 983.349584964438
+e47G7(5,6) = 760.228721819366
+e47G7(5,7) = 569.560919028741
+e47G7(5,8) = 266.947203494022
+e47G7(6,1) = 878.709938495375
+e47G7(6,2) = 612.814623969639
+e47G7(6,3) = 870.006765016033
+e47G7(6,4) = 841.516365572177
+e47G7(6,5) = 381.777098048941
+e47G7(6,6) = 306.772819329302
+e47G7(6,7) = 253.045262321269
+e47G7(6,8) = 447.349522118468
+e47G7(7,1) = 988.145945074898
+e47G7(7,2) = 335.042726730854
+e47G7(7,3) = 540.219813729263
+e47G7(7,4) = 915.822306085841
+e47G7(7,5) = 523.731479168145
+e47G7(7,6) = 455.775124867331
+e47G7(7,7) = 8.32009541463719
+e47G7(7,8) = 3.47076423771397
+e47G7(8,1) = 133.965906452665
+e47G7(8,2) = 393.797315513256
+e47G7(8,3) = 463.884238185184
+e47G7(8,4) = 760.046304268529
+e47G7(8,5) = 81.262053537407
+e47G7(8,6) = 526.401628575822
+e47G7(8,7) = 521.88895268844
+e47G7(8,8) = 638.894870383971
+
+
+%%----- For GMT-3502 test
+Create Variable x1 x2 y z a b c d
+
+y = 108.037241791844
+z = 248.865734724896
+a = 2.446556e+02
+b = 299.527720654905
+c = 1.231488308087E+02
+
+%%----- For GMT-3507 test
+Create Variable y1 y2
+Create Variable x3 z3
+x3 = 2.957753e+02
+z3 = 740.716396942051
+
+%%----- For GMT-3536 test
+Create Variable x
 
 BeginMissionSequence
 
@@ -55,3 +152,50 @@ EndIf
 
 var2 = tan(-7.920599999999999 );
 Report rf1 var2;
+
+varWith1e7 = (exp(varWith5e10));
+varWith1e8 = (exp(0.5e1));
+Report rf1 varWith1e7 varWith1e8;
+
+ens3wDPT6N7JzLSCj1Lb3 = (    atan2    ( (     ( gpA2Tlsn8gV6XwhWLw1ZukXG7oP5Oml7qWZKq9303.X        )        ^          (            (sqrt     (         3.588645172297E+02     ^    (   -      1     )         )  )      '       )           )     ,      c077OfeNKJxSWIX8yH1yXieMlTKKO6Oa6v2c10fJuQQroDMd          ( 1 , 1     ) )       );
+Report rf1 ens3wDPT6N7JzLSCj1Lb3;
+
+
+iUhzW(	  		 1 					,	      1			 	 )		=	( 	 			  	 	 				     (	  	 	  9.363949952748e+02 	  )		-     (		  	 			(det	 			  ( 	 		  	 e47G7  	)	 ))	  	 		  		^( 	    	 	 -		   		  1 		 					)	 )  	
+Report rf1 iUhzW;
+
+
+msg = '========== For GMT-3502 test'
+Report rf1 msg;
+Report rf1 a b z c;
+
+d = atan2(a, b)
+Report rf1 d;
+
+x1 = atan2(((z)/c)^d, y)
+x2 = atan2(( z /c)^d, y)
+Report rf1 x1
+Report rf1 x2
+
+msg = '========== For GMT-3507 test'
+Report rf1 msg;
+Report rf1 x3 z3;
+
+y1 = atan2(x3', z3)
+y2 = atan2(x3 , z3)
+
+Report rf1 y1
+Report rf1 y2
+
+msg = '========== For GMT-3536 test'
+y = 2;
+Report rf1 msg;
+Report rf1 y
+x = y^2^(-1)
+Report rf1 x
+x = (y^2)^(-1)
+Report rf1 x
+x = y^(2^(-1))
+Report rf1 x
+x = 2^3^4
+Report rf1 x

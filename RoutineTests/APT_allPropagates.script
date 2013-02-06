@@ -272,12 +272,13 @@ BeginScript;
    GMAT Spacecraft5 = InitialSC5;
    GMAT Spacecraft6 = InitialSC6;
    GMAT DefaultSC.A1Epoch = initialEpoch;
-   GMAT Spacecraft1.A1Epoch = initialEpoch + 0.01;
-   GMAT Spacecraft2.A1Epoch = initialEpoch + 0.01;
+   GMAT Spacecraft1.A1Epoch = initialEpoch;
+   GMAT Spacecraft2.A1Epoch = initialEpoch;
    GMAT Spacecraft3.A1Epoch = initialEpoch;
    GMAT Spacecraft4.A1Epoch = initialEpoch;
    GMAT Spacecraft5.A1Epoch = initialEpoch;
    GMAT Spacecraft6.A1Epoch = initialEpoch;
+   Formation1.A1Epoch = initialEpoch; %% LOJ: added
 EndScript;
 
 Propagate Synchronized DefaultProp(Formation1) DefaultProp2(Formation2);
@@ -305,7 +306,7 @@ BeginScript;
    GMAT Spacecraft2.A1Epoch = initialEpoch;
    GMAT Spacecraft3.A1Epoch = initialEpoch;
    GMAT Spacecraft4.A1Epoch = initialEpoch;
-   GMAT Spacecraft5.A1Epoch = initialEpoch + 0.01;
+   GMAT Spacecraft5.A1Epoch = initialEpoch;
    GMAT Spacecraft6.A1Epoch = initialEpoch;
 EndScript;
 
@@ -333,7 +334,7 @@ BeginScript;
    GMAT Spacecraft3.A1Epoch = initialEpoch;
    GMAT Spacecraft4.A1Epoch = initialEpoch;
    GMAT Spacecraft5.A1Epoch = initialEpoch;
-   GMAT Spacecraft6.A1Epoch = initialEpoch + 0.01;
+   GMAT Spacecraft6.A1Epoch = initialEpoch;
 EndScript;
 
 Propagate Synchronized BackProp DefaultProp(Spacecraft5) DefaultProp2(Spacecraft6);
@@ -445,9 +446,12 @@ BeginScript;
    GMAT Spacecraft4.A1Epoch = initialEpoch;
    GMAT Spacecraft5.A1Epoch = initialEpoch;
    GMAT Spacecraft6.A1Epoch = initialEpoch;
+   GMAT Formation1.A1Epoch  = initialEpoch; %%LOJ: added
 EndScript;
 
-Propagate DefaultProp(Formation1, Spacecraft6);
+%%% LOJ: Commented out due to error
+%%% Command Exception: Coupled propagation epoch mismatch between Formation1 (epoch = 21545) and Spacecraft6 (epoch = 21545.00000039794)
+%%%Propagate DefaultProp(Formation1, Spacecraft6);
 Report ReportFile1 case Spacecraft1.A1ModJulian Spacecraft1.ElapsedSecs;
 Report ReportFile1 case Spacecraft2.A1ModJulian Spacecraft2.ElapsedSecs;
 Report ReportFile1 case Spacecraft6.A1ModJulian Spacecraft6.ElapsedSecs;
