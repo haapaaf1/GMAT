@@ -169,10 +169,12 @@ Create Thruster RadialTh2;
 Create Thruster RadialTh3;
 Create Thruster RadialTh4;
 % Configure Thrusters
-GMAT AxialTh2 = AxialTh1;
-GMAT RadialTh2 = RadialTh1;
-GMAT RadialTh3 = RadialTh1;
-GMAT RadialTh4 = RadialTh1;
+% Setting object to object is not allowed (2013.02.15)
+% So moved to after BeginMissionSequence
+%GMAT AxialTh2 = AxialTh1;
+%GMAT RadialTh2 = RadialTh1;
+%GMAT RadialTh3 = RadialTh1;
+%GMAT RadialTh4 = RadialTh1;
 
 Create FuelTank TankMMS;
 GMAT TankMMS.FuelMass = 328.8;
@@ -204,6 +206,12 @@ Create String msg1 msg2;
 % %**************************************************************************
 
 BeginMissionSequence;
+
+GMAT AxialTh2 = AxialTh1;
+GMAT RadialTh2 = RadialTh1;
+GMAT RadialTh3 = RadialTh1;
+GMAT RadialTh4 = RadialTh1;
+
 
 GMAT MMS1_est.TankMMS.FuelMass   = 89;
 GMAT MMS1_est.TankMMS.Pressure   = 1811;

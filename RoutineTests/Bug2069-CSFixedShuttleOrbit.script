@@ -150,6 +150,10 @@ GMAT Enhanced3DView1.StarCount = 7000;
 GMAT Enhanced3DView1.EnableStars = On;
 GMAT Enhanced3DView1.EnableConstellations = On;
 
+Create ReportFile rf;
+rf.Filename = Bug2069-CSFixedShuttleOrbit.report;
+rf.Add = {DefaultSC.X Sat1.X};
+
 %----------------------------------------
 %---------- Mission Sequence
 %----------------------------------------

@@ -63,9 +63,9 @@ Report rf var1 var2 var3 var4;
 
 For lat = -88:5:88;
    For long = 0:10:360;
-      GMAT theGroundStation.Longitude = long;
-      GMAT theGroundStation.Latitude = lat;
-      GMAT theGroundStation.Altitude = height;
+      %%%GMAT theGroundStation.Longitude = long; % LOJ: commenetd out 2013.02.11
+      %%%GMAT theGroundStation.Latitude = lat; % LOJ: commenetd out 2013.02.11
+      %%%GMAT theGroundStation.Altitude = height; % LOJ: commenetd out 2013.02.11
       GMAT X = -(DefaultSC.gsTopo.X);
       GMAT Y = -DefaultSC.gsTopo.Y;
       GMAT Z = -DefaultSC.gsTopo.Z;

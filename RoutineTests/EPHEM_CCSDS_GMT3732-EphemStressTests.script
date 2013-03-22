@@ -1,0 +1,423 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2012-12-12 11:42:48
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft numSat;
+GMAT numSat.DateFormat = TAIModJulian;
+GMAT numSat.Epoch = '21545';
+GMAT numSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT numSat.DisplayStateType = Cartesian;
+GMAT numSat.X = 7100;
+GMAT numSat.Y = 0;
+GMAT numSat.Z = 1300;
+GMAT numSat.VX = 0;
+GMAT numSat.VY = 7.35;
+GMAT numSat.VZ = 1;
+GMAT numSat.DryMass = 850;
+GMAT numSat.Cd = 2.2;
+GMAT numSat.Cr = 1.8;
+GMAT numSat.DragArea = 15;
+GMAT numSat.SRPArea = 1;
+GMAT numSat.Tanks = {DefaultFuelTank};
+GMAT numSat.Thrusters = {DefaultThruster};
+GMAT numSat.NAIFId = -123456789;
+GMAT numSat.NAIFIdReferenceFrame = -123456789;
+GMAT numSat.Id = 'SatId';
+GMAT numSat.Attitude = CoordinateSystemFixed;
+GMAT numSat.ModelFile = '../data/vehicle/models/aura.3ds';
+GMAT numSat.ModelOffsetX = 0;
+GMAT numSat.ModelOffsetY = 0;
+GMAT numSat.ModelOffsetZ = 0;
+GMAT numSat.ModelRotationX = 0;
+GMAT numSat.ModelRotationY = 0;
+GMAT numSat.ModelRotationZ = 0;
+GMAT numSat.ModelScale = 3;
+GMAT numSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT numSat.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT numSat.AttitudeCoordinateSystem = 'EarthMJ2000Eq';
+GMAT numSat.Q1 = 0;
+GMAT numSat.Q2 = 0;
+GMAT numSat.Q3 = 0;
+GMAT numSat.Q4 = 1;
+GMAT numSat.EulerAngleSequence = '321';
+GMAT numSat.AngularVelocityX = 0;
+GMAT numSat.AngularVelocityY = 0;
+GMAT numSat.AngularVelocityZ = 0;
+
+%----------------------------------------
+%---------- Hardware Components
+%----------------------------------------
+
+Create FuelTank DefaultFuelTank;
+GMAT DefaultFuelTank.AllowNegativeFuelMass = false;
+GMAT DefaultFuelTank.FuelMass = 756;
+GMAT DefaultFuelTank.Pressure = 1500;
+GMAT DefaultFuelTank.Temperature = 20;
+GMAT DefaultFuelTank.RefTemperature = 20;
+GMAT DefaultFuelTank.Volume = 0.75;
+GMAT DefaultFuelTank.FuelDensity = 1260;
+GMAT DefaultFuelTank.PressureModel = PressureRegulated;
+
+Create Thruster DefaultThruster;
+GMAT DefaultThruster.CoordinateSystem = Local;
+GMAT DefaultThruster.Origin = Earth;
+GMAT DefaultThruster.Axes = VNB;
+GMAT DefaultThruster.ThrustDirection1 = 1;
+GMAT DefaultThruster.ThrustDirection2 = 0;
+GMAT DefaultThruster.ThrustDirection3 = 0;
+GMAT DefaultThruster.DutyCycle = 1;
+GMAT DefaultThruster.ThrustScaleFactor = 1;
+GMAT DefaultThruster.DecrementMass = true;
+GMAT DefaultThruster.Tank = {DefaultFuelTank};
+GMAT DefaultThruster.GravitationalAccel = 9.810000000000001;
+GMAT DefaultThruster.C1 = 10;
+GMAT DefaultThruster.C2 = 0;
+GMAT DefaultThruster.C3 = 0;
+GMAT DefaultThruster.C4 = 0;
+GMAT DefaultThruster.C5 = 0;
+GMAT DefaultThruster.C6 = 0;
+GMAT DefaultThruster.C7 = 0;
+GMAT DefaultThruster.C8 = 0;
+GMAT DefaultThruster.C9 = 0;
+GMAT DefaultThruster.C10 = 0;
+GMAT DefaultThruster.C11 = 0;
+GMAT DefaultThruster.C12 = 0;
+GMAT DefaultThruster.C13 = 0;
+GMAT DefaultThruster.C14 = 0;
+GMAT DefaultThruster.C15 = 0;
+GMAT DefaultThruster.C16 = 0;
+GMAT DefaultThruster.K1 = 300;
+GMAT DefaultThruster.K2 = 0;
+GMAT DefaultThruster.K3 = 0;
+GMAT DefaultThruster.K4 = 0;
+GMAT DefaultThruster.K5 = 0;
+GMAT DefaultThruster.K6 = 0;
+GMAT DefaultThruster.K7 = 0;
+GMAT DefaultThruster.K8 = 0;
+GMAT DefaultThruster.K9 = 0;
+GMAT DefaultThruster.K10 = 0;
+GMAT DefaultThruster.K11 = 0;
+GMAT DefaultThruster.K12 = 0;
+GMAT DefaultThruster.K13 = 0;
+GMAT DefaultThruster.K14 = 0;
+GMAT DefaultThruster.K15 = 0;
+GMAT DefaultThruster.K16 = 0;
+
+
+
+
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel numProp_ForceModel;
+GMAT numProp_ForceModel.CentralBody = Earth;
+GMAT numProp_ForceModel.PrimaryBodies = {Earth};
+GMAT numProp_ForceModel.Drag = None;
+GMAT numProp_ForceModel.SRP = Off;
+GMAT numProp_ForceModel.RelativisticCorrection = Off;
+GMAT numProp_ForceModel.ErrorControl = RSSStep;
+GMAT numProp_ForceModel.GravityField.Earth.Degree = 4;
+GMAT numProp_ForceModel.GravityField.Earth.Order = 4;
+GMAT numProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+GMAT numProp_ForceModel.GravityField.Earth.EarthTideModel = 'None';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator numProp;
+GMAT numProp.FM = numProp_ForceModel;
+GMAT numProp.Type = RungeKutta89;
+GMAT numProp.InitialStepSize = 60;
+GMAT numProp.Accuracy = 9.999999999999999e-012;
+GMAT numProp.MinStep = 0.001;
+GMAT numProp.MaxStep = 2700;
+GMAT numProp.MaxStepAttempts = 50;
+GMAT numProp.StopIfAccuracyIsViolated = false;
+
+%----------------------------------------
+%---------- Burns
+%----------------------------------------
+
+Create ImpulsiveBurn DefaultIB;
+GMAT DefaultIB.CoordinateSystem = Local;
+GMAT DefaultIB.Origin = Earth;
+GMAT DefaultIB.Axes = VNB;
+GMAT DefaultIB.Element1 = 0.5;
+GMAT DefaultIB.Element2 = 0;
+GMAT DefaultIB.Element3 = 0;
+GMAT DefaultIB.DecrementMass = false;
+GMAT DefaultIB.Isp = 300;
+GMAT DefaultIB.GravitationalAccel = 9.810000000000001;
+
+Create FiniteBurn fb;
+GMAT fb.Thrusters = {DefaultThruster};
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+
+Create ReportFile rf;
+GMAT rf.SolverIterations = Current;
+GMAT rf.UpperLeft = [ 0 0 ];
+GMAT rf.Size = [ 0 0 ];
+GMAT rf.RelativeZOrder = 0;
+GMAT rf.Maximized = false;
+GMAT rf.Filename = 'EPHEM_CCSDS_GMT3732-EphemStressTests.report';
+GMAT rf.Precision = 16;
+GMAT rf.Add = {numSat.UTCGregorian, numSat.X, numSat.Y, numSat.Z, numSat.VX, numSat.VY, numSat.VZ};
+GMAT rf.WriteHeaders = false;
+GMAT rf.LeftJustify = On;
+GMAT rf.ZeroFill = Off;
+GMAT rf.ColumnWidth = 27;
+GMAT rf.WriteReport = true;
+
+Create ReportFile TAcount;
+GMAT TAcount.Filename = 'EPHEM_CCSDS_GMT3732-TAcount.report'
+GMAT TAcount.SolverIterations = Current;
+GMAT TAcount.UpperLeft = [ 0 0 ];
+GMAT TAcount.Size = [ 0 0 ];
+%GMAT TAcount.Add = {numSat.UTCModJulian, numSat.Earth.TA}
+GMAT TAcount.RelativeZOrder = 0;
+GMAT TAcount.Maximized = false;
+GMAT TAcount.Precision = 16;
+GMAT TAcount.WriteHeaders = true;
+GMAT TAcount.LeftJustify = On;
+GMAT TAcount.ZeroFill = Off;
+GMAT TAcount.ColumnWidth = 20;
+GMAT TAcount.WriteReport = true;
+
+Create EphemerisFile EphemerisFile1;
+GMAT EphemerisFile1.UpperLeft = [ 0 0 ];
+GMAT EphemerisFile1.Size = [ 0 0 ];
+GMAT EphemerisFile1.RelativeZOrder = 0;
+GMAT EphemerisFile1.Maximized = false;
+GMAT EphemerisFile1.Spacecraft = numSat;
+GMAT EphemerisFile1.Filename = 'EPHEM_CCSDS_GMT3732-EphemStressTests.eph';
+GMAT EphemerisFile1.FileFormat = CCSDS-OEM;
+GMAT EphemerisFile1.EpochFormat = UTCGregorian;
+GMAT EphemerisFile1.InitialEpoch = InitialSpacecraftEpoch;
+GMAT EphemerisFile1.FinalEpoch = FinalSpacecraftEpoch;
+GMAT EphemerisFile1.StepSize = 60;
+GMAT EphemerisFile1.InterpolationOrder = 7;
+GMAT EphemerisFile1.CoordinateSystem = EarthMJ2000Eq;
+GMAT EphemerisFile1.WriteEphemeris = true;
+
+Create OrbitView OrbitView1;
+GMAT OrbitView1.SolverIterations = Current;
+GMAT OrbitView1.UpperLeft = [ 0.001176470588235294 0 ];
+GMAT OrbitView1.Size = [ 0.8 0.8493723849372385 ];
+GMAT OrbitView1.RelativeZOrder = 679;
+GMAT OrbitView1.Maximized = false;
+GMAT OrbitView1.Add = {numSat, Earth};
+GMAT OrbitView1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OrbitView1.DrawObject = [ true true ];
+GMAT OrbitView1.OrbitColor = [ 255 32768 ];
+GMAT OrbitView1.TargetColor = [ 8421440 0 ];
+GMAT OrbitView1.DataCollectFrequency = 1;
+GMAT OrbitView1.UpdatePlotFrequency = 50;
+GMAT OrbitView1.NumPointsToRedraw = 0;
+GMAT OrbitView1.ShowPlot = true;
+GMAT OrbitView1.ViewPointReference = Earth;
+GMAT OrbitView1.ViewPointVector = [ 0 0 30000 ];
+GMAT OrbitView1.ViewDirection = Earth;
+GMAT OrbitView1.ViewScaleFactor = 1;
+GMAT OrbitView1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OrbitView1.ViewUpAxis = Z;
+GMAT OrbitView1.CelestialPlane = Off;
+GMAT OrbitView1.XYPlane = On;
+GMAT OrbitView1.WireFrame = Off;
+GMAT OrbitView1.Axes = On;
+GMAT OrbitView1.Grid = Off;
+GMAT OrbitView1.SunLine = Off;
+GMAT OrbitView1.UseInitialView = On;
+GMAT OrbitView1.StarCount = 7000;
+GMAT OrbitView1.EnableStars = On;
+GMAT OrbitView1.EnableConstellations = On;
+
+%----------------------------------------
+%---------- Arrays, Variables, Strings
+%----------------------------------------
+Create Variable I dt stopEpoch stopTA ifTest savingNum SavingEpoch blockCount;
+Create String newBlock blockType;
+GMAT newBlock = '==== New Ephem Block =====';
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+
+blockCount = 0;
+
+%===============================================================
+%  ===== Default Prop, Mixed Stop/Logic Tests, Various Discontinuities:
+%===============================================================
+
+%  Take a few propagation steps and stop at step size
+Propagate numProp(numSat);
+Propagate numProp(numSat);
+Propagate numProp(numSat);
+Propagate numProp(numSat);
+Propagate numProp(numSat);
+Propagate numProp(numSat);
+
+% Propagate and stop at Elapsed time
+Propagate numProp(numSat) {numSat.ElapsedSecs = 5000};
+
+
+% Propagate and stop at Absolute time
+GMAT dt = 0.2;
+GMAT stopEpoch = numSat.TAIModJulian + dt;
+Propagate numProp(numSat) {numSat.TAIModJulian = stopEpoch};
+
+%  While loop in step mode
+While numSat.ElapsedDays <= 0.4
+   Propagate numProp(numSat);
+
+EndWhile;
+
+%  While loop in elapsed time
+While numSat.ElapsedDays <= 0.6
+   Propagate numProp(numSat) {numSat.ElapsedDays = 0.0005};
+EndWhile;
+
+Propagate numProp(numSat) {numSat.Earth.Periapsis};
+
+% While loop in Stop condition like TA/MA, periapsis etc 
+While numSat.ElapsedDays <= 1
+   
+   GMAT stopTA = numSat.Earth.TA + 5;
+   
+   Propagate numProp(numSat) {numSat.Earth.TA = stopTA};
+   Report TAcount numSat.UTCModJulian numSat.Earth.TA;
+
+EndWhile;
+%
+
+
+%For in step
+For I = 1:1:50;
+   Propagate numProp(numSat);
+EndFor;
+
+%  For in elapsed time
+For I = 1:1:50;
+   Propagate numProp(numSat) {numSat.ElapsedDays = 0.003};
+EndFor;
+
+
+% For in stop condition
+
+For I = 1:1:50;
+   
+   GMAT stopTA = numSat.Earth.TA + 7;
+   Propagate numProp(numSat) {numSat.Earth.TA = stopTA};
+   Report TAcount numSat.UTCModJulian numSat.Earth.TA;
+EndFor;
+
+
+% blockCount = blockCount + 1;
+% Report rf newBlock blockType blockCount;
+% Report rf numSat.UTCGregorian numSat.X numSat.Y numSat.Z numSat.VX numSat.VY numSat.VZ
+
+
+%  If test
+
+GMAT ifTest = 4;
+If ifTest < 5
+   
+   % For in step
+   For I = 1:1:50;
+      Propagate numProp(numSat);
+   EndFor;
+   
+   % For in elapsed time
+   For I = 1:1:50;
+      Propagate numProp(numSat) {numSat.ElapsedSecs = 30};
+   EndFor;
+   
+   % For in stop condition
+   For I = 1:1:25;
+      
+      GMAT stopTA = numSat.Earth.TA + 9;
+      Propagate numProp(numSat) {numSat.Earth.TA = stopTA};
+      Report TAcount numSat.UTCModJulian numSat.Earth.TA;
+   EndFor;
+
+EndIf;
+
+
+% Impulsive-burn Discontinuity
+
+Propagate numProp(numSat) {numSat.Earth.Periapsis};
+Maneuver DefaultIB(numSat);
+
+blockCount = blockCount + 1;
+blockType = 'Impulsive-burn Discontinuity';
+Report rf newBlock blockCount blockType
+Report rf numSat.UTCGregorian numSat.X numSat.Y numSat.Z numSat.VX numSat.VY numSat.VZ;
+
+Propagate numProp(numSat) {numSat.ElapsedDays = 0.25};
+
+
+% Finite-burn Discontinuity
+
+blockCount = blockCount + 1;
+blockType = 'Begin Finite-burn Discontinuity';
+Report rf newBlock blockCount blockType;
+Report rf numSat.UTCGregorian numSat.X numSat.Y numSat.Z numSat.VX numSat.VY numSat.VZ;
+
+BeginFiniteBurn fb(numSat);
+Propagate numProp(numSat) {numSat.ElapsedSecs = 5000};
+
+blockCount = blockCount + 1;
+blockType = 'End Finite-burn Discontinuity';
+Report rf newBlock blockCount blockType;
+Report rf numSat.UTCGregorian numSat.X numSat.Y numSat.Z numSat.VX numSat.VY numSat.VZ;
+
+EndFiniteBurn fb(numSat);
+
+
+Propagate numProp(numSat) {numSat.ElapsedSecs = 1000};
+
+
+% Assignment-Command Discontinuity
+
+
+GMAT savingNum = 1;
+GMAT SavingEpoch = numSat.TAIModJulian;  % original =  21546.7733306678
+GMAT SavingEpoch = SavingEpoch + 45 / (60 * 24);   % 21546.80458
+
+For I = 0:1:120;
+   
+   Propagate numProp(numSat) {numSat.ElapsedSecs = 60};
+   
+   If numSat.TAIModJulian > SavingEpoch
+      If savingNum == 1.0
+         GMAT numSat.VZ = -2.7;
+         blockCount = blockCount + 1;
+         blockType = 'numSat.VZ = -2.7';
+         Report rf newBlock blockCount blockType
+         Report rf numSat.UTCGregorian numSat.X numSat.Y numSat.Z numSat.VX numSat.VY numSat.VZ;
+      Else
+         If savingNum == 2.0
+            GMAT numSat.VZ = -3.9;
+         EndIf;
+      EndIf;
+      GMAT savingNum = 0;
+   EndIf;
+EndFor;
+
+
+
+

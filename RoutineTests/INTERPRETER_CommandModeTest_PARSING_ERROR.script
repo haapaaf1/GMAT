@@ -1,0 +1,9 @@
+Create Variable x
+Create Variable y
+
+%Stop;
+x = x + 1;
+
+Create Variable z
+
+BeginMissionSequence

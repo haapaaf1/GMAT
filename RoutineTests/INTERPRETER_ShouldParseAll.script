@@ -26,7 +26,8 @@ GMAT sat1.DryMass = 250.0;
 
 %--- Copy sat1 to sat2
 Create Spacecraft sat2;
-GMAT sat2 = sat1;
+%% Setting object to object in init mode is no longer allowed 2013.02.12
+%%GMAT sat2 = sat1;
 
 %--- Create ForceModel
 Create ForceModel fm;
@@ -111,6 +112,7 @@ myStr1 = 'This is my string 1' ;
 
 BeginMissionSequence;
 
+GMAT sat2 = sat1;
 Report rf var1 sat1.A1ModJulian a1EpochStr1 a1Epoch1 satX1;
 
 Propagate prop(sat1, {sat1.ElapsedDays = 0.100});

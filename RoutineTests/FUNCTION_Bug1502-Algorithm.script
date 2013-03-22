@@ -64,7 +64,8 @@ prop.MaxStep                      = 86400;
 prop.MaxStepAttempts              = 50;
 
 
-dummy_sc                          = sc;
+%% Setting object to object in init mode is no longer allowed 2013.02.12
+%%dummy_sc                          = sc;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%Define the L2 environment - Earth/Moon Barycenter,
@@ -167,6 +168,8 @@ RBoundary =  -400000; %% = Boundaries(1, 2); (Due to bug 2043 fix)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 BeginMissionSequence;
+
+dummy_sc = sc;
 
 Report my_output sc.UTCGregorian burnBaby.Element1 in_reg sc.L2RLP.X burnBaby_A burnBaby_B burnBaby_T;
 
