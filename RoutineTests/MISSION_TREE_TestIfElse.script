@@ -94,6 +94,7 @@ GMAT EarthMoonL2.Point = L2;
 
 Create Variable I J;
 Create Variable var1 var2 var3 var4;
+Create Variable count;
 
 % ------------------------------Coordinate Systems-------------------------
 
@@ -262,7 +263,8 @@ If var1 == 1
    EndIf
 EndIf
 
-If Sat.ElapsedDays < 1.0
+count = 0;
+If count < 1
    ClearPlot ERRot_YZ;
    For I = 1:1:10;
        If I > 5
@@ -273,8 +275,9 @@ If Sat.ElapsedDays < 1.0
           var2 = 2;
        EndIf
    EndFor;
+   count = count + 1;
 Else
-   While Sat.ElapsedDays < 1.0
+   While count < 1.0
       If var1 == 1
          var3 = 3;
          var4 = 3;
@@ -282,6 +285,7 @@ Else
          var3 = 4;
          var4 = 4;
       EndIf
+      count = count + 1;
    EndWhile;
    MarkPoint ERRot_YZ;
 EndIf;
