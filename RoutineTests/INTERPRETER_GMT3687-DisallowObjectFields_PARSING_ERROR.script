@@ -1,0 +1,33 @@
+Create Spacecraft sc;
+Create Propagator prop
+Create ReportFile rf
+Create DifferentialCorrector DC;
+Create ImpulsiveBurn TOI;
+
+BeginMissionSequence
+
+sc.ModelFile = 'DUMMY';
+sc.ModelScale = 30;
+
+sc.ModelScale = 10;
+var1 = aProp.MaxStep;
+
+sc.SMA = aProp.MaxStep;
+Report r var1 sc.SMA
+
+If prop.MinStep < 1
+EndIf
+
+While rf.ColumnWidth > 10
+EndWhile
+
+Propagate prop (sc) {sc.ModelScale = 10.0};
+
+Report rf sc.ModelFile
+
+Target DC;
+   Vary DC(TOI.Element1 = sc.ModelScale, {Perturbation = 0.0001, MaxStep = 0.2, Lower = 0, Upper = 3.14159});
+   Maneuver TOI(sc);
+   Propagate prop(sc) {sc.Apoapsis};
+   Achieve DC(sc.ModelScale = 10, {Tolerance = 0.1});
+EndTarget;  % For targeter DC
