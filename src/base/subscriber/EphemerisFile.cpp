@@ -12,8 +12,8 @@
 // Created: 2009/09/02
 //
 /**
- * Writes a spacecraft orbit states or attitude to an ephemeris file either
- * CCSDS or SPK format.
+ * Writes a spacecraft orbit states or attitude to an ephemeris file in
+ * CCSDS, SPK, or Code-500 format.
  */
 //------------------------------------------------------------------------------
 
@@ -656,6 +656,21 @@ bool EphemerisFile::Validate()
          stepSizeInSecs = 60.0;
       }
    }
+   
+   if (fileFormat == "SPK" || fileFormat == "Code-500")
+   {
+      if (outCoordSystem)
+      {
+         if (!outCoordSystem->AreAxesOfType("MJ2000Eq"))
+         {
+            SubscriberException se;
+            se.SetDetails("%s ephemeris file allows output coordinate system "
+                          "with MJ2000Eq Axis only", fileFormat.c_str());
+            throw se;
+         }
+      }
+   }
+   
    return true;
 }
 
@@ -711,6 +726,21 @@ bool EphemerisFile::Initialize()
    else
       throw SubscriberException
          ("FileFormat \"" + fileFormat + "\" is not valid");
+   
+   if (fileFormat == "SPK" || fileFormat == "Code-500")
+   {
+      MessageInterface::ShowMessage("==> outCoordSystem=<%p>\n", outCoordSystem);
+      if (outCoordSystem)
+      {
+         if (!outCoordSystem->AreAxesOfType("MJ2000Eq"))
+         {
+            SubscriberException se;
+            se.SetDetails("%s ephemeris file allows output coordinate system "
+                          "with MJ2000Eq Axis only", fileFormat.c_str());
+            throw se;
+         }
+      }
+   }
    
    // Initialize data
    writeMetaDataOption = 0;
