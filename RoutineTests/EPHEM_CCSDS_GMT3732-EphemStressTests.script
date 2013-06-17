@@ -209,7 +209,7 @@ GMAT EphemCCSDS.FinalEpoch = FinalSpacecraftEpoch;
 GMAT EphemCCSDS.StepSize = 60;
 GMAT EphemCCSDS.InterpolationOrder = 7;
 GMAT EphemCCSDS.CoordinateSystem = EarthMJ2000Eq;
-GMAT EphemCCSDS.WriteEphemeris = false;
+GMAT EphemCCSDS.WriteEphemeris = true;
 
 Create EphemerisFile EphemCode500;
 GMAT EphemCode500.UpperLeft = [ 0 0 ];

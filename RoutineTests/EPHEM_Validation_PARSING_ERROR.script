@@ -142,7 +142,7 @@ ReportFile1.UpperLeft = [ 0 0 ];
 ReportFile1.Size = [ 0 0 ];
 ReportFile1.RelativeZOrder = 0;
 ReportFile1.Maximized = false;
-ReportFile1.Filename = 'EPHEM_All_3_Types_Report.txt';
+ReportFile1.Filename = 'EPHEM_Validation_PARSING_ERROR.txt';
 ReportFile1.Precision = 16;
 ReportFile1.Add = {DefaultSC.A1ModJulian, DefaultSC.EarthMJ2000Eq.X};
 ReportFile1.WriteHeaders = true;
@@ -157,14 +157,15 @@ EphemCCSDS.Size = [ 0 0 ];
 EphemCCSDS.RelativeZOrder = 0;
 EphemCCSDS.Maximized = false;
 EphemCCSDS.Spacecraft = DefaultSC;
-EphemCCSDS.Filename = 'EPHEM_All_3_Types_CCSDS.eph';
+EphemCCSDS.Filename = 'EPHEM_Validation_CCSDS.eph';
 EphemCCSDS.FileFormat = CCSDS-OEM;
-EphemCCSDS.EpochFormat = UTCGregorian;
+EphemCCSDS.EpochFormat = UTCGregorian; %% Error
 EphemCCSDS.InitialEpoch = InitialSpacecraftEpoch;
 EphemCCSDS.FinalEpoch = FinalSpacecraftEpoch;
 EphemCCSDS.StepSize = IntegratorSteps;
 EphemCCSDS.InterpolationOrder = 7;
-EphemCCSDS.CoordinateSystem = EarthMJ2000Eq;
+%EphemCCSDS.CoordinateSystem = EarthMJ2000Eq;
+EphemCCSDS.CoordinateSystem = EarthFixed;
 EphemCCSDS.WriteEphemeris = true;
 
 Create EphemerisFile EphemSPK;
@@ -173,14 +174,15 @@ EphemSPK.Size = [ 0 0 ];
 EphemSPK.RelativeZOrder = 0;
 EphemSPK.Maximized = false;
 EphemSPK.Spacecraft = DefaultSC;
-EphemSPK.Filename = 'EPHEM_All_3_Types_SPK.eph';
+EphemSPK.Filename = 'EPHEM_Validation_SPK.bsp';
 EphemSPK.FileFormat = SPK;
 EphemSPK.EpochFormat = UTCGregorian;
 EphemSPK.InitialEpoch = InitialSpacecraftEpoch;
 EphemSPK.FinalEpoch = FinalSpacecraftEpoch;
-EphemSPK.StepSize = IntegratorSteps;
+EphemSPK.StepSize = 60;
 EphemSPK.InterpolationOrder = 7;
-EphemSPK.CoordinateSystem = EarthMJ2000Eq;
+%EphemSPK.CoordinateSystem = EarthMJ2000Eq;
+EphemSPK.CoordinateSystem = EarthFixed; %% Not allowed in validation
 EphemSPK.WriteEphemeris = true;
 
 Create EphemerisFile EphemCODE500;
@@ -196,9 +198,13 @@ EphemCODE500.InitialEpoch = InitialSpacecraftEpoch;
 EphemCODE500.FinalEpoch = FinalSpacecraftEpoch;
 EphemCODE500.StepSize = 60;
 EphemCODE500.InterpolationOrder = 7;
-EphemCODE500.CoordinateSystem = EarthMJ2000Eq;
+%EphemCODE500.CoordinateSystem = EarthMJ2000Eq;
+EphemCODE500.CoordinateSystem = EarthFixed; %% Not allowed in validation
 EphemCODE500.WriteEphemeris = true;
 
+Create EphemerisFile EphemCODE500_A;
+EphemCODE500_A.FileFormat = Code-500;
+EphemCODE500_A.StepSize = IntegratorSteps;
 
 %----------------------------------------
 %---------- Mission Sequence
